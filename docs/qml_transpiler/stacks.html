@@ -35,40 +35,40 @@ import warnings
 
 from importlib.util import find_spec
 
-
 import qiskit
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 
 try:
     import bqskit
-    from bqskit.ext import bqskit_to_qiskit
-    
+    from bqskit.ext import bqskit_to_qiskit  # noqa: F401
+
 except ModuleNotFoundError:
-    
+
     warnings.warn(&#34;BQSKit not found&#34;, ImportWarning)
 
 try:
     import pytket
     import pytket.extensions.qiskit
-    
+
 except ModuleNotFoundError:
-    
+
     warnings.warn(&#34;Pytket not found&#34;, ImportWarning)
 
 
 # Check Module Function
 
 def check_if_module_is_imported(module_name):
-    
+
     if find_spec(module_name) is None:
-        
+
         raise ModuleNotFoundError(f&#34;{module_name} not found - use &#34;
-                                  f&#34;&#39;pip install qml_transpiler[{module_name}]&#39;&#34;) 
+                                  f&#34;&#39;pip install qml_transpiler[{module_name}]&#39;&#34;)
+
 
 # 1) Get Stack Pass Manager
 
 def get_stack_pass_manager(stack=&#34;qiskit&#34;, **key_arguments):
-    
+
     &#34;&#34;&#34;
     Get a Qiskit transpiler pass manager with passes for specified stack.
 
@@ -80,56 +80,56 @@ def get_stack_pass_manager(stack=&#34;qiskit&#34;, **key_arguments):
         **key_arguments: Additional keyword arguments for the pass manager.
                          Usually passed from transpile function.
                          Stack-specific argument is &#39;qsearch_block_size&#39;
-                         for stacks that contain QSearch pass. 
+                         for stacks that contain QSearch pass.
 
     Returns:
         PassManager: The Qiskit transpiler pass manager.
     &#34;&#34;&#34;
 
     # Stack Implemented Check
-    
+
     IMPLEMENTED_STACKS = [&#39;qiskit&#39;,
                           &#39;qiskit_qsearch&#39;,
                           &#39;qiskit_qfactor_qsearch&#39;,
                           &#39;qiskit_pytket&#39;]
-    
+
     if stack not in IMPLEMENTED_STACKS:
         raise NotImplementedError(f&#34;Stack &#39;{stack}&#39; not implemented&#34;)
-        
+
     # Pass Manager
-    
+
     DEFAULT_OPTIMIZATION_LEVEL = 1
-    
+
     backend = key_arguments.pop(&#34;backend&#34;, None)
     qsearch_block_size = key_arguments.pop(&#34;qsearch_block_size&#34;, None)
     optimization_level = key_arguments.pop(&#34;optimization_level&#34;, DEFAULT_OPTIMIZATION_LEVEL)
-    
+
     pass_manager = generate_preset_pass_manager(optimization_level, backend, **key_arguments)
 
     if stack == &#34;qiskit_qsearch&#34;:
-        
+
         pass_manager.init.append([
             QSearchPass(backend=backend,
                         qsearch_block_size=qsearch_block_size)])
-        
+
     if stack == &#34;qiskit_qfactor_qsearch&#34;:
-            
+
         pass_manager.init.append([
             QFactorPass(backend=backend,
                         qsearch_block_size=qsearch_block_size)])
-        
+
     if stack == &#34;qiskit_pytket&#34;:
 
         pass_manager.init.append([
-            PytketPass(backend=backend)])    
-        
-    return pass_manager   
+            PytketPass(backend=backend)])
+
+    return pass_manager
 
 
 # 2) Model From IBMQ Backend
 
 def model_from_ibmq_backend(ibmq_backend):
-    
+
     &#34;&#34;&#34;
     Create a machine model from an IBMQ backend.
 
@@ -139,31 +139,31 @@ def model_from_ibmq_backend(ibmq_backend):
     Returns:
         MachineModel: The machine model representing the backend.
     &#34;&#34;&#34;
-    
+
     # Based on https://github.com/BQSKit/bqskit/blob/main/bqskit/ext/qiskit/models.py
-    
+
     IBMQ_BASIS_GATES_LIMIT = 10
-    
+
     if isinstance(ibmq_backend, (qiskit.providers.BackendV1,
                                  qiskit.providers.fake_provider.FakeBackend)):
-        
+
         # print(&#39;IBMQ Backend Version 1&#39;)
-        
+
         qubits_count = ibmq_backend.configuration().n_qubits
         basis_gates = ibmq_backend.configuration().basis_gates
         coupling_map = ibmq_backend.configuration().coupling_map
-        
+
     if isinstance(ibmq_backend, (qiskit.providers.BackendV2,
                                  qiskit.providers.fake_provider.FakeBackendV2)):
-        
+
         # print(&#39;IBMQ Backend Version 2&#39;)
-        
+
         qubits_count = ibmq_backend.target.num_qubits
         basis_gates = ibmq_backend.target.operation_names
         coupling_map = ibmq_backend.target.build_coupling_map()
-        
+
     # Gate Set
-            
+
     gate_dict = {&#39;cx&#39;: bqskit.ir.gates.CNOTGate(),
                  &#39;cz&#39;: bqskit.ir.gates.CZGate(),
                  &#39;u3&#39;: bqskit.ir.gates.U3Gate(),
@@ -173,38 +173,38 @@ def model_from_ibmq_backend(ibmq_backend):
                  &#39;sx&#39;: bqskit.ir.gates.SXGate(),
                  &#39;x&#39;: bqskit.ir.gates.XGate(),
                  &#39;p&#39;: bqskit.ir.gates.RZGate()}
-    
+
     if len(basis_gates) &gt; IBMQ_BASIS_GATES_LIMIT:
-        
-        gate_set = {bqskit.ir.gates.CNOTGate(), 
-                    bqskit.ir.gates.RZGate(), 
+
+        gate_set = {bqskit.ir.gates.CNOTGate(),
+                    bqskit.ir.gates.RZGate(),
                     bqskit.ir.gates.SXGate()}
-    else:        
-        
-        gate_set = {gate_dict.get(basis_gate) 
+    else:
+
+        gate_set = {gate_dict.get(basis_gate)
                     for basis_gate in basis_gates} - {None}
-        
+
     # Coupling List
-    
+
     coupling_list = None
-    
+
     if coupling_map is not None:
 
         coupling_list = list({tuple(sorted(edge)) for edge in coupling_map})
-        
+
     # Mashine Model
-        
+
     machine_model = bqskit.MachineModel(qubits_count, coupling_list, gate_set)
-    
+
     return machine_model
 
 
 # 3) QSearch
 
-## 3.1) Run QSearch Synthesis
+# 3.1) Run QSearch Synthesis
 
 def run_qsearch_synthesis(bqskit_circuit, block_size):
-    
+
     &#34;&#34;&#34;
     Run QSearch synthesis for a BQSKit circuit.
 
@@ -215,7 +215,7 @@ def run_qsearch_synthesis(bqskit_circuit, block_size):
     Returns:
         bqskit.Circuit: The synthesized BQSKit circuit.
     &#34;&#34;&#34;
-    
+
     # Minimal Compilation Task
     # compilation_task = bqskit.compiler.CompilationTask(bqskit_circuit,
     #                                                    [bqskit.passes.QSearchSynthesisPass()])
@@ -235,10 +235,10 @@ def run_qsearch_synthesis(bqskit_circuit, block_size):
     return synthesized_circuit
 
 
-## 3.2) QSearch Pass
+# 3.2) QSearch Pass
 
 class QSearchPass(qiskit.transpiler.basepasses.TransformationPass):
-    
+
     &#34;&#34;&#34;
     Qiskit transpiler pass for running QSearch synthesis.
 
@@ -248,41 +248,40 @@ class QSearchPass(qiskit.transpiler.basepasses.TransformationPass):
     &#34;&#34;&#34;
 
     def __init__(self, backend, qsearch_block_size=None):
-        
+
         check_if_module_is_imported(&#39;bqskit&#39;)
-        
+
         if qsearch_block_size is None:
             qsearch_block_size = 2
-        
+
         super().__init__()
-        
+
         self.machine_model = model_from_ibmq_backend(backend)
         self.qsearch_block_size = qsearch_block_size
 
-
     def run(self, dag):
-        
+
         # print(&#34;Running QSearchPass&#34;)
-                
+
         qiskit_circuit = qiskit.converters.dag_to_circuit(dag)
-        
+
         bqskit_circuit = bqskit.ext.qiskit_to_bqskit(qiskit_circuit)
-        
-        synthesized_circuit = run_qsearch_synthesis(bqskit_circuit, self.qsearch_block_size)        
+
+        synthesized_circuit = run_qsearch_synthesis(bqskit_circuit, self.qsearch_block_size)
 
         transpiled_qiskit_circuit = bqskit.ext.bqskit_to_qiskit(synthesized_circuit)
-        
+
         new_dag = qiskit.converters.circuit_to_dag(transpiled_qiskit_circuit)
 
         return new_dag
-    
-    
+
+
 # 4) QFactor
 
-## 4.1) QFactor Pass
+# 4.1) QFactor Pass
 
 class QFactorPass(qiskit.transpiler.basepasses.TransformationPass):
-    
+
     &#34;&#34;&#34;
     Qiskit transpiler pass for running QFactor synthesis.
 
@@ -292,43 +291,42 @@ class QFactorPass(qiskit.transpiler.basepasses.TransformationPass):
     &#34;&#34;&#34;
 
     def __init__(self, backend, qsearch_block_size=None):
-        
+
         check_if_module_is_imported(&#39;bqskit&#39;)
-        
+
         if qsearch_block_size is None:
             qsearch_block_size = 2
-        
+
         super().__init__()
-        
+
         self.machine_model = model_from_ibmq_backend(backend)
         self.qsearch_block_size = qsearch_block_size
 
-
     def run(self, dag):
-        
+
         # print(&#34;Running QFactorPass&#34;)
-                
+
         qiskit_circuit = qiskit.converters.dag_to_circuit(dag)
-        
+
         bqskit_circuit = bqskit.ext.qiskit_to_bqskit(qiskit_circuit)
-        
+
         # Ansatz
-        
+
         qubits_count = bqskit_circuit.num_qudits
-        
+
         qubit_pairs = np.transpose(np.triu_indices(qubits_count, 1))
-        
+
         ansatz_circuit = bqskit.ir.circuit.Circuit(qubits_count)
-        
+
         for qubit_pair in qubit_pairs:
 
             ansatz_circuit.append_gate(bqskit.ir.gates.VariableUnitaryGate(num_qudits=2),
                                        location=qubit_pair)
-            
+
         # QFactor Optimization
-        
+
         target = bqskit_circuit.get_unitary()
-        
+
         instantiated_circuit = ansatz_circuit.copy()
 
         instantiated_circuit.instantiate(
@@ -341,91 +339,87 @@ class QFactorPass(qiskit.transpiler.basepasses.TransformationPass):
             min_iters=1000,     # Minimum number of iterations
             slowdown_factor=0,  # Larger numbers slowdown optimization to avoid local minima
         )
-        
+
         # QSearch Synthesis
-        
-        synthesized_circuit = run_qsearch_synthesis(instantiated_circuit, self.qsearch_block_size)        
+
+        synthesized_circuit = run_qsearch_synthesis(instantiated_circuit, self.qsearch_block_size)
 
         transpiled_qiskit_circuit = bqskit.ext.bqskit_to_qiskit(synthesized_circuit)
-        
+
         new_dag = qiskit.converters.circuit_to_dag(transpiled_qiskit_circuit)
 
         return new_dag
-    
-    
+
+
 # 5) Pytket
 
-## 5.1)Pytket Pass
+# 5.1)Pytket Pass
 
 class PytketPass(qiskit.transpiler.basepasses.TransformationPass):
-    
+
     &#34;&#34;&#34;
     Qiskit transpiler pass for running Pytket compilation.
-    
+
     Reference: https://github.com/CQCL/tket/blob/main/pytket/pytket/backends/backend.py
 
     Args:
         pytket_backend: The Pytket backend.
     &#34;&#34;&#34;
-    
+
     def __init__(self, backend=None):
-        
+
         check_if_module_is_imported(&#39;pytket&#39;)
-        
+
         # Noise Model
-        
+
         if backend is None:
             noise_model = None
-            
+
         elif hasattr(backend, &#39;noise_model&#39;):
             noise_model = backend.noise_model
-            
+
         elif hasattr(backend, &#39;options&#39;):
             noise_model = backend.options.noise_model
-            
+
         # Aer Backend
 
         pytket_backend = pytket.extensions.qiskit.AerBackend(
             noise_model=noise_model)
-        
+
         super().__init__()
-        
+
         self.pytket_backend = pytket_backend
 
-
     def run(self, dag):
-        
+
         # print(&#34;Running PytketPass&#34;)
-                
+
         qiskit_circuit = qiskit.converters.dag_to_circuit(dag)
-        
+
         pytket_circuit = pytket.extensions.qiskit.qiskit_to_tk(qiskit_circuit)
-        
-        
+
         # Compilation
-        
+
         compilation_pass = self.pytket_backend.default_compilation_pass(optimisation_level=2)
-        
+
         compilation_pass.apply(pytket_circuit)
-        
-        
+
         # Rebase
-        
+
         IBMQ_GATES = {pytket.OpType.CX,
                       pytket.OpType.Rz,
                       pytket.OpType.SX,
                       pytket.OpType.X}
-                
+
         rebase_pass = pytket.passes.SequencePass([
             pytket.passes.FullPeepholeOptimise(),
             pytket.passes.auto_rebase_pass(gateset=IBMQ_GATES)
         ])
 
         rebase_pass.apply(pytket_circuit)
-        
 
         transpiled_qiskit_circuit = pytket.extensions.qiskit.tk_to_qiskit(pytket_circuit)
-        
+
         new_dag = qiskit.converters.circuit_to_dag(transpiled_qiskit_circuit)
 
         return new_dag</code></pre>
@@ -448,11 +442,11 @@ class PytketPass(qiskit.transpiler.basepasses.TransformationPass):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def check_if_module_is_imported(module_name):
-    
+
     if find_spec(module_name) is None:
-        
+
         raise ModuleNotFoundError(f&#34;{module_name} not found - use &#34;
-                                  f&#34;&#39;pip install qml_transpiler[{module_name}]&#39;&#34;) </code></pre>
+                                  f&#34;&#39;pip install qml_transpiler[{module_name}]&#39;&#34;)</code></pre>
 </details>
 </dd>
 <dt id="qml_transpiler.stacks.get_stack_pass_manager"><code class="name flex">
@@ -471,7 +465,7 @@ class PytketPass(qiskit.transpiler.basepasses.TransformationPass):
 <dd>Additional keyword arguments for the pass manager.
 Usually passed from transpile function.
 Stack-specific argument is 'qsearch_block_size'
-for stacks that contain QSearch pass. </dd>
+for stacks that contain QSearch pass.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -483,7 +477,7 @@ for stacks that contain QSearch pass. </dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_stack_pass_manager(stack=&#34;qiskit&#34;, **key_arguments):
-    
+
     &#34;&#34;&#34;
     Get a Qiskit transpiler pass manager with passes for specified stack.
 
@@ -495,50 +489,50 @@ for stacks that contain QSearch pass. </dd>
         **key_arguments: Additional keyword arguments for the pass manager.
                          Usually passed from transpile function.
                          Stack-specific argument is &#39;qsearch_block_size&#39;
-                         for stacks that contain QSearch pass. 
+                         for stacks that contain QSearch pass.
 
     Returns:
         PassManager: The Qiskit transpiler pass manager.
     &#34;&#34;&#34;
 
     # Stack Implemented Check
-    
+
     IMPLEMENTED_STACKS = [&#39;qiskit&#39;,
                           &#39;qiskit_qsearch&#39;,
                           &#39;qiskit_qfactor_qsearch&#39;,
                           &#39;qiskit_pytket&#39;]
-    
+
     if stack not in IMPLEMENTED_STACKS:
         raise NotImplementedError(f&#34;Stack &#39;{stack}&#39; not implemented&#34;)
-        
+
     # Pass Manager
-    
+
     DEFAULT_OPTIMIZATION_LEVEL = 1
-    
+
     backend = key_arguments.pop(&#34;backend&#34;, None)
     qsearch_block_size = key_arguments.pop(&#34;qsearch_block_size&#34;, None)
     optimization_level = key_arguments.pop(&#34;optimization_level&#34;, DEFAULT_OPTIMIZATION_LEVEL)
-    
+
     pass_manager = generate_preset_pass_manager(optimization_level, backend, **key_arguments)
 
     if stack == &#34;qiskit_qsearch&#34;:
-        
+
         pass_manager.init.append([
             QSearchPass(backend=backend,
                         qsearch_block_size=qsearch_block_size)])
-        
+
     if stack == &#34;qiskit_qfactor_qsearch&#34;:
-            
+
         pass_manager.init.append([
             QFactorPass(backend=backend,
                         qsearch_block_size=qsearch_block_size)])
-        
+
     if stack == &#34;qiskit_pytket&#34;:
 
         pass_manager.init.append([
-            PytketPass(backend=backend)])    
-        
-    return pass_manager   </code></pre>
+            PytketPass(backend=backend)])
+
+    return pass_manager</code></pre>
 </details>
 </dd>
 <dt id="qml_transpiler.stacks.model_from_ibmq_backend"><code class="name flex">
@@ -561,7 +555,7 @@ for stacks that contain QSearch pass. </dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def model_from_ibmq_backend(ibmq_backend):
-    
+
     &#34;&#34;&#34;
     Create a machine model from an IBMQ backend.
 
@@ -571,31 +565,31 @@ for stacks that contain QSearch pass. </dd>
     Returns:
         MachineModel: The machine model representing the backend.
     &#34;&#34;&#34;
-    
+
     # Based on https://github.com/BQSKit/bqskit/blob/main/bqskit/ext/qiskit/models.py
-    
+
     IBMQ_BASIS_GATES_LIMIT = 10
-    
+
     if isinstance(ibmq_backend, (qiskit.providers.BackendV1,
                                  qiskit.providers.fake_provider.FakeBackend)):
-        
+
         # print(&#39;IBMQ Backend Version 1&#39;)
-        
+
         qubits_count = ibmq_backend.configuration().n_qubits
         basis_gates = ibmq_backend.configuration().basis_gates
         coupling_map = ibmq_backend.configuration().coupling_map
-        
+
     if isinstance(ibmq_backend, (qiskit.providers.BackendV2,
                                  qiskit.providers.fake_provider.FakeBackendV2)):
-        
+
         # print(&#39;IBMQ Backend Version 2&#39;)
-        
+
         qubits_count = ibmq_backend.target.num_qubits
         basis_gates = ibmq_backend.target.operation_names
         coupling_map = ibmq_backend.target.build_coupling_map()
-        
+
     # Gate Set
-            
+
     gate_dict = {&#39;cx&#39;: bqskit.ir.gates.CNOTGate(),
                  &#39;cz&#39;: bqskit.ir.gates.CZGate(),
                  &#39;u3&#39;: bqskit.ir.gates.U3Gate(),
@@ -605,29 +599,29 @@ for stacks that contain QSearch pass. </dd>
                  &#39;sx&#39;: bqskit.ir.gates.SXGate(),
                  &#39;x&#39;: bqskit.ir.gates.XGate(),
                  &#39;p&#39;: bqskit.ir.gates.RZGate()}
-    
+
     if len(basis_gates) &gt; IBMQ_BASIS_GATES_LIMIT:
-        
-        gate_set = {bqskit.ir.gates.CNOTGate(), 
-                    bqskit.ir.gates.RZGate(), 
+
+        gate_set = {bqskit.ir.gates.CNOTGate(),
+                    bqskit.ir.gates.RZGate(),
                     bqskit.ir.gates.SXGate()}
-    else:        
-        
-        gate_set = {gate_dict.get(basis_gate) 
+    else:
+
+        gate_set = {gate_dict.get(basis_gate)
                     for basis_gate in basis_gates} - {None}
-        
+
     # Coupling List
-    
+
     coupling_list = None
-    
+
     if coupling_map is not None:
 
         coupling_list = list({tuple(sorted(edge)) for edge in coupling_map})
-        
+
     # Mashine Model
-        
+
     machine_model = bqskit.MachineModel(qubits_count, coupling_list, gate_set)
-    
+
     return machine_model</code></pre>
 </details>
 </dd>
@@ -653,7 +647,7 @@ for stacks that contain QSearch pass. </dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def run_qsearch_synthesis(bqskit_circuit, block_size):
-    
+
     &#34;&#34;&#34;
     Run QSearch synthesis for a BQSKit circuit.
 
@@ -664,7 +658,7 @@ for stacks that contain QSearch pass. </dd>
     Returns:
         bqskit.Circuit: The synthesized BQSKit circuit.
     &#34;&#34;&#34;
-    
+
     # Minimal Compilation Task
     # compilation_task = bqskit.compiler.CompilationTask(bqskit_circuit,
     #                                                    [bqskit.passes.QSearchSynthesisPass()])
@@ -706,74 +700,70 @@ for stacks that contain QSearch pass. </dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class PytketPass(qiskit.transpiler.basepasses.TransformationPass):
-    
+
     &#34;&#34;&#34;
     Qiskit transpiler pass for running Pytket compilation.
-    
+
     Reference: https://github.com/CQCL/tket/blob/main/pytket/pytket/backends/backend.py
 
     Args:
         pytket_backend: The Pytket backend.
     &#34;&#34;&#34;
-    
+
     def __init__(self, backend=None):
-        
+
         check_if_module_is_imported(&#39;pytket&#39;)
-        
+
         # Noise Model
-        
+
         if backend is None:
             noise_model = None
-            
+
         elif hasattr(backend, &#39;noise_model&#39;):
             noise_model = backend.noise_model
-            
+
         elif hasattr(backend, &#39;options&#39;):
             noise_model = backend.options.noise_model
-            
+
         # Aer Backend
 
         pytket_backend = pytket.extensions.qiskit.AerBackend(
             noise_model=noise_model)
-        
+
         super().__init__()
-        
+
         self.pytket_backend = pytket_backend
 
-
     def run(self, dag):
-        
+
         # print(&#34;Running PytketPass&#34;)
-                
+
         qiskit_circuit = qiskit.converters.dag_to_circuit(dag)
-        
+
         pytket_circuit = pytket.extensions.qiskit.qiskit_to_tk(qiskit_circuit)
-        
-        
+
         # Compilation
-        
+
         compilation_pass = self.pytket_backend.default_compilation_pass(optimisation_level=2)
-        
+
         compilation_pass.apply(pytket_circuit)
-        
-        
+
         # Rebase
-        
+
         IBMQ_GATES = {pytket.OpType.CX,
                       pytket.OpType.Rz,
                       pytket.OpType.SX,
                       pytket.OpType.X}
-                
+
         rebase_pass = pytket.passes.SequencePass([
             pytket.passes.FullPeepholeOptimise(),
             pytket.passes.auto_rebase_pass(gateset=IBMQ_GATES)
         ])
 
         rebase_pass.apply(pytket_circuit)
-        
 
         transpiled_qiskit_circuit = pytket.extensions.qiskit.tk_to_qiskit(pytket_circuit)
-        
+
         new_dag = qiskit.converters.circuit_to_dag(transpiled_qiskit_circuit)
 
         return new_dag</code></pre>
@@ -805,38 +795,35 @@ for stacks that contain QSearch pass. </dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def run(self, dag):
-    
+
     # print(&#34;Running PytketPass&#34;)
-            
+
     qiskit_circuit = qiskit.converters.dag_to_circuit(dag)
-    
+
     pytket_circuit = pytket.extensions.qiskit.qiskit_to_tk(qiskit_circuit)
-    
-    
+
     # Compilation
-    
+
     compilation_pass = self.pytket_backend.default_compilation_pass(optimisation_level=2)
-    
+
     compilation_pass.apply(pytket_circuit)
-    
-    
+
     # Rebase
-    
+
     IBMQ_GATES = {pytket.OpType.CX,
                   pytket.OpType.Rz,
                   pytket.OpType.SX,
                   pytket.OpType.X}
-            
+
     rebase_pass = pytket.passes.SequencePass([
         pytket.passes.FullPeepholeOptimise(),
         pytket.passes.auto_rebase_pass(gateset=IBMQ_GATES)
     ])
 
     rebase_pass.apply(pytket_circuit)
-    
 
     transpiled_qiskit_circuit = pytket.extensions.qiskit.tk_to_qiskit(pytket_circuit)
-    
+
     new_dag = qiskit.converters.circuit_to_dag(transpiled_qiskit_circuit)
 
     return new_dag</code></pre>
@@ -862,7 +849,7 @@ for stacks that contain QSearch pass. </dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class QFactorPass(qiskit.transpiler.basepasses.TransformationPass):
-    
+
     &#34;&#34;&#34;
     Qiskit transpiler pass for running QFactor synthesis.
 
@@ -872,43 +859,42 @@ for stacks that contain QSearch pass. </dd>
     &#34;&#34;&#34;
 
     def __init__(self, backend, qsearch_block_size=None):
-        
+
         check_if_module_is_imported(&#39;bqskit&#39;)
-        
+
         if qsearch_block_size is None:
             qsearch_block_size = 2
-        
+
         super().__init__()
-        
+
         self.machine_model = model_from_ibmq_backend(backend)
         self.qsearch_block_size = qsearch_block_size
 
-
     def run(self, dag):
-        
+
         # print(&#34;Running QFactorPass&#34;)
-                
+
         qiskit_circuit = qiskit.converters.dag_to_circuit(dag)
-        
+
         bqskit_circuit = bqskit.ext.qiskit_to_bqskit(qiskit_circuit)
-        
+
         # Ansatz
-        
+
         qubits_count = bqskit_circuit.num_qudits
-        
+
         qubit_pairs = np.transpose(np.triu_indices(qubits_count, 1))
-        
+
         ansatz_circuit = bqskit.ir.circuit.Circuit(qubits_count)
-        
+
         for qubit_pair in qubit_pairs:
 
             ansatz_circuit.append_gate(bqskit.ir.gates.VariableUnitaryGate(num_qudits=2),
                                        location=qubit_pair)
-            
+
         # QFactor Optimization
-        
+
         target = bqskit_circuit.get_unitary()
-        
+
         instantiated_circuit = ansatz_circuit.copy()
 
         instantiated_circuit.instantiate(
@@ -921,13 +907,13 @@ for stacks that contain QSearch pass. </dd>
             min_iters=1000,     # Minimum number of iterations
             slowdown_factor=0,  # Larger numbers slowdown optimization to avoid local minima
         )
-        
+
         # QSearch Synthesis
-        
-        synthesized_circuit = run_qsearch_synthesis(instantiated_circuit, self.qsearch_block_size)        
+
+        synthesized_circuit = run_qsearch_synthesis(instantiated_circuit, self.qsearch_block_size)
 
         transpiled_qiskit_circuit = bqskit.ext.bqskit_to_qiskit(synthesized_circuit)
-        
+
         new_dag = qiskit.converters.circuit_to_dag(transpiled_qiskit_circuit)
 
         return new_dag</code></pre>
@@ -959,30 +945,30 @@ for stacks that contain QSearch pass. </dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def run(self, dag):
-    
+
     # print(&#34;Running QFactorPass&#34;)
-            
+
     qiskit_circuit = qiskit.converters.dag_to_circuit(dag)
-    
+
     bqskit_circuit = bqskit.ext.qiskit_to_bqskit(qiskit_circuit)
-    
+
     # Ansatz
-    
+
     qubits_count = bqskit_circuit.num_qudits
-    
+
     qubit_pairs = np.transpose(np.triu_indices(qubits_count, 1))
-    
+
     ansatz_circuit = bqskit.ir.circuit.Circuit(qubits_count)
-    
+
     for qubit_pair in qubit_pairs:
 
         ansatz_circuit.append_gate(bqskit.ir.gates.VariableUnitaryGate(num_qudits=2),
                                    location=qubit_pair)
-        
+
     # QFactor Optimization
-    
+
     target = bqskit_circuit.get_unitary()
-    
+
     instantiated_circuit = ansatz_circuit.copy()
 
     instantiated_circuit.instantiate(
@@ -995,13 +981,13 @@ for stacks that contain QSearch pass. </dd>
         min_iters=1000,     # Minimum number of iterations
         slowdown_factor=0,  # Larger numbers slowdown optimization to avoid local minima
     )
-    
+
     # QSearch Synthesis
-    
-    synthesized_circuit = run_qsearch_synthesis(instantiated_circuit, self.qsearch_block_size)        
+
+    synthesized_circuit = run_qsearch_synthesis(instantiated_circuit, self.qsearch_block_size)
 
     transpiled_qiskit_circuit = bqskit.ext.bqskit_to_qiskit(synthesized_circuit)
-    
+
     new_dag = qiskit.converters.circuit_to_dag(transpiled_qiskit_circuit)
 
     return new_dag</code></pre>
@@ -1027,7 +1013,7 @@ for stacks that contain QSearch pass. </dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class QSearchPass(qiskit.transpiler.basepasses.TransformationPass):
-    
+
     &#34;&#34;&#34;
     Qiskit transpiler pass for running QSearch synthesis.
 
@@ -1037,30 +1023,29 @@ for stacks that contain QSearch pass. </dd>
     &#34;&#34;&#34;
 
     def __init__(self, backend, qsearch_block_size=None):
-        
+
         check_if_module_is_imported(&#39;bqskit&#39;)
-        
+
         if qsearch_block_size is None:
             qsearch_block_size = 2
-        
+
         super().__init__()
-        
+
         self.machine_model = model_from_ibmq_backend(backend)
         self.qsearch_block_size = qsearch_block_size
 
-
     def run(self, dag):
-        
+
         # print(&#34;Running QSearchPass&#34;)
-                
+
         qiskit_circuit = qiskit.converters.dag_to_circuit(dag)
-        
+
         bqskit_circuit = bqskit.ext.qiskit_to_bqskit(qiskit_circuit)
-        
-        synthesized_circuit = run_qsearch_synthesis(bqskit_circuit, self.qsearch_block_size)        
+
+        synthesized_circuit = run_qsearch_synthesis(bqskit_circuit, self.qsearch_block_size)
 
         transpiled_qiskit_circuit = bqskit.ext.bqskit_to_qiskit(synthesized_circuit)
-        
+
         new_dag = qiskit.converters.circuit_to_dag(transpiled_qiskit_circuit)
 
         return new_dag</code></pre>
@@ -1092,17 +1077,17 @@ for stacks that contain QSearch pass. </dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def run(self, dag):
-    
+
     # print(&#34;Running QSearchPass&#34;)
-            
+
     qiskit_circuit = qiskit.converters.dag_to_circuit(dag)
-    
+
     bqskit_circuit = bqskit.ext.qiskit_to_bqskit(qiskit_circuit)
-    
-    synthesized_circuit = run_qsearch_synthesis(bqskit_circuit, self.qsearch_block_size)        
+
+    synthesized_circuit = run_qsearch_synthesis(bqskit_circuit, self.qsearch_block_size)
 
     transpiled_qiskit_circuit = bqskit.ext.bqskit_to_qiskit(synthesized_circuit)
-    
+
     new_dag = qiskit.converters.circuit_to_dag(transpiled_qiskit_circuit)
 
     return new_dag</code></pre>
