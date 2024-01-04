@@ -99,13 +99,13 @@ def get_stack_pass_manager(stack="qiskit", **key_arguments):
 
 # 2) Model From IBMQ Backend
 
-def model_from_ibmq_backend(ibmq_backend):
+def model_from_ibmq_backend(backend):
 
     """
     Create a machine model from an IBMQ backend.
 
     Args:
-        ibmq_backend: The IBMQ backend.
+        backend: The IBMQ backend.
 
     Returns:
         MachineModel: The machine model representing the backend.
@@ -114,6 +114,13 @@ def model_from_ibmq_backend(ibmq_backend):
     # Based on https://github.com/BQSKit/bqskit/blob/main/bqskit/ext/qiskit/models.py
 
     IBMQ_BASIS_GATES_LIMIT = 10
+
+    # Backend
+
+    if backend is None:
+        ibmq_backend = qiskit.providers.aer.AerSimulator()
+    else:
+        ibmq_backend = backend
 
     if isinstance(ibmq_backend, (qiskit.providers.BackendV1,
                                  qiskit.providers.fake_provider.FakeBackend)):

@@ -205,9 +205,21 @@ def transpile_and_compress(circuit, backend, *arguments, **key_arguments):
         backend=backend,
         *arguments, **key_arguments)
 
-    # Coupling List
+    # Coupling List from Backend
 
-    coupling_list = backend.configuration().coupling_map
+    if backend is None:
+        coupling_list = None
+    else:
+        coupling_list = backend.configuration().coupling_map
+
+    # Coupling List from Key Arguments
+
+    arguments_coupling_map = key_arguments.pop("coupling_map", None)
+
+    if arguments_coupling_map is not None:
+        coupling_list = [list(pair) for pair in arguments_coupling_map]
+
+    # Coupling List Check
 
     if coupling_list is None:
 

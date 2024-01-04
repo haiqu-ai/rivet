@@ -170,9 +170,18 @@ def run_circuits_to_compare(circuits_to_compare, backend, shots_count):
 
             circuit.assign_parameters({parameter: index}, inplace=True)
 
+        # Backend
+
+        if backend is None:
+            run_backend = qiskit.providers.aer.AerSimulator()
+            run_circuit = transpile(circuit, run_backend)
+        else:
+            run_backend = backend
+            run_circuit = circuit
+
         # Run
 
-        job = backend.run(circuit, shots=shots_count)
+        job = run_backend.run(run_circuit, shots=shots_count)
 
         counts = job.result().get_counts()
 

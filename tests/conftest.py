@@ -2,8 +2,6 @@ import pytest
 
 import qiskit
 
-from qiskit.providers import aer
-
 # from qiskit.providers.fake_provider import FakeBackend5QV2
 # from qiskit.providers.fake_provider import FakeLimaV2
 # from qiskit.providers.fake_provider import FakeGuadalupeV2
@@ -16,7 +14,8 @@ from qml_transpiler import get_litmus_circuit
 QUBIT_COUNTS = [5]
 
 BACKENDS = [
-    aer.AerSimulator,
+    None,
+    qiskit.providers.aer.AerSimulator,
     # FakeBackend5QV2,
     # FakeLimaV2,
     # FakeGuadalupeV2,
@@ -24,25 +23,40 @@ BACKENDS = [
     FakeMontrealV2
 ]
 
+REMOVE_NOISE_MODEL = True
+
 
 # Fixtures
 
 @pytest.fixture(scope="session", params=BACKENDS)
 def backend(request):
 
-    if request.param is None:
+    # Backend
 
-        return None
+    backend = request.param
 
-    backend = request.param()
+    if backend is None:
 
-    if not isinstance(backend, qiskit.providers.aer.AerSimulator):
+        backend_fixture = None
 
-        backend = qiskit.providers.aer.AerSimulator.from_backend(backend)
+    elif issubclass(backend, qiskit.providers.aer.AerSimulator):
 
-    backend.options.noise_model = None
+        backend_fixture = backend()
 
-    return backend
+    elif issubclass(backend, (qiskit.providers.BackendV1,
+                              qiskit.providers.BackendV2,
+                              qiskit.providers.fake_provider.FakeBackend,
+                              qiskit.providers.fake_provider.FakeBackendV2)):
+
+        backend_fixture = qiskit.providers.aer.AerSimulator.from_backend(backend())
+
+    # Noise Model
+
+    if REMOVE_NOISE_MODEL is True and backend is not None:
+
+        backend_fixture.options.noise_model = None
+
+    return backend_fixture
 
 
 @pytest.fixture(params=QUBIT_COUNTS)

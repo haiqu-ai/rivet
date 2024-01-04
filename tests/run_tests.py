@@ -20,8 +20,8 @@ exit_code = pytest.main([
     # '--collect-only',
     # '--durations=0',
 
-    # 'test_transpiler.py',
-    # 'test_stacks.py',
+    # 'tests/test_transpiler.py',
+    # 'tests/test_stacks.py',
 ])
 
 cov.stop()
