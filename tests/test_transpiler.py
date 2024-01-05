@@ -1,3 +1,5 @@
+import pytest
+
 import qiskit
 
 from qiskit.providers.fake_provider import FakeBackend5QV2
@@ -68,6 +70,7 @@ def test_transpile_left(litmus_circuit, backend):
     return transpiled_left_circuit
 
 
+@pytest.mark.filterwarnings("ignore::UserWarning")
 def test_transpile_and_compress(litmus_circuit, backend):
 
     compressed_litmus_circuit = transpile_and_compress(
@@ -78,6 +81,7 @@ def test_transpile_and_compress(litmus_circuit, backend):
     return compressed_litmus_circuit
 
 
+@pytest.mark.filterwarnings("ignore::UserWarning")
 def test_transpile_and_compress_coupling_map(litmus_circuit, backend):
 
     # Coupling Map

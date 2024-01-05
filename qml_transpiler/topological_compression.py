@@ -21,9 +21,11 @@ Discovered subgraph can be used to limit backend topology - and save time
 of further transpilation and simulation.
 """
 
-from rustworkx import closeness_centrality
+import warnings
 
 from qiskit.transpiler import CouplingMap
+
+from rustworkx import closeness_centrality
 
 from qml_transpiler.transpiler import transpile
 
@@ -223,7 +225,7 @@ def transpile_and_compress(circuit, backend, *arguments, **key_arguments):
 
     if coupling_list is None:
 
-        UserWarning("Provided Backend has no topology - no compression performed")
+        warnings.warn("Provided Backend has no topology - no compression performed")
 
         return transpiled_circuit
 
