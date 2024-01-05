@@ -9,6 +9,7 @@ from .functions import get_litmus_circuit
 from .functions import get_cnot_circuit
 from .functions import get_sinusoids
 from .functions import get_ibm_cost
+from .functions import get_circuit_hash
 
 from .topological_compression import get_used_qubit_indices
 from .topological_compression import get_limited_coupling_list

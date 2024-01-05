@@ -60,11 +60,17 @@ def backend(request):
 
 
 @pytest.fixture(params=QUBIT_COUNTS)
-def litmus_circuit(request):
+def qubits_count(request):
 
-    qubit_count = request.param
+    qubits_count = request.param
 
-    litmus_circuit = get_litmus_circuit(qubit_count, "Litmus")
+    return qubits_count
+
+
+@pytest.fixture
+def litmus_circuit(qubits_count):
+
+    litmus_circuit = get_litmus_circuit(qubits_count, "Litmus")
 
     return litmus_circuit
 

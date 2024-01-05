@@ -2,6 +2,8 @@
 
 import qiskit
 
+import hashlib
+
 import numpy as np
 
 
@@ -231,3 +233,83 @@ def get_ibm_cost(qiskit_circuit,
     ibm_cost = depth_penalty_factor ** circuit.depth() * fidelity_product
 
     return ibm_cost
+
+
+# 5) Hashing
+
+def get_circuit_hash(circuit):
+
+    """
+    Calculate hash for Qiskit quantum circuit.
+
+    This function computes a SHA256 hash value that represents a given quantum circuit. It iterates over the circuit's
+    instructions, including the quantum operations and their parameters, and combines them to generate a hash value.
+    The resulting hash can be used to uniquely identify a specific circuit structure.
+
+    Following attributes are used to calculate hash for every operation:
+    - qubit indices,
+    - operation class,
+    - operation parameters,
+    - number of qubits,
+    - number of classical bits.
+
+    Qiskit ParameterExpression values are skipped - circuits with different Parameters will have identical hash.
+
+    Inspired by Qiskit "soft_compare" gate function:
+    https://github.com/Qiskit/qiskit/blob/main/qiskit/circuit/instruction.py#L227
+
+    Parameters:
+    - circuit (QuantumCircuit): The quantum circuit for which to compute the hash.
+
+    Returns:
+    - str: A hexadecimal string representing the computed hash value.
+
+    Example:
+    >>> my_circuit = QuantumCircuit(2)
+    >>> my_circuit.h(0)
+    >>> my_circuit.cx(0, 1)
+    >>> hash_value = get_circuit_hash(my_circuit)
+    >>> print(hash_value)
+    "6e11d7dbf1ef7f4bdc79b73212c3db2e10da65a0be5b4a4373c3e6177cf1b0c7"
+    """
+
+    hash_object = hashlib.sha256(b'')
+
+    dag = qiskit.converters.circuit_to_dag(circuit)
+
+    for node in dag.topological_op_nodes():
+
+        operation = node.op
+
+        qubit_indices = [circuit.find_bit(qubit).index for qubit in node.qargs]
+
+        # Values
+
+        values = []
+
+        values.append(qubit_indices)
+        values.append(operation.__class__)
+        values.append(operation.num_qubits)
+        values.append(operation.num_clbits)
+
+        # Skip Parameters
+
+        for parameter in operation.params:
+
+            if isinstance(parameter, qiskit.circuit.parameter.ParameterExpression):
+
+                parameter = None
+
+            values.append(parameter)
+
+        # Update Hash
+
+        for value in values:
+
+            encoded_value = repr(value).encode('utf-8')
+
+            hash_object.update(encoded_value)
+
+    hash_value = hash_object.hexdigest()
+
+    return hash_value
