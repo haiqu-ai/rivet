@@ -1,5 +1,4 @@
 from .transpiler import transpile
-from .transpiler import transpile_and_return_options
 from .transpiler import transpile_chain
 from .transpiler import transpile_right
 from .transpiler import transpile_left

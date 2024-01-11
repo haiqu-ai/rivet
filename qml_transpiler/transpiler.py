@@ -2,52 +2,49 @@
 
 import qiskit
 
-import functools
-
 from qml_transpiler.stacks import get_stack_pass_manager
 from qml_transpiler.dynamical_decoupling import add_dynamical_decoupling
 
 
-# 1) Transpile
+# Transpile
 
-@functools.wraps(qiskit.transpile)
-def transpile(*arguments, **key_arguments):
+def transpile(circuit, backend=None, *arguments, **key_arguments):
 
     """
     Transpile a quantum circuit with optional stack-specific optimizations.
 
-    Args:
-        *arguments: Positional arguments for qiskit.transpile.
-        **key_arguments: Keyword arguments for qiskit.transpile.
+    Parameters:
+    - circuit (QuantumCircuit): The quantum circuit to be transpiled.
+    - backend (BaseBackend, optional): The target backend for execution.
+    - *arguments: Additional positional arguments to be passed to qiskit.transpile.
+    - **key_arguments: Additional keyword arguments to be passed to qiskit.transpile.
+
+    Options:
+    - transpiler_options (dict): Dictionary containing transpiler options.
+      - backend (BaseBackend, optional): Override backend specified in 'key_arguments'.
+      - arguments (tuple): Override arguments specified in 'key_arguments'.
+
+    Dynamical Decoupling Arguments:
+    - dd_pulses: Dynamical decoupling pulses.
+    - dd_pulses_count: Number of dynamical decoupling pulses.
+    - dd_pulse_alignment: Alignment of dynamical decoupling pulses.
+    - dynamical_decoupling: Enable or disable dynamical decoupling.
+
+    Return Options:
+    - return_options (bool): If True, returns a tuple (transpiled_circuit, options).
+      If False (default), only the transpiled circuit is returned.
+
+    Stack:
+    - stack (str): The selected stack ('qiskit', 'qiskit_qsearch',
+                                       'qiskit_qfactor_qsearch', 'qiskit_pytket')
+
+    Pass Manager:
+    - pass_manager: Custom pass manager for transpilation.
 
     Returns:
-        QuantumCircuit: The transpiled quantum circuit.
-    """
+    - QuantumCircuit: Transpiled quantum circuit.
 
-    transpiled_circuit, transpiler_options = transpile_and_return_options(*arguments, **key_arguments)
-
-    return transpiled_circuit
-
-
-# 2) Transpile and Return Options
-
-def transpile_and_return_options(circuit, backend=None, *arguments, **key_arguments):
-
-    """
-    Transpile a quantum circuit and return transpiler options.
-
-    Args:
-        circuit (QuantumCircuit): The input quantum circuit.
-        backend: The target backend for transpilation.
-        *arguments: Positional arguments for qiskit.transpile.
-        **key_arguments: Keyword arguments for qiskit.transpile.
-
-    Returns:
-        QuantumCircuit: The transpiled quantum circuit.
-        dict: A dictionary containing transpiler options:
-              - full map,
-              - original circuit,
-              - transpile arguments.
+    Note: If 'pass_manager' is provided, it takes precedence over 'stack'.
     """
 
     # Options
@@ -73,6 +70,10 @@ def transpile_and_return_options(circuit, backend=None, *arguments, **key_argume
     dd_pulses_count = run_key_arguments.pop('dd_pulses_count', None)
     dd_pulse_alignment = run_key_arguments.pop('dd_pulse_alignment', None)
     dynamical_decoupling = run_key_arguments.pop('dynamical_decoupling', None)
+
+    # Return Options
+
+    return_options = run_key_arguments.pop('return_options', False)
 
     # Stack
 
@@ -110,14 +111,20 @@ def transpile_and_return_options(circuit, backend=None, *arguments, **key_argume
         transpiled_circuit = add_dynamical_decoupling(transpiled_circuit, run_backend,
                                                       dd_pulses, dd_pulses_count, dd_pulse_alignment)
 
-    # Transpiler Options
+    # Transpile Options
 
-    options = run_key_arguments.copy()
+    if return_options is True:
 
-    options['arguments'] = run_arguments
-    options['original_circuit'] = circuit
+        options = run_key_arguments.copy()
 
-    return transpiled_circuit, options
+        options['arguments'] = run_arguments
+        options['original_circuit'] = circuit
+
+        return transpiled_circuit, options
+
+    else:
+
+        return transpiled_circuit
 
 
 # 3) Transpile Chain
@@ -162,6 +169,8 @@ def transpile_chain(circuits, backend=None, *arguments, **key_arguments):
             chain_circuit.compose(transpiled_circuit, inplace=True)
 
         full_map = get_full_map(transpiled_circuit)
+
+    chain_circuit._layout = transpiled_circuit.layout
 
     return chain_circuit
 
@@ -224,7 +233,7 @@ def transpile_right(central_circuit, right_circuit,
 
     if transpiled_right_circuit.layout.final_layout is None:
 
-        right_routing = central_routing.copy()
+        right_routing = list(range(transpiled_right_circuit.num_qubits))
 
     else:
         right_routing = [transpiled_right_circuit.layout.final_layout[qubit]
@@ -329,7 +338,7 @@ def transpile_left(central_circuit, left_circuit,
     if (central_circuit.layout is None or
             central_circuit.layout.final_layout is None):
 
-        central_routing = left_routing.copy()
+        central_routing = list(range(central_circuit.num_qubits))
 
     else:
         central_routing = [central_circuit.layout.final_layout[qubit]

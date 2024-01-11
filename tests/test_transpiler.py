@@ -26,6 +26,17 @@ def test_transpile(litmus_circuit, backend):
     return transpiled_litmus_circuit
 
 
+def test_transpile_and_return_options(litmus_circuit, backend):
+
+    transpiled_litmus_circuit, transpile_options = transpile(
+        litmus_circuit,
+        backend,
+        return_options=True,
+        seed_transpiler=1234)
+
+    return transpiled_litmus_circuit, transpile_options
+
+
 def test_transpile_chain(litmus_circuit, backend):
 
     CHAIN = [litmus_circuit] * 2
