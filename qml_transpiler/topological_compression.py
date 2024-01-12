@@ -12,8 +12,10 @@ https://qiskit.org/ecosystem/rustworkx/dev/apiref/rustworkx.closeness_centrality
 Flexible measure of node importance can be expanded with other metrics -
 for example, neighbors counts or qubit noise levels.
 
-Once importances are calculated - we traverse topology graph using A-star search -
-starting from the most important node.
+Once importances are calculated - we traverse topology graph using Prim's algorithm -
+starting from the most important node:
+
+https://en.wikipedia.org/wiki/Prim%27s_algorithm
 
 Traversed nodes are added to limited qubit list - which forms a connected subgraph.
 
