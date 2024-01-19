@@ -1,110 +1,223 @@
 # QML Transpiler
 
-QML Transpiler package provides a family of transpile functions that wraps Qiskit's `transpile` method, allowing you to transpile a quantum circuit with additional options.
+**Quantum Transpilation** is a transformation of given virtual quantum circuit:
 
-## Clone
+* to match the topology of a specific device
+* to optimize the circuit for execution
+
+QML Transpiler package provides a family of functions for efficient transpilation of quantum circuits.
+
+## Transpile Functions
+
+`transpile` - custom transpilation with possibility of using:
+
+- pre-defined [transpilation stacks](#transpilation-stacks)
+- custom [PassManager](https://docs.quantum.ibm.com/api/qiskit/passmanager)
+- dynamical decoupling
+- transpiler options
+
+`transpile_chain` - consistently transpile and "stitch" a [chain](#minimal-example) of quantum circuits.
+
+`transpile_right` - transpile additional circuit to the [right part](#shadow-state-tomography) of existing circuit.
+
+`transpile_left` - transpile additional circuit to the [left part](#fourier-adder) of existing circuit.
+
+`transpile_and_compress` - transpile and ["topologically compress"](#topological-compression) a circuit considering a coupling map of selected backend.
+
+## Install
+
+Clone repository:
 
 ```bash
-https://gitlab.com/mohor/haiqu.git
+git clone https://gitlab.com/haiqu-ai/qml-transpiler.git
 ```
 
-## Installation
-
-You can install this package using pip:
+Go to repository folder and install a local package using pip:
 
 ```bash
 pip install .
 ```
 
-## Usage
+## Minimal Example
 
-Basic transpilation:
+Transpilation includes placement of *virtual qubits* of a circuit to *physical qubits* of quantum device or simulator.
+<br>
+    <a>
+    <img src="docs/images/layout.png">
+    </a>
+<br>
+Additionally, SWAP gates can be included to route qubits around backend topology.
+
+`transpile_chain` function transpiles a chain of virtual circuits keeping qubits consistent:
 
 ```python
-from qiskit.providers.aer import AerSimulator
-from qiskit.providers.fake_provider import FakeBackend5QV2
+import qiskit
 
-from qml_transpiler import transpile
-from qml_transpiler import get_litmus_circuit
+from qiskit.providers.fake_provider import FakeLimaV2
 
-FAKE_BACKEND = FakeBackend5QV2()
+from qml_transpiler import transpile_chain
 
-backend = AerSimulator.from_backend(FAKE_BACKEND)
+backend = FakeLimaV2()
 
-litmus_circuit = get_litmus_circuit(3, "Litmus")
+circuit = qiskit.QuantumCircuit(3)
 
-transpiled_litmus_circuit = transpile(
-    litmus_circuit, 
+circuit.cx(0, 1)
+circuit.cx(1, 2)
+circuit.cx(0, 2)
+
+circuit.barrier()
+
+circuit.draw()
+```
+
+```bash
+q_0: ──■─────────■──
+     ┌─┴─┐       │
+q_1: ┤ X ├──■────┼──
+     └───┘┌─┴─┐┌─┴─┐
+q_2: ─────┤ X ├┤ X ├
+          └───┘└───┘
+```
+
+```python
+CHAIN = [circuit] * 3
+
+transpiled_circuit = transpile_chain(
+    CHAIN,
     backend,
-    # optimization_level=3,
-    # initial_layout=[1, 2, 3],
-    seed_transpiler=1234,
+    seed_transpiler=1234
 )
 
-transpiled_litmus_circuit.draw()
-```
-```
- ancilla_0 -> 0 ────────────────────────────────────────────────────
-                ┌─────────────────┐          ┌───┐          ┌───┐ ░ 
-Litmus_0_2 -> 1 ┤ U(0,0,Litmus_2) ├───────■──┤ X ├──■───────┤ X ├─░─
-                ├─────────────────┤     ┌─┴─┐└─┬─┘┌─┴─┐┌───┐└─┬─┘ ░ 
-Litmus_0_0 -> 2 ┤ U(0,0,Litmus_0) ├──■──┤ X ├──■──┤ X ├┤ X ├──■───░─
-                ├─────────────────┤┌─┴─┐└───┘     └───┘└─┬─┘      ░ 
-Litmus_0_1 -> 3 ┤ U(0,0,Litmus_1) ├┤ X ├─────────────────■────────░─
-                └─────────────────┘└───┘                          ░ 
- ancilla_1 -> 4 ────────────────────────────────────────────────────
+transpiled_circuit.draw(fold=-1)
 ```
 
-Final allocation of virtual qubits in transpiler circuit:
-
-```python
-from qml_transpiler import get_full_map
-
-get_full_map(transpiled_litmus_circuit)
+```bash
+                              ┌───┐           ░ ┌───┐                          ░      ┌───┐          ┌───┐               ┌───┐ ░
+      q_1 -> 0 ──■─────────■──┤ X ├──■────────░─┤ X ├─────────────────■────────░───■──┤ X ├──■───────┤ X ├───────────────┤ X ├─░─
+               ┌─┴─┐     ┌─┴─┐└─┬─┘┌─┴─┐      ░ └─┬─┘┌───┐     ┌───┐┌─┴─┐┌───┐ ░ ┌─┴─┐└─┬─┘┌─┴─┐┌───┐└─┬─┘┌───┐     ┌───┐└─┬─┘ ░
+      q_2 -> 1 ┤ X ├──■──┤ X ├──■──┤ X ├──■───░───■──┤ X ├──■──┤ X ├┤ X ├┤ X ├─░─┤ X ├──■──┤ X ├┤ X ├──■──┤ X ├──■──┤ X ├──■───░─
+               └───┘┌─┴─┐└───┘     └───┘┌─┴─┐ ░      └─┬─┘┌─┴─┐└─┬─┘└───┘└─┬─┘ ░ └───┘     └───┘└─┬─┘     └─┬─┘┌─┴─┐└─┬─┘      ░
+      q_0 -> 2 ─────┤ X ├───────────────┤ X ├─░────────■──┤ X ├──■─────────■───░──────────────────■─────────■──┤ X ├──■────────░─
+                    └───┘               └───┘ ░           └───┘                ░                               └───┘           ░
+ancilla_0 -> 3 ────────────────────────────────────────────────────────────────░───────────────────────────────────────────────░─
+                                                                               ░                                               ░
+ancilla_1 -> 4 ────────────────────────────────────────────────────────────────░───────────────────────────────────────────────░─
+                                                                               ░                                               ░
 ```
-```
-[1, 3, 2, 0, 4]
-```
 
-More usage examples at:
+## Examples
 
-[/examples/examples.ipynb](/examples/examples.ipynb)
+A folder containing all examples:
 
+[examples/](examples/)
+
+### Basic examples:
+
+[examples.ipynb](examples/examples.ipynb)
+
+    - Transpilation Overview, Stages, Functions
+    - Litmus Circuit, Backend
+    - Qiskit Transpiler, Pass Manager
+    - Circuit Stitching, Full Map
+    - Transpile Chain, Right, Left, Compress
+    - Transpilation Stacks, QSearch, Synthesis
+    - Circuit Hash
+    - IBM Cost
+
+### Shadow State Tomography
+
+Efficient Tomography circuits transpilation with `transpile_right` function:
+
+[shadow_state_tomography.ipynb](examples/shadows/shadow_state_tomography.ipynb)
+
+<a>
+<img src="docs/images/su2.png">
+</a>
+
+### Fourier Adder
+
+Efficient QFT transpilation with `transpile_left` function:
+
+[fourier_adder.ipynb](examples/fourier_adder/fourier_adder.ipynb)
+
+<a>
+<img src="docs/images/fourier_adder.png">
+</a>
+<br>
+<a>
+<img src="docs/images/fourier_adder_states.png" width=150>
+<img src="docs/images/fourier_adder_states_noisy.png" width=150>
+<img src="docs/images/fourier_adder_states_full.png" width=150>
+</a>
+
+### Topological Compression
+
+Select topologically most important qubits of a backend – and then transpiles circuit using limited coupling map – to decrease transpilation and simulation time:
+
+[topological_compression.ipynb](examples/topological_compression/topological_compression.ipynb)
+
+<a>
+<img src="docs/images/topological_compression.png" width=250>
+</a>
+
+### Hashing
+
+[hashing.ipynb](examples/hashing/hashing.ipynb)
+
+
+## Demonstration
+
+The latest demo:
+
+* [QML Transpiler demonstration - 01 2024](examples/demo_01_2024/transpiler_demo.ipynb)
 
 ## Documentation
 
-Detailed package structure and function descriptions can be found at:
+Detailed description of package structure and functions:
 
-[/docs/qml_transpiler/index.html](/docs/qml_transpiler/index.html)
+* Deployed to [GitLab Pages](https://mohor.gitlab.io/haiqu/)
+* Local [Documents folder](docs/qml_transpiler)
 
 ## Transpilation Stacks
 
-Pre-defined transpilation stacks are available:
+Transpilation stacks include below frameworks:
+
+* [Qiskit:](https://github.com/Qiskit/qiskit#readme) Quantum SDK
+* [BQSKit:](https://github.com/BQSKit/bqskit#readme) Berkeley Quantum Synthesis Toolkit
+* [Pytket:](https://github.com/CQCL/pytket#readme) Python inteface for Quantinuum TKET compiler
+
+Following pre-defined transpilation stacks are available:
+
+```python
+"qiskit"
+"qiskit_qsearch"
+"qiskit_qfactor_qsearch"
+"qiskit_pytket"
+```
+
+To install pre-defined stacks support:
 
 ```bash
 pip install .[stacks]
 ```
 
-Or install only necessary stacks:
+To install only BQSKit or only Pytket support:
 
-* BQSKit stack:
-
-    ```bash
-    pip install .[bqskit]
-    ```
-
-* Pytket stack:
-
-    ```bash
-    pip install .[pytket]
-    ```
+```bash
+pip install .[bqskit]
+pip install .[pytket]
+```
 
 ## Testing
 
-Install:
+Install [pytest](https://docs.pytest.org/) testing support:
 
 ```bash
 pip install .[testing]
 ```
 
-Then run `tests/run_tests.py`
+Then run [tests script](tests/run_tests.py):
+
+```bash
+python tests/run_tests.py
+```

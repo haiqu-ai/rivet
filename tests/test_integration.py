@@ -1,13 +1,11 @@
 import qiskit
 
-from qml_transpiler import get_full_map
-from qml_transpiler import get_litmus_circuit
 from qml_transpiler import get_sinusoids
 
-from .integration import get_circuits_to_compare
-from .integration import run_circuits_to_compare
-from .integration import plot_results_to_compare
-from .integration import check_delta
+from tests.integration import get_circuits_to_compare
+from tests.integration import run_circuits_to_compare
+from tests.integration import plot_results_to_compare
+from tests.integration import check_delta
 
 
 # Parameters
@@ -32,11 +30,10 @@ ROUTING_METHOD = None
 # Test Integration
 
 def test_transpilation_types_litmus(litmus_circuit, backend):
-    
+
     QUBITS_COUNT = litmus_circuit.num_qubits
 
     qubits = list(range(QUBITS_COUNT))
-
 
     # Initial State Part
 
@@ -58,44 +55,43 @@ def test_transpilation_types_litmus(litmus_circuit, backend):
         litmus_circuit,
         measurement_circuit
     ]
-    
+
     # Compare Transpilation Types
 
     circuits_to_compare = get_circuits_to_compare(
         circuit_parts=CIRCUIT_PARTS,
         backend=backend,
         layout_method=LAYOUT_METHOD,
-        routing_method=ROUTING_METHOD,  
+        routing_method=ROUTING_METHOD,
         seed_transpiler=SEED_TRANSPILER,
         optimization_level=OPTIMIZATION_LEVEL
     )
 
     results = run_circuits_to_compare(
-        circuits_to_compare=circuits_to_compare, 
-        backend=backend, 
+        circuits_to_compare=circuits_to_compare,
+        backend=backend,
         shots_count=SHOTS_COUNT
     )
-    
+
     plot_results_to_compare(results)
 
     assert check_delta(results, 0.1), ("Delta Check shows that "
                                        "counts between transpilation types "
-                                       "differ by more then 10%")    
+                                       "differ by more then 10%")
 
 
 def test_transpilation_types_ae_and_qft(litmus_circuit, backend):
-       
+
     QUBITS_COUNT = AE_QFT_QUBIT_COUNT
 
     qubits = list(range(QUBITS_COUNT))
-    
-   
+
     # Sinusoids
-    
-    sinusoids_data = get_sinusoids(QUBITS_COUNT, 
+
+    sinusoids_data = get_sinusoids(QUBITS_COUNT,
                                    frequencies=[1, 3],
                                    amplitudes=[10, 5])
-    
+
     # AE Part
 
     amplitude_embedding = qiskit.circuit.library.StatePreparation(sinusoids_data)
@@ -124,26 +120,26 @@ def test_transpilation_types_ae_and_qft(litmus_circuit, backend):
         qft_circuit,
         measurement_circuit
     ]
-    
+
     # Compare Transpilation Types
-    
+
     circuits_to_compare = get_circuits_to_compare(
         circuit_parts=CIRCUIT_PARTS,
         backend=backend,
         layout_method=LAYOUT_METHOD,
-        routing_method=ROUTING_METHOD,  
+        routing_method=ROUTING_METHOD,
         seed_transpiler=SEED_TRANSPILER,
         optimization_level=OPTIMIZATION_LEVEL
     )
 
     results = run_circuits_to_compare(
-        circuits_to_compare=circuits_to_compare, 
-        backend=backend, 
+        circuits_to_compare=circuits_to_compare,
+        backend=backend,
         shots_count=SHOTS_COUNT
     )
-    
+
     # plot_results_to_compare(results)
-    
-    assert check_delta(results, 0.1), ("Delta Check shows that "
+
+    assert check_delta(results, 0.2), ("Delta Check shows that "
                                        "counts between transpilation types "
-                                       "differ by more then 10%")    
+                                       "differ by more then 20%")

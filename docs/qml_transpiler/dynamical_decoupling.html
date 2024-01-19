@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>qml_transpiler.dynamical_decoupling API documentation</title>
-<meta name="description" content="Dynamical Decoupling (DD) is a form of quantum error mitigation that aims to protect quantum information from the
-influence of external factors such …" />
+<meta name="description" content="Dynamical Decoupling (DD) is a form of quantum error mitigation that aims to
+protect quantum information from the influence of external factors such …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -23,24 +23,41 @@ influence of external factors such …" />
 <h1 class="title">Module <code>qml_transpiler.dynamical_decoupling</code></h1>
 </header>
 <section id="section-intro">
-<p>Dynamical Decoupling (DD) is a form of quantum error mitigation that aims to protect quantum information from the
-influence of external factors such as environmental noise and imperfect control of quantum gates.</p>
-<p>The basic idea behind dynamical decoupling is to apply a series of carefully chosen control pulses or gates at specific intervals during the evolution of a quantum system. These control pulses are designed to reverse or "decouple" the system from the undesired influences of noise and errors, effectively preserving the quantum state over time.</p>
+<p>Dynamical Decoupling (DD) is a form of quantum error mitigation that aims to
+protect quantum information from the influence of external factors such as
+environmental noise and imperfect control of quantum gates.</p>
+<p>The basic idea behind dynamical decoupling is to apply a series of carefully
+chosen control pulses or gates at specific intervals during the evolution of
+a quantum system.</p>
+<p>These control pulses are designed to reverse or "decouple" the system from the
+undesired influences of noise and errors, effectively preserving the quantum
+state over time.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
-Dynamical Decoupling (DD) is a form of quantum error mitigation that aims to protect quantum information from the  influence of external factors such as environmental noise and imperfect control of quantum gates.
+Dynamical Decoupling (DD) is a form of quantum error mitigation that aims to
+protect quantum information from the influence of external factors such as
+environmental noise and imperfect control of quantum gates.
 
-The basic idea behind dynamical decoupling is to apply a series of carefully chosen control pulses or gates at specific intervals during the evolution of a quantum system. These control pulses are designed to reverse or &#34;decouple&#34; the system from the undesired influences of noise and errors, effectively preserving the quantum state over time.
+The basic idea behind dynamical decoupling is to apply a series of carefully
+chosen control pulses or gates at specific intervals during the evolution of
+a quantum system.
+
+These control pulses are designed to reverse or &#34;decouple&#34; the system from the
+undesired influences of noise and errors, effectively preserving the quantum
+state over time.
 &#34;&#34;&#34;
-
 
 import qiskit
 
-def add_dynamical_decoupling(circuit, backend, dd_pulses=None, dd_pulses_count=None, dd_pulse_alignment=None):
-    
+
+def add_dynamical_decoupling(circuit, backend,
+                             dd_pulses=None,
+                             dd_pulses_count=None,
+                             dd_pulse_alignment=None):
+
     &#34;&#34;&#34;
     Apply Dynamical Decoupling (DD) to a quantum circuit.
 
@@ -55,50 +72,47 @@ def add_dynamical_decoupling(circuit, backend, dd_pulses=None, dd_pulses_count=N
     Returns:
         QuantumCircuit: The quantum circuit with Dynamical Decoupling applied.
     &#34;&#34;&#34;
-    
+
     DEFAULT_DD_PULSES = [qiskit.circuit.library.XGate()]
     DEFAULT_DD_PULSES_COUNT = 2
-    
+
     # DD Sequence
-    
+
     if dd_pulses is None:
         dd_pulses = DEFAULT_DD_PULSES
-        
+
     if dd_pulses_count is None:
         dd_pulses_count = DEFAULT_DD_PULSES_COUNT
-    
+
     dd_sequence = dd_pulses * dd_pulses_count
-    
-    
+
     # Pulse Alignment
-    
+
     backend_pulse_alignment = None
 
-    if (hasattr(backend, &#39;configuration&#39;) and
-        hasattr(backend.configuration(), &#39;timing_constraints&#39;) and
-        hasattr(backend.configuration().timing_constraints, &#39;pulse_alignment&#39;)):
+    if (hasattr(backend, &#39;configuration&#39;)
+            and hasattr(backend.configuration(), &#39;timing_constraints&#39;)
+            and hasattr(backend.configuration().timing_constraints, &#39;pulse_alignment&#39;)):
 
         backend_pulse_alignment = backend.configuration().timing_constraints.get(&#39;pulse_alignment&#39;)
-        
+
     run_pulse_alignment = dd_pulse_alignment or backend_pulse_alignment
-    
-    
+
     # Instruction Durations
-    
+
     instruction_durations = qiskit.transpiler.InstructionDurations.from_backend(backend)
-    
-    
+
     # DD Pass Manager
-        
+
     dd_pass_manager = qiskit.transpiler.PassManager([
         qiskit.transpiler.passes.ALAPScheduleAnalysis(instruction_durations),
         qiskit.transpiler.passes.PadDynamicalDecoupling(
             durations=instruction_durations,
-            dd_sequence=dd_sequence, 
+            dd_sequence=dd_sequence,
             pulse_alignment=run_pulse_alignment)])
-    
+
     circuit_with_dd = dd_pass_manager.run(circuit)
-        
+
     return circuit_with_dd</code></pre>
 </details>
 </section>
@@ -137,8 +151,11 @@ it will attempt to use the backend's pulse alignment configuration.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def add_dynamical_decoupling(circuit, backend, dd_pulses=None, dd_pulses_count=None, dd_pulse_alignment=None):
-    
+<pre><code class="python">def add_dynamical_decoupling(circuit, backend,
+                             dd_pulses=None,
+                             dd_pulses_count=None,
+                             dd_pulse_alignment=None):
+
     &#34;&#34;&#34;
     Apply Dynamical Decoupling (DD) to a quantum circuit.
 
@@ -153,50 +170,47 @@ it will attempt to use the backend's pulse alignment configuration.</dd>
     Returns:
         QuantumCircuit: The quantum circuit with Dynamical Decoupling applied.
     &#34;&#34;&#34;
-    
+
     DEFAULT_DD_PULSES = [qiskit.circuit.library.XGate()]
     DEFAULT_DD_PULSES_COUNT = 2
-    
+
     # DD Sequence
-    
+
     if dd_pulses is None:
         dd_pulses = DEFAULT_DD_PULSES
-        
+
     if dd_pulses_count is None:
         dd_pulses_count = DEFAULT_DD_PULSES_COUNT
-    
+
     dd_sequence = dd_pulses * dd_pulses_count
-    
-    
+
     # Pulse Alignment
-    
+
     backend_pulse_alignment = None
 
-    if (hasattr(backend, &#39;configuration&#39;) and
-        hasattr(backend.configuration(), &#39;timing_constraints&#39;) and
-        hasattr(backend.configuration().timing_constraints, &#39;pulse_alignment&#39;)):
+    if (hasattr(backend, &#39;configuration&#39;)
+            and hasattr(backend.configuration(), &#39;timing_constraints&#39;)
+            and hasattr(backend.configuration().timing_constraints, &#39;pulse_alignment&#39;)):
 
         backend_pulse_alignment = backend.configuration().timing_constraints.get(&#39;pulse_alignment&#39;)
-        
+
     run_pulse_alignment = dd_pulse_alignment or backend_pulse_alignment
-    
-    
+
     # Instruction Durations
-    
+
     instruction_durations = qiskit.transpiler.InstructionDurations.from_backend(backend)
-    
-    
+
     # DD Pass Manager
-        
+
     dd_pass_manager = qiskit.transpiler.PassManager([
         qiskit.transpiler.passes.ALAPScheduleAnalysis(instruction_durations),
         qiskit.transpiler.passes.PadDynamicalDecoupling(
             durations=instruction_durations,
-            dd_sequence=dd_sequence, 
+            dd_sequence=dd_sequence,
             pulse_alignment=run_pulse_alignment)])
-    
+
     circuit_with_dd = dd_pass_manager.run(circuit)
-        
+
     return circuit_with_dd</code></pre>
 </details>
 </dd>

@@ -26,12 +26,21 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from .transpiler import *
-from .stacks import *
-from .functions import *
-from .dynamical_decoupling import *
-from .topological_compression import *
-from .transpile_part import *</code></pre>
+<pre><code class="python">from .transpiler import transpile
+from .transpiler import transpile_and_return_options
+from .transpiler import transpile_chain
+from .transpiler import transpile_right
+from .transpiler import transpile_left
+from .transpiler import get_full_map
+
+from .functions import get_litmus_circuit
+from .functions import get_cnot_circuit
+from .functions import get_sinusoids
+from .functions import get_ibm_cost
+
+from .topological_compression import get_used_qubit_indices
+from .topological_compression import get_limited_coupling_list
+from .topological_compression import transpile_and_compress</code></pre>
 </details>
 </section>
 <section>
@@ -39,8 +48,8 @@ from .transpile_part import *</code></pre>
 <dl>
 <dt><code class="name"><a title="qml_transpiler.dynamical_decoupling" href="dynamical_decoupling.html">qml_transpiler.dynamical_decoupling</a></code></dt>
 <dd>
-<div class="desc"><p>Dynamical Decoupling (DD) is a form of quantum error mitigation that aims to protect quantum information from the
-influence of external factors such …</p></div>
+<div class="desc"><p>Dynamical Decoupling (DD) is a form of quantum error mitigation that aims to
+protect quantum information from the influence of external factors such …</p></div>
 </dd>
 <dt><code class="name"><a title="qml_transpiler.functions" href="functions.html">qml_transpiler.functions</a></code></dt>
 <dd>
@@ -52,7 +61,8 @@ influence of external factors such …</p></div>
 </dd>
 <dt><code class="name"><a title="qml_transpiler.topological_compression" href="topological_compression.html">qml_transpiler.topological_compression</a></code></dt>
 <dd>
-<div class="desc"><p>Topological Compression selects topologically most important qubits of a backend – to produce limited coupling map – to decrease transpilation and …</p></div>
+<div class="desc"><p>Topological Compression selects topologically most important qubits of a backend
+to produce limited coupling map - to decrease transpilation and …</p></div>
 </dd>
 <dt><code class="name"><a title="qml_transpiler.transpile_part" href="transpile_part.html">qml_transpiler.transpile_part</a></code></dt>
 <dd>
