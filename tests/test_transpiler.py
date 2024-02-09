@@ -99,22 +99,18 @@ def test_transpile_and_compress_coupling_map(litmus_circuit, backend):
 
     if backend is None:
         coupling_map = None
-    else:
-        coupling_map = backend.configuration().coupling_map
 
-    # Coupling List
-
-    if coupling_map is None:
-        coupling_list = None
     else:
-        coupling_list = [list(pair) for pair in coupling_map]
+        coupling_list = backend.configuration().coupling_map
+        coupling_map = qiskit.transpiler.CouplingMap(
+            couplinglist=coupling_list)
 
     # Transpile and Compress
 
     compressed_litmus_circuit = transpile_and_compress(
         litmus_circuit,
         backend,
-        coupling_map=coupling_list,
+        coupling_map=coupling_map,
         seed_transpiler=1234)
 
     return compressed_litmus_circuit

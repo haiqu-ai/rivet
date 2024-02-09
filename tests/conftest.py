@@ -15,7 +15,7 @@ QUBIT_COUNTS = [5]
 
 BACKENDS = [
     None,
-    qiskit.providers.aer.AerSimulator,
+    # qiskit.providers.aer.AerSimulator,
     # FakeBackend5QV2,
     # FakeLimaV2,
     # FakeGuadalupeV2,

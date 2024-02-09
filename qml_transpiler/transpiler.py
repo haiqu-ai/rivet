@@ -6,9 +6,7 @@ from qml_transpiler.stacks import get_stack_pass_manager
 from qml_transpiler.dynamical_decoupling import add_dynamical_decoupling
 
 
-# Transpile
-
-def transpile(circuit, backend=None, *arguments, **key_arguments):
+def transpile(circuit, backend=None, **key_arguments):
 
     """
     Transpile a quantum circuit with optional stack-specific optimizations.
@@ -16,13 +14,13 @@ def transpile(circuit, backend=None, *arguments, **key_arguments):
     Parameters:
     - circuit (QuantumCircuit): The quantum circuit to be transpiled.
     - backend (BaseBackend, optional): The target backend for execution.
-    - *arguments: Additional positional arguments to be passed to qiskit.transpile.
-    - **key_arguments: Additional keyword arguments to be passed to qiskit.transpile.
+    - key_arguments: Additional key arguments to be passed to qiskit transpilation.
 
-    Options:
-    - transpiler_options (dict): Dictionary containing transpiler options.
-      - backend (BaseBackend, optional): Override backend specified in 'key_arguments'.
-      - arguments (tuple): Override arguments specified in 'key_arguments'.
+    Stack:
+    - stack (str): The selected stack ('qiskit', 'qiskit_qsearch',
+                                       'qiskit_qfactor_qsearch', 'qiskit_pytket')
+    Pass Manager:
+    - pass_manager: Custom pass manager for transpilation.
 
     Dynamical Decoupling Arguments:
     - dd_pulses: Dynamical decoupling pulses.
@@ -34,90 +32,54 @@ def transpile(circuit, backend=None, *arguments, **key_arguments):
     - return_options (bool): If True, returns a tuple (transpiled_circuit, options).
       If False (default), only the transpiled circuit is returned.
 
-    Stack:
-    - stack (str): The selected stack ('qiskit', 'qiskit_qsearch',
-                                       'qiskit_qfactor_qsearch', 'qiskit_pytket')
-
-    Pass Manager:
-    - pass_manager: Custom pass manager for transpilation.
-
     Returns:
     - QuantumCircuit: Transpiled quantum circuit.
 
     Note: If 'pass_manager' is provided, it takes precedence over 'stack'.
     """
 
-    # Options
+    # Parameters
 
-    transpiler_options = key_arguments.get('transpiler_options', dict())
+    parameters = key_arguments.copy()
 
-    options_backend = transpiler_options.get('backend')
-    options_arguments = transpiler_options.get('arguments', ())
+    parameters['backend'] = backend
 
-    # Arguments
+    callback = parameters.pop("callback", None)
+    return_options = parameters.pop('return_options', False)
 
-    run_backend = backend or options_backend
+    parameters_pass_manager = parameters.pop('pass_manager', None)
 
-    run_arguments = arguments or options_arguments
-
-    run_key_arguments = {**transpiler_options, **key_arguments}
-
-    run_key_arguments['backend'] = run_backend
-
-    # Dynamical Decoupling Arguments
-
-    dd_pulses = run_key_arguments.pop('dd_pulses', None)
-    dd_pulses_count = run_key_arguments.pop('dd_pulses_count', None)
-    dd_pulse_alignment = run_key_arguments.pop('dd_pulse_alignment', None)
-    dynamical_decoupling = run_key_arguments.pop('dynamical_decoupling', None)
-
-    # Return Options
-
-    return_options = run_key_arguments.pop('return_options', False)
-
-    # Stack
-
-    stack_pass_manager = None
-
-    arguments_stack = key_arguments.get('stack')
-    options_stack = transpiler_options.get('stack')
-
-    stack = arguments_stack or options_stack
-
-    if stack is not None:
-
-        stack_pass_manager = get_stack_pass_manager(**run_key_arguments)
+    dd_pulses = parameters.pop('dd_pulses', None)
+    dd_pulses_count = parameters.pop('dd_pulses_count', None)
+    dd_pulse_alignment = parameters.pop('dd_pulse_alignment', None)
+    dynamical_decoupling = parameters.pop('dynamical_decoupling', None)
 
     # Pass Manager
 
-    arguments_pass_manager = key_arguments.get('pass_manager')
-    options_pass_manager = transpiler_options.get('pass_manager')
+    stack_pass_manager = get_stack_pass_manager(**parameters)
 
-    pass_manager = arguments_pass_manager or options_pass_manager or stack_pass_manager
+    pass_manager = parameters_pass_manager or stack_pass_manager
 
     # Transpile
 
-    if pass_manager is None:
-
-        transpiled_circuit = qiskit.transpile(circuit, *run_arguments, **run_key_arguments)
-
-    else:
-        transpiled_circuit = pass_manager.run(circuit)
+    transpiled_circuit = pass_manager.run(circuit, callback=callback)
 
     # Dynamical Decoupling
 
     if dynamical_decoupling is True:
 
-        transpiled_circuit = add_dynamical_decoupling(transpiled_circuit, run_backend,
+        transpiled_circuit = add_dynamical_decoupling(transpiled_circuit, backend,
                                                       dd_pulses, dd_pulses_count, dd_pulse_alignment)
 
     # Transpile Options
 
     if return_options is True:
 
-        options = run_key_arguments.copy()
+        options = dict()
 
-        options['arguments'] = run_arguments
+        options['backend'] = backend
+        options['key_arguments'] = key_arguments
+        options['pass_manager'] = pass_manager
         options['original_circuit'] = circuit
 
         return transpiled_circuit, options
@@ -127,9 +89,7 @@ def transpile(circuit, backend=None, *arguments, **key_arguments):
         return transpiled_circuit
 
 
-# 3) Transpile Chain
-
-def transpile_chain(circuits, backend=None, *arguments, **key_arguments):
+def transpile_chain(circuits, backend=None, **key_arguments):
 
     """
     Transpile a chain of quantum circuits one-by-one.
@@ -137,8 +97,7 @@ def transpile_chain(circuits, backend=None, *arguments, **key_arguments):
     Args:
         circuits (list of QuantumCircuit): List of input quantum circuits.
         backend: The target backend for transpilation.
-        *arguments: Positional arguments for qiskit.transpile.
-        **key_arguments: Keyword arguments for qiskit.transpile.
+        **key_arguments: Additional keyword arguments for transpilation.
 
     Returns:
         QuantumCircuit: The transpiled chain circuit.
@@ -157,10 +116,7 @@ def transpile_chain(circuits, backend=None, *arguments, **key_arguments):
 
             key_arguments['initial_layout'] = initial_layout
 
-        transpiled_circuit = transpile(
-            circuit,
-            backend,
-            *arguments, **key_arguments)
+        transpiled_circuit = transpile(circuit, backend, **key_arguments)
 
         if chain_circuit is None:
             chain_circuit = transpiled_circuit
@@ -175,10 +131,8 @@ def transpile_chain(circuits, backend=None, *arguments, **key_arguments):
     return chain_circuit
 
 
-# 4) Transpile Right
-
 def transpile_right(central_circuit, right_circuit,
-                    backend=None, *arguments, **key_arguments):
+                    backend=None, **key_arguments):
 
     """
     Transpile a right quantum circuit and combine it with already transpiled central circuit.
@@ -187,8 +141,7 @@ def transpile_right(central_circuit, right_circuit,
         central_circuit (QuantumCircuit): The central quantum circuit.
         right_circuit (QuantumCircuit): The right quantum circuit to transpile and add.
         backend: The target backend for transpilation.
-        *arguments: Positional arguments for qiskit.transpile.
-        **key_arguments: Keyword arguments for qiskit.transpile.
+        **key_arguments: Additional keyword arguments for transpilation.
 
     Returns:
         QuantumCircuit: The resulting quantum circuit.
@@ -203,7 +156,7 @@ def transpile_right(central_circuit, right_circuit,
     transpiled_right_circuit = transpile(
         right_circuit,
         backend,
-        *arguments, **key_arguments)
+        **key_arguments)
 
     resulting_circuit = central_circuit.compose(transpiled_right_circuit)
 
@@ -265,10 +218,8 @@ def transpile_right(central_circuit, right_circuit,
     return resulting_circuit
 
 
-# 5) Transpile Left
-
 def transpile_left(central_circuit, left_circuit,
-                   backend=None, *arguments, **key_arguments):
+                   backend=None, **key_arguments):
 
     """
     Transpile a left quantum circuit and combine it with already transpiled central circuit.
@@ -277,8 +228,7 @@ def transpile_left(central_circuit, left_circuit,
         central_circuit (QuantumCircuit): The central quantum circuit.
         left_circuit (QuantumCircuit): The left quantum circuit to transpile and add.
         backend: The target backend for transpilation.
-        *arguments: Positional arguments for qiskit.transpile.
-        **key_arguments: Keyword arguments for qiskit.transpile.
+        **key_arguments: Additional keyword arguments for transpilation.
 
     Returns:
         QuantumCircuit: The resulting quantum circuit.
@@ -308,7 +258,7 @@ def transpile_left(central_circuit, left_circuit,
     transpiled_inverted_left_circuit = transpile(
         inverted_left_circuit,
         backend,
-        *arguments, **key_arguments)
+        **key_arguments)
 
     transpiled_left_circuit = transpiled_inverted_left_circuit.inverse()
 
@@ -383,8 +333,6 @@ def transpile_left(central_circuit, left_circuit,
 
     return resulting_circuit
 
-
-# 6) Get Full Map
 
 def get_full_map(transpiled_circuit, verbose=False):
 
