@@ -7,7 +7,6 @@ from qml_transpiler.dynamical_decoupling import add_dynamical_decoupling
 
 
 def transpile(circuit, backend=None, **key_arguments):
-
     """
     Transpile a quantum circuit with optional stack-specific optimizations.
 
@@ -42,17 +41,17 @@ def transpile(circuit, backend=None, **key_arguments):
 
     parameters = key_arguments.copy()
 
-    parameters['backend'] = backend
+    parameters["backend"] = backend
 
     callback = parameters.pop("callback", None)
-    return_options = parameters.pop('return_options', False)
+    return_options = parameters.pop("return_options", False)
 
-    parameters_pass_manager = parameters.pop('pass_manager', None)
+    parameters_pass_manager = parameters.pop("pass_manager", None)
 
-    dd_pulses = parameters.pop('dd_pulses', None)
-    dd_pulses_count = parameters.pop('dd_pulses_count', None)
-    dd_pulse_alignment = parameters.pop('dd_pulse_alignment', None)
-    dynamical_decoupling = parameters.pop('dynamical_decoupling', None)
+    dd_pulses = parameters.pop("dd_pulses", None)
+    dd_pulses_count = parameters.pop("dd_pulses_count", None)
+    dd_pulse_alignment = parameters.pop("dd_pulse_alignment", None)
+    dynamical_decoupling = parameters.pop("dynamical_decoupling", None)
 
     # Pass Manager
 
@@ -68,8 +67,9 @@ def transpile(circuit, backend=None, **key_arguments):
 
     if dynamical_decoupling is True:
 
-        transpiled_circuit = add_dynamical_decoupling(transpiled_circuit, backend,
-                                                      dd_pulses, dd_pulses_count, dd_pulse_alignment)
+        transpiled_circuit = add_dynamical_decoupling(
+            transpiled_circuit, backend, dd_pulses, dd_pulses_count, dd_pulse_alignment
+        )
 
     # Transpile Options
 
@@ -77,10 +77,10 @@ def transpile(circuit, backend=None, **key_arguments):
 
         options = dict()
 
-        options['backend'] = backend
-        options['key_arguments'] = key_arguments
-        options['pass_manager'] = pass_manager
-        options['original_circuit'] = circuit
+        options["backend"] = backend
+        options["key_arguments"] = key_arguments
+        options["pass_manager"] = pass_manager
+        options["original_circuit"] = circuit
 
         return transpiled_circuit, options
 
@@ -90,7 +90,6 @@ def transpile(circuit, backend=None, **key_arguments):
 
 
 def transpile_chain(circuits, backend=None, **key_arguments):
-
     """
     Transpile a chain of quantum circuits one-by-one.
 
@@ -112,9 +111,9 @@ def transpile_chain(circuits, backend=None, **key_arguments):
 
         if full_map is not None:
 
-            initial_layout = full_map[:circuit.num_qubits]
+            initial_layout = full_map[: circuit.num_qubits]
 
-            key_arguments['initial_layout'] = initial_layout
+            key_arguments["initial_layout"] = initial_layout
 
         transpiled_circuit = transpile(circuit, backend, **key_arguments)
 
@@ -131,9 +130,7 @@ def transpile_chain(circuits, backend=None, **key_arguments):
     return chain_circuit
 
 
-def transpile_right(central_circuit, right_circuit,
-                    backend=None, **key_arguments):
-
+def transpile_right(central_circuit, right_circuit, backend=None, **key_arguments):
     """
     Transpile a right quantum circuit and combine it with already transpiled central circuit.
 
@@ -151,12 +148,9 @@ def transpile_right(central_circuit, right_circuit,
 
     full_map = get_full_map(central_circuit)
 
-    key_arguments['initial_layout'] = full_map[:right_circuit.num_qubits]
+    key_arguments["initial_layout"] = full_map[: right_circuit.num_qubits]
 
-    transpiled_right_circuit = transpile(
-        right_circuit,
-        backend,
-        **key_arguments)
+    transpiled_right_circuit = transpile(right_circuit, backend, **key_arguments)
 
     resulting_circuit = central_circuit.compose(transpiled_right_circuit)
 
@@ -179,8 +173,10 @@ def transpile_right(central_circuit, right_circuit,
         central_routing = list(range(central_circuit.num_qubits))
 
     else:
-        central_routing = [central_circuit.layout.final_layout[qubit]
-                           for qubit in central_circuit.qubits]
+        central_routing = [
+            central_circuit.layout.final_layout[qubit]
+            for qubit in central_circuit.qubits
+        ]
 
     # Right Routing
 
@@ -189,8 +185,10 @@ def transpile_right(central_circuit, right_circuit,
         right_routing = list(range(transpiled_right_circuit.num_qubits))
 
     else:
-        right_routing = [transpiled_right_circuit.layout.final_layout[qubit]
-                         for qubit in transpiled_right_circuit.qubits]
+        right_routing = [
+            transpiled_right_circuit.layout.final_layout[qubit]
+            for qubit in transpiled_right_circuit.qubits
+        ]
 
     # Final Routing
 
@@ -198,12 +196,14 @@ def transpile_right(central_circuit, right_circuit,
 
     # Layouts
 
-    final_layout = qiskit.transpiler.Layout.from_intlist(final_routing, *resulting_circuit.qregs)
+    final_layout = qiskit.transpiler.Layout.from_intlist(
+        final_routing, *resulting_circuit.qregs
+    )
 
     transpile_layout = qiskit.transpiler.TranspileLayout(
         input_qubit_mapping=central_circuit.layout.input_qubit_mapping,
         initial_layout=central_circuit.layout.initial_layout,
-        final_layout=final_layout
+        final_layout=final_layout,
     )
 
     resulting_circuit._layout = transpile_layout
@@ -218,9 +218,7 @@ def transpile_right(central_circuit, right_circuit,
     return resulting_circuit
 
 
-def transpile_left(central_circuit, left_circuit,
-                   backend=None, **key_arguments):
-
+def transpile_left(central_circuit, left_circuit, backend=None, **key_arguments):
     """
     Transpile a left quantum circuit and combine it with already transpiled central circuit.
 
@@ -247,25 +245,23 @@ def transpile_left(central_circuit, left_circuit,
 
         initial_map = [initial_layout[qubit] for qubit in input_qubit_mapping]
 
-        left_initial_layout = initial_map[:left_circuit.num_qubits]
+        left_initial_layout = initial_map[: left_circuit.num_qubits]
 
     # Transpile and Compose
 
-    key_arguments['initial_layout'] = left_initial_layout
+    key_arguments["initial_layout"] = left_initial_layout
 
     inverted_left_circuit = left_circuit.inverse()
 
     transpiled_inverted_left_circuit = transpile(
-        inverted_left_circuit,
-        backend,
-        **key_arguments)
+        inverted_left_circuit, backend, **key_arguments
+    )
 
     transpiled_left_circuit = transpiled_inverted_left_circuit.inverse()
 
     transpiled_left_circuit._layout = transpiled_inverted_left_circuit.layout
 
-    resulting_circuit = central_circuit.compose(transpiled_left_circuit,
-                                                front=True)
+    resulting_circuit = central_circuit.compose(transpiled_left_circuit, front=True)
 
     # No Layout
 
@@ -280,19 +276,22 @@ def transpile_left(central_circuit, left_circuit,
         left_routing = list(range(transpiled_left_circuit.num_qubits))
 
     else:
-        left_routing = [transpiled_left_circuit.layout.final_layout[qubit]
-                        for qubit in transpiled_left_circuit.qubits]
+        left_routing = [
+            transpiled_left_circuit.layout.final_layout[qubit]
+            for qubit in transpiled_left_circuit.qubits
+        ]
 
     # Central Routing
 
-    if (central_circuit.layout is None or
-            central_circuit.layout.final_layout is None):
+    if central_circuit.layout is None or central_circuit.layout.final_layout is None:
 
         central_routing = list(range(central_circuit.num_qubits))
 
     else:
-        central_routing = [central_circuit.layout.final_layout[qubit]
-                           for qubit in central_circuit.qubits]
+        central_routing = [
+            central_circuit.layout.final_layout[qubit]
+            for qubit in central_circuit.qubits
+        ]
 
     # Final Routing
 
@@ -300,7 +299,9 @@ def transpile_left(central_circuit, left_circuit,
 
     # Final Layout
 
-    final_layout = qiskit.transpiler.Layout.from_intlist(final_routing, *resulting_circuit.qregs)
+    final_layout = qiskit.transpiler.Layout.from_intlist(
+        final_routing, *resulting_circuit.qregs
+    )
 
     # Initial Layout
 
@@ -319,7 +320,7 @@ def transpile_left(central_circuit, left_circuit,
     transpile_layout = qiskit.transpiler.TranspileLayout(
         input_qubit_mapping=input_qubit_mapping,
         initial_layout=initial_layout,
-        final_layout=final_layout
+        final_layout=final_layout,
     )
 
     resulting_circuit._layout = transpile_layout
@@ -335,7 +336,6 @@ def transpile_left(central_circuit, left_circuit,
 
 
 def get_full_map(transpiled_circuit, verbose=False):
-
     """
     Get the final allocation of virtual qubits in a transpiled quantum circuit.
 
@@ -361,8 +361,7 @@ def get_full_map(transpiled_circuit, verbose=False):
     initial_layout = transpiled_circuit.layout.initial_layout
     final_layout = transpiled_circuit.layout.final_layout
 
-    zero_map = dict(zip(input_qubit_mapping,
-                        transpiled_circuit.qubits))
+    zero_map = dict(zip(input_qubit_mapping, transpiled_circuit.qubits))
 
     # After Layout Map
 
