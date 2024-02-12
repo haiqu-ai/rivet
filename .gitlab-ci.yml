@@ -1,6 +1,7 @@
 stages:
   - test
   - deploy
+  - documentation
 
 default:
   image: python:3.9
