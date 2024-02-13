@@ -10,31 +10,24 @@ def transpile(circuit, backend=None, **key_arguments):
     """
     Transpile a quantum circuit with optional stack-specific optimizations.
 
-    Parameters:
-    - circuit (QuantumCircuit): The quantum circuit to be transpiled.
-    - backend (BaseBackend, optional): The target backend for execution.
-    - key_arguments: Additional key arguments to be passed to qiskit transpilation.
-
-    Stack:
-    - stack (str): The selected stack ('qiskit', 'qiskit_qsearch',
+    Args:
+        circuit (QuantumCircuit): The quantum circuit to be transpiled.
+        backend (BaseBackend, optional): The target backend for execution.
+        ey_arguments: Additional key arguments to be passed to qiskit transpilation.
+        stack (str): The selected stack ('qiskit', 'qiskit_qsearch',
                                        'qiskit_qfactor_qsearch', 'qiskit_pytket')
-    Pass Manager:
-    - pass_manager: Custom pass manager for transpilation.
-
-    Dynamical Decoupling Arguments:
-    - dd_pulses: Dynamical decoupling pulses.
-    - dd_pulses_count: Number of dynamical decoupling pulses.
-    - dd_pulse_alignment: Alignment of dynamical decoupling pulses.
-    - dynamical_decoupling: Enable or disable dynamical decoupling.
-
-    Return Options:
-    - return_options (bool): If True, returns a tuple (transpiled_circuit, options).
-      If False (default), only the transpiled circuit is returned.
+        pass_manager: Custom pass manager for transpilation.
+            Note: If 'pass_manager' is provided, it takes precedence over 'stack'.
+        dd_pulses: Dynamical decoupling pulses.
+        dd_pulses_count: Number of dynamical decoupling pulses.
+        dd_pulse_alignment: Alignment of dynamical decoupling pulses.
+        dynamical_decoupling: Enable or disable dynamical decoupling.
+        return_options (bool): If True, returns a tuple (transpiled_circuit, options).
+            If False (default), only the transpiled circuit is returned.
 
     Returns:
-    - QuantumCircuit: Transpiled quantum circuit.
+        QuantumCircuit: Transpiled quantum circuit.
 
-    Note: If 'pass_manager' is provided, it takes precedence over 'stack'.
     """
 
     # Parameters

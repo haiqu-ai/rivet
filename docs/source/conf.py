@@ -56,9 +56,10 @@ exclude_patterns: List[str] = [
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 # html_theme = "sphinx_rtd_theme"
-# html_theme_options = {
-#     "logo_only": True,
-# }
+html_theme_options = {
+    # "logo_only": True,
+    # "home_link": "hide"  # theme_home_link
+}
 
 # html_theme = "groundwork"
 

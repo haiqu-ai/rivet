@@ -23,16 +23,7 @@ Clone repository:
 git clone https://gitlab.com/haiqu-ai/qml-transpiler.git
 ```
 
-Following pre-defined transpilation stacks are available:
-
-```python
-"qiskit"
-"qiskit_qsearch"
-"qiskit_qfactor_qsearch"
-"qiskit_pytket"
-```
-
-To install pre-defined stacks support:
+To install with all stacks:
 
 ```bash
 pip install .[stacks]

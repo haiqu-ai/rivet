@@ -7,15 +7,30 @@ This is the right place where you can find more about Haiqu's state-of-the-art
 quantum software platform.
 
 QML Transpiler package provides a family of functions for efficient transpilation
-of quantum circuits.
+of quantum circuits. See `API Reference` section for more details.
 
 
 Installation
 ------------
 
+Clone repository:
+
 .. code-block:: bash
 
-   pip install qml_transpiler
+   git clone https://gitlab.com/haiqu-ai/qml-transpiler.git
+
+To install with all stacks:
+
+.. code-block:: bash
+
+   pip install .[stacks]
+
+To install only BQSKit or only Pytket support:
+
+.. code-block:: bash
+
+   pip install .[bqskit]
+   pip install .[pytket]
 
 
 Minimal example
@@ -83,17 +98,10 @@ Function `transpile_chain` transpiles a chain of virtual circuits keeping qubits
    ancilla_1 -> 4 ────────────────────────────────────────────────────────────────░───────────────────────────────────────────────░─
                                                                                   ░                                               ░
 
-More examples
+Contacts
 -------------------
 
-In the repository you could find more complex examples:
-
-* Shadow State Tomography
-* Fourier Adder
-* Topological Compression
-* Hashing
-
-Please visit: https://gitlab.com/haiqu-ai/qml-transpiler
+Haiqu, info@haiqu.ai, +1 650 788 6011
 
 
 .. toctree::
