@@ -1,30 +1,21 @@
 # QML Transpiler
 
-**Quantum Transpilation** is a transformation of given virtual quantum circuit:
+The package provides a family of functions for efficient transpilation of quantum circuits.
 
-* to match the topology of a specific device
-* to optimize the circuit for execution
+- Function `transpile` - transpilation function featuring:
+    - Different transpilation stacks:
+        * [Qiskit:](https://github.com/Qiskit/qiskit#readme) Quantum SDK
+        * [BQSKit:](https://github.com/BQSKit/bqskit#readme) Berkeley Quantum Synthesis Toolkit
+        * [Pytket:](https://github.com/CQCL/pytket#readme) Python inteface for Quantinuum TKET compiler
+    - Custom PassManager
+    - Dynamical decoupling
+    - Transpiler options
+- Function `transpile_chain` - consistently transpile and "stitch" a chain of quantum circuits
+- Function `transpile_right` - transpile additional circuit to the right part of existing circuit
+- Function `transpile_left` - transpile additional circuit to the left part of existing circuit
+- Function `transpile_and_compress` - transpile and topologically compress a circuit considering a coupling map of selected backend
 
-QML Transpiler package provides a family of functions for efficient transpilation of quantum circuits.
-
-## Transpile Functions
-
-`transpile` - custom transpilation with possibility of using:
-
-- pre-defined [transpilation stacks](#transpilation-stacks)
-- custom [PassManager](https://docs.quantum.ibm.com/api/qiskit/passmanager)
-- dynamical decoupling
-- transpiler options
-
-`transpile_chain` - consistently transpile and "stitch" a [chain](#minimal-example) of quantum circuits.
-
-`transpile_right` - transpile additional circuit to the [right part](#shadow-state-tomography) of existing circuit.
-
-`transpile_left` - transpile additional circuit to the [left part](#fourier-adder) of existing circuit.
-
-`transpile_and_compress` - transpile and ["topologically compress"](#topological-compression) a circuit considering a coupling map of selected backend.
-
-## Install
+## Installation
 
 Clone repository:
 
@@ -32,13 +23,43 @@ Clone repository:
 git clone https://gitlab.com/haiqu-ai/qml-transpiler.git
 ```
 
-Go to repository folder and install a local package using pip:
+Following pre-defined transpilation stacks are available:
 
-```bash
-pip install .
+```python
+"qiskit"
+"qiskit_qsearch"
+"qiskit_qfactor_qsearch"
+"qiskit_pytket"
 ```
 
-## Minimal Example
+To install pre-defined stacks support:
+
+```bash
+pip install .[stacks]
+```
+
+To install only BQSKit or only Pytket support:
+
+```bash
+pip install .[bqskit]
+pip install .[pytket]
+```
+
+## Documentation
+
+For details about the QML Transpiler, see the [reference documentation:](https://haiqu-ai.gitlab.io/qml-transpiler).
+
+
+## Tutorials
+
+- [Transpilation Overview, Stages, Functions](examples/examples.ipynb)
+- [Shadow State Tomography](examples/shadows/shadow_state_tomography.ipynb)
+- [Fourier Adder](examples/fourier_adder/fourier_adder.ipynb)
+- [Topological Compression](examples/topological_compression/topological_compression.ipynb)
+- [Hashing](examples/hashing/hashing.ipynb)
+
+
+## Basic Example
 
 Transpilation includes placement of *virtual qubits* of a circuit to *physical qubits* of quantum device or simulator.
 <br>
@@ -48,7 +69,7 @@ Transpilation includes placement of *virtual qubits* of a circuit to *physical q
 <br>
 Additionally, SWAP gates can be included to route qubits around backend topology.
 
-`transpile_chain` function transpiles a chain of virtual circuits keeping qubits consistent:
+Function `transpile_chain` transpiles a chain of virtual circuits keeping qubits consistent:
 
 ```python
 import qiskit
@@ -105,119 +126,6 @@ ancilla_1 -> 4 ─────────────────────�
                                                                                ░                                               ░
 ```
 
-## Examples
+## Contacts
 
-A folder containing all examples:
-
-[examples/](examples/)
-
-### Basic examples:
-
-[examples.ipynb](examples/examples.ipynb)
-
-    - Transpilation Overview, Stages, Functions
-    - Litmus Circuit, Backend
-    - Qiskit Transpiler, Pass Manager
-    - Circuit Stitching, Full Map
-    - Transpile Chain, Right, Left, Compress
-    - Transpilation Stacks, QSearch, Synthesis
-    - Circuit Hash
-    - IBM Cost
-
-### Shadow State Tomography
-
-Efficient Tomography circuits transpilation with `transpile_right` function:
-
-[shadow_state_tomography.ipynb](examples/shadows/shadow_state_tomography.ipynb)
-
-<a>
-<img src="docs/images/su2.png">
-</a>
-
-### Fourier Adder
-
-Efficient QFT transpilation with `transpile_left` function:
-
-[fourier_adder.ipynb](examples/fourier_adder/fourier_adder.ipynb)
-
-<a>
-<img src="docs/images/fourier_adder.png">
-</a>
-<br>
-<a>
-<img src="docs/images/fourier_adder_states.png" width=150>
-<img src="docs/images/fourier_adder_states_noisy.png" width=150>
-<img src="docs/images/fourier_adder_states_full.png" width=150>
-</a>
-
-### Topological Compression
-
-Select topologically most important qubits of a backend – and then transpiles circuit using limited coupling map – to decrease transpilation and simulation time:
-
-[topological_compression.ipynb](examples/topological_compression/topological_compression.ipynb)
-
-<a>
-<img src="docs/images/topological_compression.png" width=250>
-</a>
-
-### Hashing
-
-[hashing.ipynb](examples/hashing/hashing.ipynb)
-
-
-## Demonstration
-
-The latest demo:
-
-* [QML Transpiler demonstration - 01 2024](examples/demo_01_2024/transpiler_demo.ipynb)
-
-## Documentation
-
-Detailed description of package structure and functions:
-
-* Deployed to [GitLab Pages](https://mohor.gitlab.io/haiqu/)
-* Local [Documents folder](docs/qml_transpiler)
-
-## Transpilation Stacks
-
-Transpilation stacks include below frameworks:
-
-* [Qiskit:](https://github.com/Qiskit/qiskit#readme) Quantum SDK
-* [BQSKit:](https://github.com/BQSKit/bqskit#readme) Berkeley Quantum Synthesis Toolkit
-* [Pytket:](https://github.com/CQCL/pytket#readme) Python inteface for Quantinuum TKET compiler
-
-Following pre-defined transpilation stacks are available:
-
-```python
-"qiskit"
-"qiskit_qsearch"
-"qiskit_qfactor_qsearch"
-"qiskit_pytket"
-```
-
-To install pre-defined stacks support:
-
-```bash
-pip install .[stacks]
-```
-
-To install only BQSKit or only Pytket support:
-
-```bash
-pip install .[bqskit]
-pip install .[pytket]
-```
-
-## Testing
-
-Install [pytest](https://docs.pytest.org/) testing support:
-
-```bash
-pip install .[testing]
-```
-
-Then run [tests script](tests/run_tests.py):
-
-```bash
-python tests/run_tests.py
-```
+Haiqu
