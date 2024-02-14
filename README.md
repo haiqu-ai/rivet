@@ -11,19 +11,19 @@ The package provides a family of functions for efficient transpilation of quantu
     - Dynamical decoupling
     - Transpiler options
 - Function `transpile_chain` - consistently transpile and "stitch" a chain of quantum circuits
-- Function `transpile_right` - transpile additional circuit to the right part of existing circuit
-- Function `transpile_left` - transpile additional circuit to the left part of existing circuit
-- Function `transpile_and_compress` - transpile and topologically compress a circuit considering a coupling map of selected backend
+- Function `transpile_right` - transpile an additional circuit to the right part of the existing circuit
+- Function `transpile_left` - transpile an additional circuit to the left part of the existing circuit
+- Function `transpile_and_compress` - transpile and topologically compress a circuit considering a coupling map of the selected backend
 
 ## Installation
 
-Clone repository:
+To install QML Transpiler, please clone the repository:
 
 ```bash
 git clone https://gitlab.com/haiqu-ai/qml-transpiler.git
 ```
 
-To install with all stacks:
+To install the transpiler with all supported stacks:
 
 ```bash
 pip install .[stacks]
@@ -38,7 +38,7 @@ pip install .[pytket]
 
 ## Documentation
 
-For details about the QML Transpiler, see the [reference documentation:](https://haiqu-ai.gitlab.io/qml-transpiler).
+For more details about the QML Transpiler, please check the [reference documentation](https://haiqu-ai.gitlab.io/qml-transpiler).
 
 
 ## Tutorials
@@ -52,15 +52,17 @@ For details about the QML Transpiler, see the [reference documentation:](https:/
 
 ## Basic Example
 
-Transpilation includes placement of *virtual qubits* of a circuit to *physical qubits* of quantum device or simulator.
 <br>
     <a>
     <img src="docs/images/layout.png">
     </a>
 <br>
-Additionally, SWAP gates can be included to route qubits around backend topology.
 
-Function `transpile_chain` transpiles a chain of virtual circuits keeping qubits consistent:
+Transpilation includes placement of *virtual qubits* of a circuit to *physical qubits* of the quantum device or simulator. Additionally, SWAP gates can be included to route qubits around the backend topology.
+
+Here we present a simple quantum circuit with 3 qubits before and after transpilation (using the function `transpile_chain` which transpiles a chain of virtual circuits keeping qubits consistent).
+
+### BEFORE transpilation
 
 ```python
 import qiskit
@@ -91,6 +93,8 @@ q_2: ─────┤ X ├┤ X ├
           └───┘└───┘
 ```
 
+### AFTER transpilation 
+
 ```python
 CHAIN = [circuit] * 3
 
@@ -119,4 +123,4 @@ ancilla_1 -> 4 ─────────────────────�
 
 ## Contacts
 
-Haiqu
+Haiqu Inc. [info@haiqu.ai](mailto:info@haiqu.ai),  +1 650 788 6011
