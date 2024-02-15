@@ -1,12 +1,12 @@
 import qiskit
 
 from rivet_transpiler import get_sinusoids
-
-from tests.integration import get_circuits_to_compare
-from tests.integration import run_circuits_to_compare
-from tests.integration import plot_results_to_compare
-from tests.integration import check_delta
-
+from tests.integration import (
+    check_delta,
+    get_circuits_to_compare,
+    plot_results_to_compare,
+    run_circuits_to_compare,
+)
 
 # Parameters
 

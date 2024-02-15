@@ -26,7 +26,6 @@ of further transpilation and simulation.
 import warnings
 
 from qiskit.transpiler import CouplingMap
-
 from rustworkx import closeness_centrality
 
 from rivet_transpiler.transpiler import transpile

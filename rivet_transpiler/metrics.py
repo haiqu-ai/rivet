@@ -4,9 +4,8 @@ from collections import Counter
 
 from qiskit.converters import dag_to_circuit
 
-from rivet_transpiler.transpiler import transpile
-
 from rivet_transpiler.functions import get_ibm_cost
+from rivet_transpiler.transpiler import transpile
 
 
 def transpile_and_return_metrics(circuit, backend=None, **key_arguments):

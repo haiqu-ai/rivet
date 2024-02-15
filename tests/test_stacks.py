@@ -1,9 +1,7 @@
 import pytest
-
 import qiskit
 
 from rivet_transpiler import transpile
-
 
 # Stacks
 

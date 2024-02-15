@@ -1,9 +1,32 @@
-"""Rivet Transpile functions."""
+"""
+Rivet Transpiler functions.
+
+`transpile` - transpilation function featuring:
+ - different transpilation stacks:
+    * Qiskit
+    * BQSKit
+    * Pytket
+ - custom PassManager
+ - dynamical decoupling
+ - transpiler options
+
+`transpile_chain` consistently transpile and "stitch" a chain of
+quantum circuits.
+
+`transpile_right` - transpile an additional circuit to the right part of
+the existing circuit.
+
+`transpile_left` - transpile an additional circuit to the left part of
+the existing circuit.
+
+`transpile_and_compress` - transpile and topologically compress a circuit
+considering a coupling map of the selected backend.
+"""
 
 import qiskit
 
-from rivet_transpiler.stacks import get_stack_pass_manager
 from rivet_transpiler.dynamical_decoupling import add_dynamical_decoupling
+from rivet_transpiler.stacks import get_stack_pass_manager
 
 
 def transpile(circuit, backend=None, **key_arguments):
@@ -201,13 +224,6 @@ def transpile_right(central_circuit, right_circuit, backend=None, **key_argument
 
     resulting_circuit._layout = transpile_layout
 
-    # Printouts
-
-    # print("central_routing:", central_routing)
-    # print("right_routing:", right_routing)
-    # print("final_routing:", final_routing)
-    # print("final_layout:", final_layout)
-
     return resulting_circuit
 
 
@@ -318,13 +334,6 @@ def transpile_left(central_circuit, left_circuit, backend=None, **key_arguments)
 
     resulting_circuit._layout = transpile_layout
 
-    # Printouts
-
-    # print("left_routing:", left_routing)
-    # print("central_routing:", central_routing)
-    # print("final_routing:", final_routing)
-    # print("final_layout:", final_layout)
-
     return resulting_circuit
 
 
@@ -396,7 +405,6 @@ def get_full_map(transpiled_circuit, verbose=False):
                 full_map.append(physical)
 
     # Printout
-
     if verbose is True:
 
         print("zero_map:", zero_map)

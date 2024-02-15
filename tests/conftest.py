@@ -1,25 +1,14 @@
 import pytest
-
 import qiskit
 
-# from qiskit.providers.fake_provider import FakeBackend5QV2
-# from qiskit.providers.fake_provider import FakeLimaV2
-# from qiskit.providers.fake_provider import FakeGuadalupeV2
-# from qiskit.providers.fake_provider import FakeBoeblingenV2
 from qiskit.providers.fake_provider import FakeMontrealV2
 
 from rivet_transpiler import get_litmus_circuit
-
 
 QUBIT_COUNTS = [5]
 
 BACKENDS = [
     None,
-    # qiskit.providers.aer.AerSimulator,
-    # FakeBackend5QV2,
-    # FakeLimaV2,
-    # FakeGuadalupeV2,
-    # FakeBoeblingenV2,
     FakeMontrealV2,
 ]
 
@@ -27,8 +16,6 @@ REMOVE_NOISE_MODEL = True
 
 
 # Fixtures
-
-
 @pytest.fixture(scope="session", params=BACKENDS)
 def backend(request):
 

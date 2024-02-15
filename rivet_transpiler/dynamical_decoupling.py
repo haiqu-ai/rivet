@@ -15,10 +15,9 @@ state over time.
 import qiskit
 
 
-def add_dynamical_decoupling(circuit, backend,
-                             dd_pulses=None,
-                             dd_pulses_count=None,
-                             dd_pulse_alignment=None):
+def add_dynamical_decoupling(
+    circuit, backend, dd_pulses=None, dd_pulses_count=None, dd_pulse_alignment=None
+):
 
     """
     Apply Dynamical Decoupling (DD) to a quantum circuit.
@@ -52,11 +51,15 @@ def add_dynamical_decoupling(circuit, backend,
 
     backend_pulse_alignment = None
 
-    if (hasattr(backend, 'configuration')
-            and hasattr(backend.configuration(), 'timing_constraints')
-            and hasattr(backend.configuration().timing_constraints, 'pulse_alignment')):
+    if (
+        hasattr(backend, "configuration")
+        and hasattr(backend.configuration(), "timing_constraints")
+        and hasattr(backend.configuration().timing_constraints, "pulse_alignment")
+    ):
 
-        backend_pulse_alignment = backend.configuration().timing_constraints.get('pulse_alignment')
+        backend_pulse_alignment = backend.configuration().timing_constraints.get(
+            "pulse_alignment"
+        )
 
     run_pulse_alignment = dd_pulse_alignment or backend_pulse_alignment
 
@@ -66,12 +69,16 @@ def add_dynamical_decoupling(circuit, backend,
 
     # DD Pass Manager
 
-    dd_pass_manager = qiskit.transpiler.PassManager([
-        qiskit.transpiler.passes.ALAPScheduleAnalysis(instruction_durations),
-        qiskit.transpiler.passes.PadDynamicalDecoupling(
-            durations=instruction_durations,
-            dd_sequence=dd_sequence,
-            pulse_alignment=run_pulse_alignment)])
+    dd_pass_manager = qiskit.transpiler.PassManager(
+        [
+            qiskit.transpiler.passes.ALAPScheduleAnalysis(instruction_durations),
+            qiskit.transpiler.passes.PadDynamicalDecoupling(
+                durations=instruction_durations,
+                dd_sequence=dd_sequence,
+                pulse_alignment=run_pulse_alignment,
+            ),
+        ]
+    )
 
     circuit_with_dd = dd_pass_manager.run(circuit)
 

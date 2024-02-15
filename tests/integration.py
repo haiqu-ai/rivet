@@ -2,16 +2,17 @@
 Module containing functions to build and compare test circuits for integration tests.
 """
 
+import warnings
+
 import qiskit
 
-from rivet_transpiler import transpile
-from rivet_transpiler import transpile_left
-from rivet_transpiler import transpile_right
-from rivet_transpiler import transpile_chain
-
-from rivet_transpiler import get_full_map
-
-import warnings
+from rivet_transpiler import (
+    get_full_map,
+    transpile,
+    transpile_chain,
+    transpile_left,
+    transpile_right,
+)
 
 try:
     from IPython.display import display

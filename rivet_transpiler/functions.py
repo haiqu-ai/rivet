@@ -1,16 +1,14 @@
-""" Service Functions used for QML Transpiler examples and checks. """
-
-import qiskit
+""" Service Functions used for Rivet Transpiler examples and checks. """
 
 import hashlib
 
 import numpy as np
-
+import qiskit
 
 # 1) Get Litmus Circuit
 
-def get_litmus_circuit(qubits_count, circuit_name=None, registers_count=1):
 
+def get_litmus_circuit(qubits_count, circuit_name=None, registers_count=1):
     """
     Create a Litmus test circuit.
 
@@ -31,8 +29,7 @@ def get_litmus_circuit(qubits_count, circuit_name=None, registers_count=1):
 
         register_name = f"{circuit_name}_{register_index}"
 
-        quantum_register = qiskit.QuantumRegister(qubits_per_register,
-                                                  register_name)
+        quantum_register = qiskit.QuantumRegister(qubits_per_register, register_name)
 
         quantum_registers.append(quantum_register)
 
@@ -65,8 +62,10 @@ def get_litmus_circuit(qubits_count, circuit_name=None, registers_count=1):
 
 # 2) Get CNOT Circuit
 
-def get_cnot_circuit(qubits_count, circuit_name=None, cnot_qubits=None, registers_count=1):
 
+def get_cnot_circuit(
+    qubits_count, circuit_name=None, cnot_qubits=None, registers_count=1
+):
     """
     Create a CNOT test circuit.
 
@@ -92,8 +91,7 @@ def get_cnot_circuit(qubits_count, circuit_name=None, cnot_qubits=None, register
 
         register_name = f"{circuit_name}_{register_index}"
 
-        quantum_register = qiskit.QuantumRegister(qubits_per_register,
-                                                  register_name)
+        quantum_register = qiskit.QuantumRegister(qubits_per_register, register_name)
 
         quantum_registers.append(quantum_register)
 
@@ -120,11 +118,15 @@ def get_cnot_circuit(qubits_count, circuit_name=None, cnot_qubits=None, register
 
 # 3) Get Sinusoids
 
-def get_sinusoids(qubits_count,
-                  frequencies_count=None,
-                  frequencies=None, amplitudes=None,
-                  min_amplitude=1, max_amplitude=3):
 
+def get_sinusoids(
+    qubits_count,
+    frequencies_count=None,
+    frequencies=None,
+    amplitudes=None,
+    min_amplitude=1,
+    max_amplitude=3,
+):
     """
     Generate sinusoidal waveforms for qubit operations.
 
@@ -140,22 +142,22 @@ def get_sinusoids(qubits_count,
         array: An array of normalized sinusoidal waveforms.
     """
 
-    samples_count = 2 ** qubits_count
+    samples_count = 2**qubits_count
 
     time_samples = np.linspace(0, 2 * np.pi, samples_count)
 
     if frequencies is None:
 
-        frequencies = np.random.uniform(low=1,
-                                        high=samples_count // 2,
-                                        size=(frequencies_count,)).astype(int)
+        frequencies = np.random.uniform(
+            low=1, high=samples_count // 2, size=(frequencies_count,)
+        ).astype(int)
     if amplitudes is None:
 
         frequencies_count = len(frequencies)
 
-        amplitudes = np.random.uniform(low=min_amplitude,
-                                       high=max_amplitude,
-                                       size=(frequencies_count,))
+        amplitudes = np.random.uniform(
+            low=min_amplitude, high=max_amplitude, size=(frequencies_count,)
+        )
 
     sinusoids = np.zeros(samples_count)
 
@@ -165,7 +167,7 @@ def get_sinusoids(qubits_count,
 
         sinusoids = sinusoids + sinusoid
 
-    normalized_sinusoids = sinusoids / np.sqrt(np.sum(sinusoids ** 2))
+    normalized_sinusoids = sinusoids / np.sqrt(np.sum(sinusoids**2))
 
     # print("frequencies:", frequencies)
     # print("amplitudes:", amplitudes)
@@ -177,11 +179,13 @@ def get_sinusoids(qubits_count,
 
 # 4) Get IBM Cost
 
-def get_ibm_cost(qiskit_circuit,
-                 depth_penalty_factor=0.995,
-                 one_qubit_gate_fidelity=0.9996,
-                 two_qubit_gate_fidelity=0.99):
 
+def get_ibm_cost(
+    qiskit_circuit,
+    depth_penalty_factor=0.995,
+    one_qubit_gate_fidelity=0.9996,
+    two_qubit_gate_fidelity=0.99,
+):
     """
     Calculate the IBM Cost for a Qiskit circuit.
 
@@ -237,8 +241,8 @@ def get_ibm_cost(qiskit_circuit,
 
 # 5) Hashing
 
-def get_circuit_hash(circuit):
 
+def get_circuit_hash(circuit):
     """
     Calculate hash for Qiskit quantum circuit.
 
@@ -273,7 +277,7 @@ def get_circuit_hash(circuit):
     "62559021281660068776592236282478300669138546894602824343710100835365445539986"
     """
 
-    hash_object = hashlib.sha256(b'')
+    hash_object = hashlib.sha256(b"")
 
     dag = qiskit.converters.circuit_to_dag(circuit)
 
@@ -306,12 +310,12 @@ def get_circuit_hash(circuit):
 
         for value in values:
 
-            encoded_value = repr(value).encode('utf-8')
+            encoded_value = repr(value).encode("utf-8")
 
             hash_object.update(encoded_value)
 
     hash_bytes = hash_object.digest()
 
-    hash_value = int.from_bytes(hash_bytes, byteorder='little')
+    hash_value = int.from_bytes(hash_bytes, byteorder="little")
 
     return hash_value
