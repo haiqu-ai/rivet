@@ -32,24 +32,6 @@ run_linting:
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
 
-# pages:
-#   stage: deploy
-
-#   script:
-#     - echo "Deploying documentation to $CI_PAGES_URL"
-
-#     - pip install pdoc3
-#     - pip install ./$TRANSPILER_PATH/.
-#     - pdoc --html ./$TRANSPILER_PATH/qml_transpiler --output-dir public
-#     - mv public/qml_transpiler/* public/
-
-#   artifacts:
-#     paths:
-#       - public
-# #    expire_in: 20 minutes
-
-#   rules:
-#     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
 pages:
   stage: documentation
   script:
