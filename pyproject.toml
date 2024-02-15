@@ -6,7 +6,10 @@
 [project]
 
     name = "rivet-transpiler"
-    description = "Rivet Transpiler "
+    description = "Rivet Transpiler"
+    readme = "README.md"
+    authors = [{ name = "Haiqu Inc.", email = "info@haiqu.ai" }]
+    license = { file = "LICENSE" }
     version = "1.0.3"
     requires-python = ">= 3.9"
     dependencies = [
@@ -14,6 +17,33 @@
         "qiskit-aer == 0.12.2",
         "rustworkx >= 0.13.1"
     ]
+    keywords = [
+        "rivet",
+        "transpiler",
+        "transpile",
+        "quantum circuit",
+        "quantum computing",
+        "quantum programming language",
+        "quantum",
+    ]
+    classifiers = [
+        "Environment :: Console",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: MacOS",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX :: Linux",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Topic :: Scientific/Engineering",
+    ]
+
+[project.urls]
+    Homepage = "https://haiqu-ai.gitlab.io/qml-transpiler"
 
 [project.optional-dependencies]
 

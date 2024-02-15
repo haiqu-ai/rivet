@@ -121,6 +121,14 @@ ancilla_1 -> 4 ─────────────────────�
                                                                                ░                                               ░
 ```
 
+## References
+
+We would like to thanks a lot to the:
+
+* [Qiskit](https://github.com/Qiskit/qiskit) Quantum SDK
+* [BQSKit](https://github.com/BQSKit/bqskit) Berkeley Quantum Synthesis Toolkit
+* [Pytket](https://github.com/CQCL/pytket) Python inteface for Quantinuum TKET compiler
+
 ## Contacts
 
 Haiqu Inc. [info@haiqu.ai](mailto:info@haiqu.ai),  +1 650 788 6011

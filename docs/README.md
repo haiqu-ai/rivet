@@ -1,7 +1,7 @@
-Documentation
-====================
+# Rivet Transpiler Documentation
+================================
 
-This repository contains source for the documentation.
+This directory contains source for the documentation.
 Part of documentation is generated using Pandoc from the code docstrings.
 
 ## Test locally
