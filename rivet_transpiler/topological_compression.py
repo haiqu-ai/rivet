@@ -29,11 +29,10 @@ from qiskit.transpiler import CouplingMap
 
 from rustworkx import closeness_centrality
 
-from qml_transpiler.transpiler import transpile
+from rivet_transpiler.transpiler import transpile
 
 
 def get_sorting_key(node):
-
     """
     Specify the sorting key for a node in a coupling graph.
 
@@ -50,7 +49,6 @@ def get_sorting_key(node):
 
 
 def get_used_qubit_indices(circuit):
-
     """
     Retrieves the indices of the qubits used in the given quantum circuit.
 
@@ -76,14 +74,12 @@ def get_used_qubit_indices(circuit):
         for qubit in instruction.qubits:
             used_qubits.add(qubit)
 
-    used_qubit_indices = [circuit.find_bit(qubit).index
-                          for qubit in used_qubits]
+    used_qubit_indices = [circuit.find_bit(qubit).index for qubit in used_qubits]
 
     return used_qubit_indices
 
 
 def get_limited_coupling_list(coupling_list, node_indices=None, max_nodes_count=None):
-
     """
     Retrieves a limited coupling list based on node importances and a maximum number of nodes.
 
@@ -163,8 +159,11 @@ def get_limited_coupling_list(coupling_list, node_indices=None, max_nodes_count=
 
         neighbours_indices = graph.neighbors(node_index)
 
-        new_candidates = {graph[node_index] for node_index in neighbours_indices
-                          if graph[node_index] not in selected_nodes}
+        new_candidates = {
+            graph[node_index]
+            for node_index in neighbours_indices
+            if graph[node_index] not in selected_nodes
+        }
 
         candidates.update(new_candidates)
 
@@ -174,15 +173,16 @@ def get_limited_coupling_list(coupling_list, node_indices=None, max_nodes_count=
 
     selected_indices, *_ = zip(*selected_nodes)
 
-    limited_coupling_list = [list(edge) for edge in coupling_list
-                             if all(index in selected_indices
-                                    for index in edge)]
+    limited_coupling_list = [
+        list(edge)
+        for edge in coupling_list
+        if all(index in selected_indices for index in edge)
+    ]
 
     return limited_coupling_list
 
 
 def transpile_and_compress(circuit, backend, **key_arguments):
-
     """
     Transpiles the input quantum circuit, compresses it by considering the coupling map of the backend,
     and returns the compressed circuit.
@@ -203,10 +203,7 @@ def transpile_and_compress(circuit, backend, **key_arguments):
 
     # First Transpilation
 
-    transpiled_circuit = transpile(
-        circuit,
-        backend=backend,
-        **key_arguments)
+    transpiled_circuit = transpile(circuit, backend=backend, **key_arguments)
 
     # Coupling List from Backend
 
@@ -237,9 +234,8 @@ def transpile_and_compress(circuit, backend, **key_arguments):
     # Limited Coupling List
 
     limited_coupling_list = get_limited_coupling_list(
-        coupling_list,
-        node_indices=node_indices,
-        max_nodes_count=circuit.num_qubits)
+        coupling_list, node_indices=node_indices, max_nodes_count=circuit.num_qubits
+    )
 
     # Add Ancillas to Coupling Map
 
@@ -258,10 +254,8 @@ def transpile_and_compress(circuit, backend, **key_arguments):
     # Second Transpilation
 
     compressed_circuit = transpile(
-        circuit,
-        backend=backend,
-        coupling_map=compressed_coupling_map,
-        **key_arguments)
+        circuit, backend=backend, coupling_map=compressed_coupling_map, **key_arguments
+    )
 
     # Add Ancillas to Layout
 

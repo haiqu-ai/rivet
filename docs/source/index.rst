@@ -1,12 +1,12 @@
-QML Compiler Documentation
-=============================
+Rivet Transpiler Documentation
+==============================
 
 Welcome to Haiqu documentation!
 
 This is the right place where you can find more about Haiqu's state-of-the-art
 quantum software platform.
 
-QML Transpiler package provides a family of functions for efficient transpilation
+Rivet Transpiler package provides a family of functions for efficient transpilation
 of quantum circuits. See `API Reference` section for more details.
 
 
@@ -50,7 +50,7 @@ Function `transpile_chain` transpiles a chain of virtual circuits keeping qubits
 
    import qiskit
    from qiskit.providers.fake_provider import FakeLimaV2
-   from qml_transpiler import transpile_chain
+   from rivet_transpiler import transpile_chain
 
    backend = FakeLimaV2()
 

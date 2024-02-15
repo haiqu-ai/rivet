@@ -1,9 +1,9 @@
-""" Transpile functions. """
+"""Rivet Transpile functions."""
 
 import qiskit
 
-from qml_transpiler.stacks import get_stack_pass_manager
-from qml_transpiler.dynamical_decoupling import add_dynamical_decoupling
+from rivet_transpiler.stacks import get_stack_pass_manager
+from rivet_transpiler.dynamical_decoupling import add_dynamical_decoupling
 
 
 def transpile(circuit, backend=None, **key_arguments):

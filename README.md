@@ -1,4 +1,4 @@
-# QML Transpiler
+# Rivet Transpiler
 
 The package provides a family of functions for efficient transpilation of quantum circuits.
 
@@ -17,7 +17,7 @@ The package provides a family of functions for efficient transpilation of quantu
 
 ## Installation
 
-To install QML Transpiler, please clone the repository:
+To install Rivet Transpiler, please clone the repository:
 
 ```bash
 git clone https://gitlab.com/haiqu-ai/qml-transpiler.git
@@ -38,7 +38,7 @@ pip install .[pytket]
 
 ## Documentation
 
-For more details about the QML Transpiler, please check the [reference documentation](https://haiqu-ai.gitlab.io/qml-transpiler).
+For more details about the Rivet Transpiler, please check the [reference documentation](https://haiqu-ai.gitlab.io/qml-transpiler).
 
 
 ## Tutorials
@@ -69,7 +69,7 @@ import qiskit
 
 from qiskit.providers.fake_provider import FakeLimaV2
 
-from qml_transpiler import transpile_chain
+from rivet_transpiler import transpile_chain
 
 backend = FakeLimaV2()
 

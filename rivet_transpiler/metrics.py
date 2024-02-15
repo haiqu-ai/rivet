@@ -4,13 +4,12 @@ from collections import Counter
 
 from qiskit.converters import dag_to_circuit
 
-from qml_transpiler.transpiler import transpile
+from rivet_transpiler.transpiler import transpile
 
-from qml_transpiler.functions import get_ibm_cost
+from rivet_transpiler.functions import get_ibm_cost
 
 
 def transpile_and_return_metrics(circuit, backend=None, **key_arguments):
-
     """
     Transpiles a given quantum circuit for a specified backend and collects metrics during the transpilation process.
 
@@ -43,7 +42,6 @@ def transpile_and_return_metrics(circuit, backend=None, **key_arguments):
     # Update Metrics Callback Closure
 
     def update_metrics_callback(**parameters):
-
         """
         Callback function to collect metrics after each pass during transpilation.
 
@@ -58,10 +56,10 @@ def transpile_and_return_metrics(circuit, backend=None, **key_arguments):
 
         # Parameters
 
-        pass_ = parameters.get('pass_')
-        time = parameters.get('time')
-        dag = parameters.get('dag')
-        pass_index = parameters.get('count')
+        pass_ = parameters.get("pass_")
+        time = parameters.get("time")
+        dag = parameters.get("dag")
+        pass_index = parameters.get("count")
         # property_set = parameters.get('property_set')
 
         # Derivatives
@@ -107,14 +105,14 @@ def transpile_and_return_metrics(circuit, backend=None, **key_arguments):
         # Pass Metrics
 
         pass_metrics = {
-            'pass_index': pass_index,
-            'pass_name': pass_name,
-            'pass_type': pass_type,
-            'time': time,
-            'depth': depth,
-            'width': width,
-            'ibm_cost': ibm_cost,
-            'gates_counter': gates_counter
+            "pass_index": pass_index,
+            "pass_name": pass_name,
+            "pass_type": pass_type,
+            "time": time,
+            "depth": depth,
+            "width": width,
+            "ibm_cost": ibm_cost,
+            "gates_counter": gates_counter,
         }
 
         metrics.append(pass_metrics)
@@ -125,7 +123,7 @@ def transpile_and_return_metrics(circuit, backend=None, **key_arguments):
 
     if arguments_callback is None:
 
-        key_arguments['callback'] = update_metrics_callback
+        key_arguments["callback"] = update_metrics_callback
 
     else:
 
@@ -134,7 +132,7 @@ def transpile_and_return_metrics(circuit, backend=None, **key_arguments):
             arguments_callback(**parameters)
             update_metrics_callback(**parameters)
 
-        key_arguments['callback'] = composite_callback
+        key_arguments["callback"] = composite_callback
 
     # Transpile
 

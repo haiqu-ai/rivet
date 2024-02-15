@@ -3,7 +3,7 @@ from collections import Counter
 from qiskit import QuantumCircuit
 from qiskit.converters import circuit_to_dag
 
-from qml_transpiler import transpile_and_return_metrics
+from rivet_transpiler import transpile_and_return_metrics
 
 
 def test_gates_counter():
@@ -33,9 +33,8 @@ def test_transpile_and_return_metrics(litmus_circuit, backend):
     litmus_circuit.ccx(0, 1, 2)
 
     transpiled_litmus_circuit, metrics = transpile_and_return_metrics(
-        litmus_circuit,
-        backend,
-        seed_transpiler=1234)
+        litmus_circuit, backend, seed_transpiler=1234
+    )
 
     assert transpiled_litmus_circuit is not None
     assert metrics is not None
@@ -43,17 +42,15 @@ def test_transpile_and_return_metrics(litmus_circuit, backend):
 
 def test_composite_callback(litmus_circuit, backend):
 
-    callback_check = {'ok': False}
+    callback_check = {"ok": False}
 
     def custom_callback(**parameters):
 
-        callback_check['ok'] = True
+        callback_check["ok"] = True
 
     transpiled_litmus_circuit, metrics = transpile_and_return_metrics(
-        litmus_circuit,
-        backend,
-        callback=custom_callback,
-        seed_transpiler=1234)
+        litmus_circuit, backend, callback=custom_callback, seed_transpiler=1234
+    )
 
-    assert callback_check['ok'] is True
+    assert callback_check["ok"] is True
     assert metrics is not None
