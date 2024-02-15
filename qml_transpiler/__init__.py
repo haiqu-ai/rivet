@@ -4,7 +4,6 @@ from .transpiler import transpile_right
 from .transpiler import transpile_left
 from .transpiler import get_full_map
 
-from .metrics import get_gates_counter
 from .metrics import transpile_and_return_metrics
 
 from .functions import get_litmus_circuit

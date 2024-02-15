@@ -1,49 +1,12 @@
 """ Functions for calculation of transpilation metrics. """
 
+from collections import Counter
+
 from qiskit.converters import dag_to_circuit
 
 from qml_transpiler.transpiler import transpile
 
 from qml_transpiler.functions import get_ibm_cost
-
-
-def get_gates_counter(dag):
-
-    """
-    Counts the occurrences of gates based on their qubit count in a directed acyclic graph (DAG) of a quantum circuit.
-
-    This function iterates through the operation nodes of a DAG, excluding directives like barriers, and counts
-    how many times gates of different qubit counts occur. It returns a dictionary where keys are the qubit counts
-    and values are the counts of gates operating on that many qubits.
-
-    Parameters:
-    - dag (DAGCircuit): The directed acyclic graph (DAG) representation of a quantum circuit.
-
-    Returns:
-    - dict: A dictionary with keys representing the number of qubits a gate acts on and values representing
-      the count of such gates in the circuit. The dictionary is sorted by the number of qubits.
-
-    Example:
-    If the DAG has three 1-qubit gates and two 2-qubit gates, the function will return {1: 3, 2: 2}.
-    """
-
-    gates_counter = dict()
-
-    for node in dag.op_nodes(include_directives=False):
-
-        qubits_count = node.op.num_qubits
-
-        if qubits_count in gates_counter:
-
-            gates_counter[qubits_count] += 1
-
-        else:
-
-            gates_counter[qubits_count] = 1
-
-    sorted_gates_counter = dict(sorted(gates_counter.items()))
-
-    return sorted_gates_counter
 
 
 def transpile_and_return_metrics(circuit, backend=None, **key_arguments):
@@ -77,9 +40,9 @@ def transpile_and_return_metrics(circuit, backend=None, **key_arguments):
 
     metrics = list()
 
-    # Pass Callback Closure
+    # Update Metrics Callback Closure
 
-    def pass_callback(**parameters):
+    def update_metrics_callback(**parameters):
 
         """
         Callback function to collect metrics after each pass during transpilation.
@@ -108,9 +71,15 @@ def transpile_and_return_metrics(circuit, backend=None, **key_arguments):
         depth = dag.depth()
         width = dag.width()
 
-        gates_counter = get_gates_counter(dag)
-
         circuit = dag_to_circuit(dag)
+
+        # Gates Counter
+
+        dag_nodes = dag.op_nodes(include_directives=False)
+
+        qubit_counts = sorted(node.op.num_qubits for node in dag_nodes)
+
+        gates_counter = dict(Counter(qubit_counts))
 
         # Pass Type
 
@@ -150,7 +119,22 @@ def transpile_and_return_metrics(circuit, backend=None, **key_arguments):
 
         metrics.append(pass_metrics)
 
-    key_arguments['callback'] = pass_callback
+    # Arguments Callback
+
+    arguments_callback = key_arguments.get("callback", None)
+
+    if arguments_callback is None:
+
+        key_arguments['callback'] = update_metrics_callback
+
+    else:
+
+        def composite_callback(**parameters):
+
+            arguments_callback(**parameters)
+            update_metrics_callback(**parameters)
+
+        key_arguments['callback'] = composite_callback
 
     # Transpile
 
