@@ -1,0 +1,51 @@
+name: documentation
+
+on:
+  push:
+    branches:
+      - docs_public
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: |
+          sudo apt update && sudo apt -y install gcc python3-dev pandoc python3-psutil && pip install sphinx matplotlib ipywidgets nbsphinx pylatexenc sphinx-pdj-theme myst_parser
+
+      - name: Sphinx build
+        run: |
+          python3 -m sphinx -b html ./docs/source _build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./_build"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      # - name: Deploy to GitHub Pages
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   with:
+      #     publish_branch: gh-pages
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: _build/
+      #     force_orphan: true

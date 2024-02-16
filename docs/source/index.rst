@@ -17,7 +17,7 @@ To install Rivet Transpiler, please clone the repository:
 
 .. code-block:: bash
 
-   git clone https://gitlab.com/haiqu-ai/qml-transpiler.git
+   git clone https://github.com/haiqu-ai/rivet.git
 
 To install the transpiler with all supported stacks:
 

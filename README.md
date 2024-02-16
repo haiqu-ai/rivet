@@ -20,7 +20,7 @@ The package provides a family of functions for efficient transpilation of quantu
 To install Rivet Transpiler, please clone the repository:
 
 ```bash
-git clone https://gitlab.com/haiqu-ai/qml-transpiler.git
+git clone https://github.com/haiqu-ai/rivet.git
 ```
 
 To install the transpiler with all supported stacks:
@@ -38,7 +38,7 @@ pip install .[pytket]
 
 ## Documentation
 
-For more details about the Rivet Transpiler, please check the [reference documentation](https://haiqu-ai.gitlab.io/qml-transpiler).
+For more details about the Rivet Transpiler, please check the [reference documentation](https://haiqu-ai.github.io/rivet).
 
 
 ## Tutorials
