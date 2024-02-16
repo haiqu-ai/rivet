@@ -1,6 +1,6 @@
 <p align="center">
 <picture>
-  <img src="https://raw.githubusercontent.com/haiqu-ai/rivet/main/docs/source/_static/logos/haiquai_logo.jpeg" width="60%">
+  <img src="https://raw.githubusercontent.com/haiqu-ai/rivet/main/docs/source/_static/logos/rivet.png" width="60%">
 </picture>
 </p>
 
