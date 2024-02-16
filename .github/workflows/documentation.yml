@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - docs_public
+      - main
 
 permissions:
   contents: read

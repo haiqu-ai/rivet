@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.abspath("../.."))
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "QML Compiler"
+project = "Rivet Transpiler"
 copyright = "2024, Haiqu Inc."  # pylint: disable=redefined-builtin
 author = "Haiqu Inc."
 

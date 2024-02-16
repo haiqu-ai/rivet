@@ -1,26 +1,5 @@
 """
 Rivet Transpiler functions.
-
-`transpile` - transpilation function featuring:
- - different transpilation stacks:
-    * Qiskit
-    * BQSKit
-    * Pytket
- - custom PassManager
- - dynamical decoupling
- - transpiler options
-
-`transpile_chain` consistently transpile and "stitch" a chain of
-quantum circuits.
-
-`transpile_right` - transpile an additional circuit to the right part of
-the existing circuit.
-
-`transpile_left` - transpile an additional circuit to the left part of
-the existing circuit.
-
-`transpile_and_compress` - transpile and topologically compress a circuit
-considering a coupling map of the selected backend.
 """
 
 import qiskit

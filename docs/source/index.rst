@@ -117,6 +117,6 @@ Haiqu, info@haiqu.ai, +1 650 788 6011
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: API Reference
+   :caption: Transpilation Functions
 
    api
