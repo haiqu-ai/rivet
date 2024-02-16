@@ -2,16 +2,17 @@
 Module containing functions to build and compare test circuits for integration tests.
 """
 
+import warnings
+
 import qiskit
 
-from qml_transpiler import transpile
-from qml_transpiler import transpile_left
-from qml_transpiler import transpile_right
-from qml_transpiler import transpile_chain
-
-from qml_transpiler import get_full_map
-
-import warnings
+from rivet_transpiler import (
+    get_full_map,
+    transpile,
+    transpile_chain,
+    transpile_left,
+    transpile_right,
+)
 
 try:
     from IPython.display import display
@@ -21,6 +22,7 @@ except ModuleNotFoundError:
 
 
 # Build Circuit Functions
+
 
 def build_combined_circuit(circuit_parts, backend, *arguments, **key_arguments):
 
@@ -39,9 +41,7 @@ def build_combined_circuit(circuit_parts, backend, *arguments, **key_arguments):
     # Transpile
 
     transpiled_combined_circuit = transpile(
-        combined_circuit,
-        backend,
-        *arguments, **key_arguments
+        combined_circuit, backend, *arguments, **key_arguments
     )
 
     return transpiled_combined_circuit
@@ -56,18 +56,16 @@ def build_blocks_circuit(circuit_parts, backend, *arguments, **key_arguments):
     for circuit_part in circuit_parts:
 
         transpiled_circuit_part = transpile(
-            circuit_part,
-            backend,
-            *arguments, **key_arguments
+            circuit_part, backend, *arguments, **key_arguments
         )
 
         transpiled_circuit_parts.append(transpiled_circuit_part)
 
         full_map = get_full_map(transpiled_circuit_part)
 
-        initial_layout = full_map[:circuit_part.num_qubits]
+        initial_layout = full_map[: circuit_part.num_qubits]
 
-        key_arguments['initial_layout'] = initial_layout
+        key_arguments["initial_layout"] = initial_layout
 
     # Compose
 
@@ -88,11 +86,7 @@ def build_right_circuit(circuit_parts, backend, *arguments, **key_arguments):
 
     # Transpile
 
-    central_circuit = transpile(
-        circuit_parts[0],
-        backend,
-        *arguments, **key_arguments
-    )
+    central_circuit = transpile(circuit_parts[0], backend, *arguments, **key_arguments)
 
     for right_circuit in circuit_parts[1:]:
 
@@ -100,7 +94,8 @@ def build_right_circuit(circuit_parts, backend, *arguments, **key_arguments):
             central_circuit=central_circuit,
             right_circuit=right_circuit,
             backend=backend,
-            *arguments, **key_arguments
+            *arguments,
+            **key_arguments,
         )
 
         central_circuit = transpiled_right_circuit
@@ -115,9 +110,7 @@ def build_left_circuit(circuit_parts, backend, *arguments, **key_arguments):
     # Transpile
 
     central_circuit = transpile(
-        reversed_circuit_parts[0],
-        backend,
-        *arguments, **key_arguments
+        reversed_circuit_parts[0], backend, *arguments, **key_arguments
     )
 
     for left_circuit in reversed_circuit_parts[1:]:
@@ -126,7 +119,8 @@ def build_left_circuit(circuit_parts, backend, *arguments, **key_arguments):
             central_circuit=central_circuit,
             left_circuit=left_circuit,
             backend=backend,
-            *arguments, **key_arguments
+            *arguments,
+            **key_arguments,
         )
 
         central_circuit = transpiled_left_circuit
@@ -136,16 +130,25 @@ def build_left_circuit(circuit_parts, backend, *arguments, **key_arguments):
 
 # Comparison Functions
 
+
 def get_circuits_to_compare(circuit_parts, backend, *arguments, **key_arguments):
 
     # Build Circuits
 
-    combined_circuit = build_combined_circuit(circuit_parts, backend, *arguments, **key_arguments)
-    blocks_circuit = build_blocks_circuit(circuit_parts, backend, *arguments, **key_arguments)
+    combined_circuit = build_combined_circuit(
+        circuit_parts, backend, *arguments, **key_arguments
+    )
+    blocks_circuit = build_blocks_circuit(
+        circuit_parts, backend, *arguments, **key_arguments
+    )
     chain_circuit = transpile_chain(circuit_parts, backend, *arguments, **key_arguments)
 
-    right_circuit = build_right_circuit(circuit_parts, backend, *arguments, **key_arguments)
-    left_circuit = build_left_circuit(circuit_parts, backend, *arguments, **key_arguments)
+    right_circuit = build_right_circuit(
+        circuit_parts, backend, *arguments, **key_arguments
+    )
+    left_circuit = build_left_circuit(
+        circuit_parts, backend, *arguments, **key_arguments
+    )
 
     circuits_to_compare = {
         "Combined": combined_circuit,
@@ -190,9 +193,7 @@ def run_circuits_to_compare(circuits_to_compare, backend, shots_count):
     return results
 
 
-def plot_results_to_compare(results,
-                            print_counts=True,
-                            display_plots=False):
+def plot_results_to_compare(results, print_counts=True, display_plots=False):
     # Counts
 
     if print_counts is True:
@@ -207,13 +208,15 @@ def plot_results_to_compare(results,
 
         for circuit_name, counts in results.items():
 
-            display(qiskit.visualization.plot_histogram(
-                counts,
-                figsize=(7, 2),
-                bar_labels=False,
-                sort='value_desc',
-                title=circuit_name
-            ))
+            display(
+                qiskit.visualization.plot_histogram(
+                    counts,
+                    figsize=(7, 2),
+                    bar_labels=False,
+                    sort="value_desc",
+                    title=circuit_name,
+                )
+            )
 
 
 def check_delta(results, delta_treshold=0.1):
@@ -236,8 +239,9 @@ def check_delta(results, delta_treshold=0.1):
 
     circuits_count = len(results)
 
-    average_counts = {state: count / circuits_count
-                      for state, count in total_counts.items()}
+    average_counts = {
+        state: count / circuits_count for state, count in total_counts.items()
+    }
 
     # Deltas
 

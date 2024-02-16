@@ -1,14 +1,13 @@
 import pytest
-
 import qiskit
 
-from qml_transpiler import get_ibm_cost
-
-from qml_transpiler import get_litmus_circuit
-from qml_transpiler import get_cnot_circuit
-from qml_transpiler import get_sinusoids
-
-from qml_transpiler import get_circuit_hash
+from rivet_transpiler import (
+    get_circuit_hash,
+    get_cnot_circuit,
+    get_ibm_cost,
+    get_litmus_circuit,
+    get_sinusoids,
+)
 
 
 def test_get_ibm_cost_value():
@@ -53,6 +52,7 @@ def test_get_sinusoids(qubits_count):
 
 # Test Get Circuit Hash
 
+
 def test_get_circuit_hash(litmus_circuit):
 
     get_circuit_hash(litmus_circuit)
@@ -87,9 +87,7 @@ def bind_parameters_with_offset(circuit, offset=0):
 
     for index, parameter in enumerate(bound_circuit.parameters):
 
-        bound_circuit.assign_parameters(
-            {parameter: index + offset},
-            inplace=True)
+        bound_circuit.assign_parameters({parameter: index + offset}, inplace=True)
 
     return bound_circuit
 
@@ -99,8 +97,12 @@ def test_get_circuit_hash_parameters(litmus_circuit):
     # Bound Circuits
 
     bound_circuit = bind_parameters_with_offset(litmus_circuit, offset=0)
-    bound_circuit_same_parameters = bind_parameters_with_offset(litmus_circuit, offset=0)
-    bound_circuit_other_parameters = bind_parameters_with_offset(litmus_circuit, offset=1)
+    bound_circuit_same_parameters = bind_parameters_with_offset(
+        litmus_circuit, offset=0
+    )
+    bound_circuit_other_parameters = bind_parameters_with_offset(
+        litmus_circuit, offset=1
+    )
 
     # Hashes
 

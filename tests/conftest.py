@@ -1,33 +1,21 @@
 import pytest
-
 import qiskit
 
-# from qiskit.providers.fake_provider import FakeBackend5QV2
-# from qiskit.providers.fake_provider import FakeLimaV2
-# from qiskit.providers.fake_provider import FakeGuadalupeV2
-# from qiskit.providers.fake_provider import FakeBoeblingenV2
 from qiskit.providers.fake_provider import FakeMontrealV2
 
-from qml_transpiler import get_litmus_circuit
-
+from rivet_transpiler import get_litmus_circuit
 
 QUBIT_COUNTS = [5]
 
 BACKENDS = [
     None,
-    qiskit.providers.aer.AerSimulator,
-    # FakeBackend5QV2,
-    # FakeLimaV2,
-    # FakeGuadalupeV2,
-    # FakeBoeblingenV2,
-    FakeMontrealV2
+    FakeMontrealV2,
 ]
 
 REMOVE_NOISE_MODEL = True
 
 
 # Fixtures
-
 @pytest.fixture(scope="session", params=BACKENDS)
 def backend(request):
 
@@ -43,10 +31,15 @@ def backend(request):
 
         backend_fixture = backend()
 
-    elif issubclass(backend, (qiskit.providers.BackendV1,
-                              qiskit.providers.BackendV2,
-                              qiskit.providers.fake_provider.FakeBackend,
-                              qiskit.providers.fake_provider.FakeBackendV2)):
+    elif issubclass(
+        backend,
+        (
+            qiskit.providers.BackendV1,
+            qiskit.providers.BackendV2,
+            qiskit.providers.fake_provider.FakeBackend,
+            qiskit.providers.fake_provider.FakeBackendV2,
+        ),
+    ):
 
         backend_fixture = qiskit.providers.aer.AerSimulator.from_backend(backend())
 
@@ -82,8 +75,6 @@ def bound_litmus_circuit(litmus_circuit):
 
     for index, parameter in enumerate(bound_litmus_circuit.parameters):
 
-        bound_litmus_circuit.assign_parameters(
-            {parameter: index},
-            inplace=True)
+        bound_litmus_circuit.assign_parameters({parameter: index}, inplace=True)
 
     return bound_litmus_circuit
