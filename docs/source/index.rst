@@ -41,7 +41,7 @@ Basic example
 Transpilation includes placement of *virtual qubits* of a circuit to *physical qubits*
 of the quantum device or simulator. Additionally, SWAP gates can be included to route qubits around the backend topology.
 
-Here is a simple example of the quantum circuit with 3 qubits before and after transpilation. Function `transpile_chain` transpiles a chain of virtual circuits keeping qubits consistent:
+Here is a simple example of the quantum circuit with 3 qubits before and after transpilation. Function `transpile_chain` transpiles a chain of virtual circuits keeping qubits consistent.
 
 BEFORE transpilation: 
 
