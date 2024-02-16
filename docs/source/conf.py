@@ -67,9 +67,9 @@ html_theme = "sphinx_pdj_theme"
 html_theme_path = [sphinx_pdj_theme.get_html_theme_path()]
 
 html_static_path = ["_static"]
-html_logo = "_static/logos/haiquai_logo.jpeg"
+html_logo = "_static/logos/rivet.png"
 html_css_files = [
     "css/docs-haiqu.css",
     # "css/rtd_dark.css",
 ]
-html_favicon = "_static/logos/haiquai_logo.jpeg"
+html_favicon = "_static/logos/rivet.png"
