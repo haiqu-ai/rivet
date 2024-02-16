@@ -13,13 +13,13 @@ of quantum circuits. See `API Reference` section for more details.
 Installation
 ------------
 
-Clone repository:
+To install Rivet Transpiler, please clone the repository:
 
 .. code-block:: bash
 
    git clone https://gitlab.com/haiqu-ai/qml-transpiler.git
 
-To install with all stacks:
+To install the transpiler with all supported stacks:
 
 .. code-block:: bash
 
@@ -33,18 +33,17 @@ To install only BQSKit or only Pytket support:
    pip install .[pytket]
 
 
-Minimal example
+Basic example
 -------------------
-
-Transpilation includes placement of *virtual qubits* of a circuit to *physical qubits*
-of quantum device or simulator.
-
 .. image:: ../images/layout.png
   :width: 400
 
-Additionally, SWAP gates can be included to route qubits around backend topology.
+Transpilation includes placement of *virtual qubits* of a circuit to *physical qubits*
+of the quantum device or simulator. Additionally, SWAP gates can be included to route qubits around the backend topology.
 
-Function `transpile_chain` transpiles a chain of virtual circuits keeping qubits consistent:
+Here is a simple example of the quantum circuit with 3 qubits before and after transpilation. Function `transpile_chain` transpiles a chain of virtual circuits keeping qubits consistent:
+
+BEFORE transpilation: 
 
 .. code-block:: python
 
@@ -72,6 +71,8 @@ Function `transpile_chain` transpiles a chain of virtual circuits keeping qubits
         └───┘┌─┴─┐┌─┴─┐
    q_2: ─────┤ X ├┤ X ├
              └───┘└───┘
+
+AFTER transpilation:
 
 .. code-block:: python
 
