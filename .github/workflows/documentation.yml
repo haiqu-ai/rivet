@@ -28,7 +28,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt update && sudo apt -y install gcc python3-dev pandoc python3-psutil && pip install sphinx matplotlib ipywidgets nbsphinx pylatexenc sphinx-pdj-theme myst_parser
+          sudo apt update && sudo apt -y install gcc python3-dev pandoc python3-psutil && pip install . && pip install sphinx matplotlib ipywidgets nbsphinx pylatexenc sphinx-pdj-theme myst_parser
 
       - name: Sphinx build
         run: |
