@@ -102,7 +102,7 @@ AFTER transpilation:
 Contacts
 -------------------
 
-Haiqu, info@haiqu.ai, +1 650 788 6011
+Haiqu, info@haiqu.ai
 
 
 .. toctree::
@@ -117,6 +117,6 @@ Haiqu, info@haiqu.ai, +1 650 788 6011
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: Transpilation Functions
+   :caption: API Reference
 
    api

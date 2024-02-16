@@ -1,3 +1,9 @@
+<p align="center">
+<picture>
+  <img src="https://raw.githubusercontent.com/haiqu-ai/rivet/main/docs/source/_static/logos/haiquai_logo.jpeg" width="60%">
+</picture>
+</p>
+
 # Rivet Transpiler
 
 The package provides a family of functions for efficient transpilation of quantum circuits.
@@ -6,7 +12,7 @@ The package provides a family of functions for efficient transpilation of quantu
     - Different transpilation stacks:
         * [Qiskit:](https://github.com/Qiskit/qiskit#readme) Quantum SDK
         * [BQSKit:](https://github.com/BQSKit/bqskit#readme) Berkeley Quantum Synthesis Toolkit
-        * [Pytket:](https://github.com/CQCL/pytket#readme) Python inteface for Quantinuum TKET compiler
+        * [Pytket:](https://github.com/CQCL/pytket#readme) Python interface for Quantinuum TKET compiler
     - Custom PassManager
     - Dynamical decoupling
     - Transpiler options
@@ -123,7 +129,7 @@ ancilla_1 -> 4 ─────────────────────�
 
 ## References
 
-We would like to thanks a lot to the:
+We would like to thank to:
 
 * [Qiskit](https://github.com/Qiskit/qiskit) Quantum SDK
 * [BQSKit](https://github.com/BQSKit/bqskit) Berkeley Quantum Synthesis Toolkit
@@ -131,4 +137,4 @@ We would like to thanks a lot to the:
 
 ## Contacts
 
-Haiqu Inc. [info@haiqu.ai](mailto:info@haiqu.ai),  +1 650 788 6011
+Haiqu Inc. [info@haiqu.ai](mailto:info@haiqu.ai)
