@@ -3,7 +3,6 @@ name: documentation
 on:
   push:
     branches:
-      - docs_public
       - main
 
 permissions:
@@ -42,11 +41,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-      # - name: Deploy to GitHub Pages
-      #   uses: peaceiris/actions-gh-pages@v3
-      #   with:
-      #     publish_branch: gh-pages
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     publish_dir: _build/
-      #     force_orphan: true
