@@ -181,7 +181,7 @@ def get_limited_coupling_list(coupling_list, node_indices=None, max_nodes_count=
     return limited_coupling_list
 
 
-def transpile_and_compress(circuit, backend, *arguments, **key_arguments):
+def transpile_and_compress(circuit, backend, **key_arguments):
 
     """
     Transpiles the input quantum circuit, compresses it by considering the coupling map of the backend,
@@ -190,7 +190,6 @@ def transpile_and_compress(circuit, backend, *arguments, **key_arguments):
     Parameters:
     - circuit (QuantumCircuit): The input quantum circuit to be transpiled and compressed.
     - backend (BaseBackend): The backend to use for transpilation and the associated coupling map for compression.
-    - *arguments: Additional positional arguments to pass to the transpile function.
     - **key_arguments: Additional keyword arguments to pass to the transpile function.
 
     Returns:
@@ -207,7 +206,7 @@ def transpile_and_compress(circuit, backend, *arguments, **key_arguments):
     transpiled_circuit = transpile(
         circuit,
         backend=backend,
-        *arguments, **key_arguments)
+        **key_arguments)
 
     # Coupling List from Backend
 
@@ -254,13 +253,15 @@ def transpile_and_compress(circuit, backend, *arguments, **key_arguments):
 
     compressed_coupling_list = limited_coupling_list + unused_qubit_pairs
 
+    compressed_coupling_map = CouplingMap(couplinglist=compressed_coupling_list)
+
     # Second Transpilation
 
     compressed_circuit = transpile(
         circuit,
         backend=backend,
-        coupling_map=compressed_coupling_list,
-        *arguments, **key_arguments)
+        coupling_map=compressed_coupling_map,
+        **key_arguments)
 
     # Add Ancillas to Layout
 

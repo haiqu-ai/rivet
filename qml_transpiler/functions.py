@@ -262,7 +262,7 @@ def get_circuit_hash(circuit):
     - circuit (QuantumCircuit): The quantum circuit for which to compute the hash.
 
     Returns:
-    - str: A hexadecimal string representing the computed hash value.
+    - int: An integer representing the computed hash value.
 
     Example:
     >>> my_circuit = QuantumCircuit(2)
@@ -270,7 +270,7 @@ def get_circuit_hash(circuit):
     >>> my_circuit.cx(0, 1)
     >>> hash_value = get_circuit_hash(my_circuit)
     >>> print(hash_value)
-    "6e11d7dbf1ef7f4bdc79b73212c3db2e10da65a0be5b4a4373c3e6177cf1b0c7"
+    "62559021281660068776592236282478300669138546894602824343710100835365445539986"
     """
 
     hash_object = hashlib.sha256(b'')
@@ -310,6 +310,8 @@ def get_circuit_hash(circuit):
 
             hash_object.update(encoded_value)
 
-    hash_value = hash_object.hexdigest()
+    hash_bytes = hash_object.digest()
+
+    hash_value = int.from_bytes(hash_bytes, byteorder='little')
 
     return hash_value

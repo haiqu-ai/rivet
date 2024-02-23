@@ -67,7 +67,7 @@ def get_stack_pass_manager(stack="qiskit", **key_arguments):
     if stack not in IMPLEMENTED_STACKS:
         raise NotImplementedError(f"Stack '{stack}' not implemented")
 
-    # Pass Manager
+    # Parameters
 
     DEFAULT_OPTIMIZATION_LEVEL = 1
 
@@ -75,7 +75,10 @@ def get_stack_pass_manager(stack="qiskit", **key_arguments):
     qsearch_block_size = key_arguments.pop("qsearch_block_size", None)
     optimization_level = key_arguments.pop("optimization_level", DEFAULT_OPTIMIZATION_LEVEL)
 
-    pass_manager = generate_preset_pass_manager(optimization_level, backend, **key_arguments)
+    # Pass Manager
+
+    pass_manager = generate_preset_pass_manager(optimization_level=optimization_level,
+                                                backend=backend, **key_arguments)
 
     if stack == "qiskit_qsearch":
 
@@ -181,13 +184,14 @@ def model_from_ibmq_backend(backend):
 
 # 3.1) Run QSearch Synthesis
 
-def run_qsearch_synthesis(bqskit_circuit, block_size):
+def run_qsearch_synthesis(bqskit_circuit, machine_model, block_size):
 
     """
     Run QSearch synthesis for a BQSKit circuit.
 
     Args:
         bqskit_circuit: The input BQSKit circuit.
+        machine_model: BQSKit Machine Model.
         block_size (int): The block size for QSearch synthesis.
 
     Returns:
@@ -199,6 +203,7 @@ def run_qsearch_synthesis(bqskit_circuit, block_size):
     #                                                    [bqskit.passes.QSearchSynthesisPass()])
 
     compilation_task = bqskit.compiler.CompilationTask(bqskit_circuit, [
+        bqskit.passes.SetModelPass(model=machine_model),
         bqskit.passes.QuickPartitioner(block_size=block_size),
         bqskit.passes.ForEachBlockPass([
             bqskit.passes.QSearchSynthesisPass(),
@@ -209,6 +214,9 @@ def run_qsearch_synthesis(bqskit_circuit, block_size):
 
     with bqskit.compiler.Compiler() as compiler:
         synthesized_circuit = compiler.compile(compilation_task)
+
+    # print("bqskit_circuit.gate_counts:", bqskit_circuit.gate_counts)
+    # print("synthesized_circuit.gate_counts:", synthesized_circuit.gate_counts)
 
     return synthesized_circuit
 
@@ -245,7 +253,9 @@ class QSearchPass(qiskit.transpiler.basepasses.TransformationPass):
 
         bqskit_circuit = bqskit.ext.qiskit_to_bqskit(qiskit_circuit)
 
-        synthesized_circuit = run_qsearch_synthesis(bqskit_circuit, self.qsearch_block_size)
+        synthesized_circuit = run_qsearch_synthesis(bqskit_circuit,
+                                                    self.machine_model,
+                                                    self.qsearch_block_size)
 
         transpiled_qiskit_circuit = bqskit.ext.bqskit_to_qiskit(synthesized_circuit)
 
@@ -320,7 +330,9 @@ class QFactorPass(qiskit.transpiler.basepasses.TransformationPass):
 
         # QSearch Synthesis
 
-        synthesized_circuit = run_qsearch_synthesis(instantiated_circuit, self.qsearch_block_size)
+        synthesized_circuit = run_qsearch_synthesis(instantiated_circuit,
+                                                    self.machine_model,
+                                                    self.qsearch_block_size)
 
         transpiled_qiskit_circuit = bqskit.ext.bqskit_to_qiskit(synthesized_circuit)
 
