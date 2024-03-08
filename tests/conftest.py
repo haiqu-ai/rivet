@@ -8,7 +8,7 @@ import qiskit
 # from qiskit.providers.fake_provider import FakeBoeblingenV2
 from qiskit.providers.fake_provider import FakeMontrealV2
 
-from qml_transpiler import get_litmus_circuit
+from rivet_transpiler import get_litmus_circuit
 
 
 QUBIT_COUNTS = [5]

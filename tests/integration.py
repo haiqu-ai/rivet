@@ -4,12 +4,12 @@ Module containing functions to build and compare test circuits for integration t
 
 import qiskit
 
-from qml_transpiler import transpile
-from qml_transpiler import transpile_left
-from qml_transpiler import transpile_right
-from qml_transpiler import transpile_chain
+from rivet_transpiler import transpile
+from rivet_transpiler import transpile_left
+from rivet_transpiler import transpile_right
+from rivet_transpiler import transpile_chain
 
-from qml_transpiler import get_full_map
+from rivet_transpiler import get_full_map
 
 import warnings
 

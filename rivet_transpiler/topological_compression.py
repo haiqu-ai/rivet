@@ -29,7 +29,7 @@ from qiskit.transpiler import CouplingMap
 
 from rustworkx import closeness_centrality
 
-from qml_transpiler.transpiler import transpile
+from rivet_transpiler.transpiler import transpile
 
 
 def get_sorting_key(node):

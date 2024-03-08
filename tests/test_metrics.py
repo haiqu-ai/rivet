@@ -3,7 +3,7 @@ from collections import Counter
 from qiskit import QuantumCircuit
 from qiskit.converters import circuit_to_dag
 
-from qml_transpiler import transpile_and_return_metrics
+from rivet_transpiler import transpile_and_return_metrics
 
 
 def test_gates_counter():

@@ -5,15 +5,45 @@
 
 [project]
 
-    name = "qml-transpiler"
-    description = "QML Transpiler"
-    version = "1.0.3"
+    name = "rivet-transpiler"
+    description = "Rivet Transpiler provides a family of functions for efficient transpilation of quantum circuits."
+    readme = "README.md"
+    authors = [{ name = "Haiqu Inc.", email = "info@haiqu.ai" }]
+    license = { file = "LICENSE" }
+    version = "1.0.4"
     requires-python = ">= 3.9"
     dependencies = [
         "qiskit == 0.44.1",
         "qiskit-aer == 0.12.2",
         "rustworkx >= 0.13.1"
     ]
+    keywords = [
+        "rivet",
+        "transpile",
+        "transpiler",
+        "quantum",
+        "quantum circuit",
+        "quantum computing",
+        "quantum programming language",
+    ]
+    classifiers = [
+        "Environment :: Console",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: MacOS",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX :: Linux",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Topic :: Scientific/Engineering",
+    ]
+
+[project.urls]
+    Homepage = "https://github.com/haiqu-ai/rivet"
 
 [project.optional-dependencies]
 
@@ -22,15 +52,15 @@
     pytket = ["pytket == 1.21.0",
               "pytket-qiskit == 0.45.0"]
 
-    stacks = ["qml-transpiler[bqskit]",
-              "qml-transpiler[pytket]"]
+    stacks = ["rivet-transpiler[bqskit]",
+              "rivet-transpiler[pytket]"]
 
     testing = ["pytest >= 7.4.3",
                "coverage >= 7.3.2"]
 
 [tool.setuptools.packages.find]
 
-    include = ["qml_transpiler"]
+    include = ["rivet_transpiler"]
 
 [tool.pytest.ini_options]
 

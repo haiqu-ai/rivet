@@ -1,6 +1,6 @@
 import qiskit
 
-from qml_transpiler import get_sinusoids
+from rivet_transpiler import get_sinusoids
 
 from tests.integration import get_circuits_to_compare
 from tests.integration import run_circuits_to_compare
