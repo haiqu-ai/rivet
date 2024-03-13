@@ -197,14 +197,6 @@ Select topologically most important qubits of a backend – and then transpiles 
 <img src="docs/images/topological_compression.png" width=250>
 </a>
 
-### Calibrations
-
-[calibrations.ipynb](examples/calibrations/calibrations_to_target.ipynb)
-
-<a>
-<img src="docs/images/aspen_m3_error_map.png" width=500>
-</a>
-
 ### Hashing
 
 [hashing.ipynb](examples/hashing/hashing.ipynb)
