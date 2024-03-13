@@ -235,6 +235,40 @@ We would like to thank:
 * [Pytket](https://github.com/CQCL/pytket) Python inteface for Quantinuum TKET compiler
 
 
+## Contributors
+
+<div align="center">
+  <table style="border-collapse: collapse;">
+    <tr>
+      <td align="center">
+        <img src="docs/images/contributors/mykhailo_ohorodnikov.jpg" alt="Mykhailo Ohorodnikov" width="100" height="100" style="border-radius: 50%;"><br>
+        Mykhailo Ohorodnikov
+      </td>
+      <td align="center">
+        <img src="docs/images/contributors/yuriy_pryyma.jpg" alt="Yuriy Pryyma" width="100" height="100" style="border-radius: 50%;"><br>
+        Yuriy Pryyma
+      </td>
+      <td align="center">
+        <img src="docs/images/contributors/vlad_bohun.jpg" alt="Vlad Bohun" width="100" height="100" style="border-radius: 50%;"><br>
+        Vlad Bohun
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <img src="docs/images/contributors/vova_sergeyev.jpg" alt="Vova Sergeyev" width="100" height="100" style="border-radius: 50%;"><br>
+        Vova Sergeyev
+      </td>
+      <td align="center">
+        <img src="docs/images/contributors/mariana_krasnytska.jpg" alt="Mariana Krasnytska" width="100" height="100" style="border-radius: 50%;"><br>
+        Mariana Krasnytska
+      </td>
+      <td align="center">
+      </td>
+    </tr>
+  </table>
+</div>
+
+
 ## Contacts
 
 Haiqu Inc. [info@haiqu.ai](mailto:info@haiqu.ai)
