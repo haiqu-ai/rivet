@@ -2,13 +2,13 @@ import pytest
 
 import qiskit
 
-from qml_transpiler import get_ibm_cost
+from rivet_transpiler import get_ibm_cost
 
-from qml_transpiler import get_litmus_circuit
-from qml_transpiler import get_cnot_circuit
-from qml_transpiler import get_sinusoids
+from rivet_transpiler import get_litmus_circuit
+from rivet_transpiler import get_cnot_circuit
+from rivet_transpiler import get_sinusoids
 
-from qml_transpiler import get_circuit_hash
+from rivet_transpiler import get_circuit_hash
 
 
 def test_get_ibm_cost_value():

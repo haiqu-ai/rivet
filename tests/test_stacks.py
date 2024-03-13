@@ -2,7 +2,7 @@ import pytest
 
 import qiskit
 
-from qml_transpiler import transpile
+from rivet_transpiler import transpile
 
 
 # Stacks

@@ -1,44 +1,83 @@
-# QML Transpiler
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202-blue.svg?style=flat-square)](https://opensource.org/license/apache-2-0/)
+[![Documentation](https://img.shields.io/github/actions/workflow/status/haiqu-ai/rivet/.github%2Fworkflows%2Fdocumentation.yml?logo=sphinx&style=flat-square
+)](https://haiqu-ai.github.io/rivet)
 
-**Quantum Transpilation** is a transformation of given virtual quantum circuit:
+<p align="center">
+<picture>
+  <img src="https://raw.githubusercontent.com/haiqu-ai/rivet/main/docs/source/_static/logos/rivet.png" width="60%">
+</picture>
+</p>
 
-* to match the topology of a specific device
-* to optimize the circuit for execution
 
-QML Transpiler package provides a family of functions for efficient transpilation of quantum circuits.
+
+# Rivet Transpiler
+
+The package provides a family of functions for efficient transpilation of quantum circuits.
 
 ## Transpile Functions
 
 `transpile` - custom transpilation with possibility of using:
 
-- pre-defined [transpilation stacks](#transpilation-stacks)
-- custom [PassManager](https://docs.quantum.ibm.com/api/qiskit/passmanager)
-- dynamical decoupling
-- transpiler options
+- Pre-defined [Transpilation Stacks](#transpilation-stacks)
+- Custom [PassManager](https://docs.quantum.ibm.com/api/qiskit/passmanager)
+- Dynamical decoupling
+- Transpiler options
 
 `transpile_chain` - consistently transpile and "stitch" a [chain](#minimal-example) of quantum circuits.
 
-`transpile_right` - transpile additional circuit to the [right part](#shadow-state-tomography) of existing circuit.
+`transpile_right` - transpile an additional circuit to the [right part](#shadow-state-tomography) of the existing circuit.
 
-`transpile_left` - transpile additional circuit to the [left part](#fourier-adder) of existing circuit.
+`transpile_left` - transpile an additional circuit to the [left part](#fourier-adder) of the existing circuit.
 
-`transpile_and_compress` - transpile and ["topologically compress"](#topological-compression) a circuit considering a coupling map of selected backend.
+`transpile_and_compress` - transpile and ["topologically compress"](#topological-compression) a circuit considering a coupling map of the selected backend.
 
-## Install
 
-Clone repository:
+## Transpilation Stacks
+
+Transpilation stacks include below frameworks:
+
+* [Qiskit:](https://github.com/Qiskit/qiskit#readme) Quantum SDK
+* [BQSKit:](https://github.com/BQSKit/bqskit#readme) Berkeley Quantum Synthesis Toolkit
+* [Pytket:](https://github.com/CQCL/pytket#readme) Python inteface for Quantinuum TKET compiler
+
+Following pre-defined transpilation stacks are available:
+
+```python
+"qiskit"
+"qiskit_qsearch"
+"qiskit_qfactor_qsearch"
+"qiskit_pytket"
+```
+
+
+## Installation
+
+Clone the repository:
 
 ```bash
 git clone https://gitlab.com/haiqu-ai/qml-transpiler.git
 ```
 
-Go to repository folder and install a local package using pip:
+Go to the repository folder and install a local package using pip:
 
 ```bash
 pip install .
 ```
 
-## Minimal Example
+To install pre-defined stacks support:
+
+```bash
+pip install .[stacks]
+```
+
+To install only BQSKit or only Pytket stack support:
+
+```bash
+pip install .[bqskit]
+pip install .[pytket]
+```
+
+## Basic Example
 
 Transpilation includes placement of *virtual qubits* of a circuit to *physical qubits* of quantum device or simulator.
 <br>
@@ -48,7 +87,7 @@ Transpilation includes placement of *virtual qubits* of a circuit to *physical q
 <br>
 Additionally, SWAP gates can be included to route qubits around backend topology.
 
-`transpile_chain` function transpiles a chain of virtual circuits keeping qubits consistent:
+Here we present a simple quantum circuit with 3 qubits.
 
 ```python
 import qiskit
@@ -79,6 +118,8 @@ q_2: ─────┤ X ├┤ X ├
           └───┘└───┘
 ```
 
+We use `transpile_chain` function to transpile a chain of virtual circuits keeping qubits consistent:
+
 ```python
 CHAIN = [circuit] * 3
 
@@ -105,13 +146,9 @@ ancilla_1 -> 4 ─────────────────────�
                                                                                ░                                               ░
 ```
 
-## Examples
+## Tutorials
 
-A folder containing all examples:
-
-[examples/](examples/)
-
-### Basic examples:
+### Examples
 
 [examples.ipynb](examples/examples.ipynb)
 
@@ -160,53 +197,27 @@ Select topologically most important qubits of a backend – and then transpiles 
 <img src="docs/images/topological_compression.png" width=250>
 </a>
 
+### Calibrations
+
+[calibrations.ipynb](examples/calibrations/calibrations_to_target.ipynb)
+
+<a>
+<img src="docs/images/aspen_m3_error_map.png" width=500>
+</a>
+
 ### Hashing
 
 [hashing.ipynb](examples/hashing/hashing.ipynb)
 
 
-## Demonstration
-
-The latest demo:
-
-* [QML Transpiler demonstration - 01 2024](examples/demo_01_2024/transpiler_demo.ipynb)
-
 ## Documentation
 
-Detailed description of package structure and functions:
+For more details about the Rivet Transpiler, please check the documentation:
 
+* Deployed to [GitHub Pages](https://haiqu-ai.github.io/rivet)
 * Deployed to [GitLab Pages](https://mohor.gitlab.io/haiqu/)
 * Local [Documents folder](docs/qml_transpiler)
 
-## Transpilation Stacks
-
-Transpilation stacks include below frameworks:
-
-* [Qiskit:](https://github.com/Qiskit/qiskit#readme) Quantum SDK
-* [BQSKit:](https://github.com/BQSKit/bqskit#readme) Berkeley Quantum Synthesis Toolkit
-* [Pytket:](https://github.com/CQCL/pytket#readme) Python inteface for Quantinuum TKET compiler
-
-Following pre-defined transpilation stacks are available:
-
-```python
-"qiskit"
-"qiskit_qsearch"
-"qiskit_qfactor_qsearch"
-"qiskit_pytket"
-```
-
-To install pre-defined stacks support:
-
-```bash
-pip install .[stacks]
-```
-
-To install only BQSKit or only Pytket support:
-
-```bash
-pip install .[bqskit]
-pip install .[pytket]
-```
 
 ## Testing
 
@@ -221,3 +232,17 @@ Then run [tests script](tests/run_tests.py):
 ```bash
 python tests/run_tests.py
 ```
+
+
+## References
+
+We would like to thank:
+
+* [Qiskit](https://github.com/Qiskit/qiskit) Quantum SDK
+* [BQSKit](https://github.com/BQSKit/bqskit) Berkeley Quantum Synthesis Toolkit
+* [Pytket](https://github.com/CQCL/pytket) Python inteface for Quantinuum TKET compiler
+
+
+## Contacts
+
+Haiqu Inc. [info@haiqu.ai](mailto:info@haiqu.ai)

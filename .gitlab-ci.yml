@@ -1,54 +1,59 @@
 stages:
   - test
-  - deploy
-  
+  - documentation
+
 default:
   image: python:3.9
-
   before_script:
     - python --version
     - pip --version
     - echo "$TRANSPILER_PATH"
-    
 
-run_tests:
+tests:
   stage: test
-
   script:
     - cd ./$TRANSPILER_PATH
     - pip install .[testing,stacks]
     - python tests/run_tests.py
-
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
 
-
-run_linting:
+linting:
   stage: test
-
   script:
     - pip install flake8
     - flake8 $TRANSPILER_PATH
-
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-    
-    
+
 pages:
-  stage: deploy
-  
+  stage: documentation
   script:
-    - echo "Deploying documentation to $CI_PAGES_URL"
-
-    - pip install pdoc3    
+    - echo "Deploying GitLab documentation"
+    - pip install pdoc3
     - pip install ./$TRANSPILER_PATH/.
-    - pdoc --html ./$TRANSPILER_PATH/qml_transpiler --output-dir public
-    - mv public/qml_transpiler/* public/
+    - pdoc --html ./$TRANSPILER_PATH/rivet_transpiler --output-dir public_gitlab
+    - mv public_gitlab/rivet_transpiler/* public_gitlab/
+    - echo "Deployed GitLab documentation to $CI_PAGES_URL"
+  artifacts:
+    paths:
+      - public_gitlab
+    # expire_in: 20 minutes
+  publish: public_gitlab
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
 
+github_documentation:
+  stage: documentation
+  script:
+    - echo "Deploying GitHub documentation"
+    - apt update
+    - apt -y install gcc python3-dev pandoc python3-psutil
+    - pip3 install ./$TRANSPILER_PATH/.
+    - pip3 install -r ./$TRANSPILER_PATH/docs/requirements.txt
+    - python3 -m sphinx -b html ./$TRANSPILER_PATH/docs/source public
   artifacts:
     paths:
       - public
-#    expire_in: 20 minutes
-
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH

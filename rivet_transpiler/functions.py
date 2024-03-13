@@ -1,4 +1,4 @@
-""" Service Functions used for QML Transpiler examples and checks. """
+""" Service Functions used for Rivet Transpiler examples and checks. """
 
 import qiskit
 
