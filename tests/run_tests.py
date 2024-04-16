@@ -13,8 +13,8 @@ cov.start()
 
 exit_code = pytest.main([
     '--verbosity=2',
-    # '--exitfirst',
     '--failed-first',
+    # '--exitfirst',
     # '--capture=no',
     # '--collect-only',
     # '--durations=0',

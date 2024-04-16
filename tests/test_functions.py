@@ -26,7 +26,7 @@ def test_get_ibm_cost_toffoli():
 
     toffoli_circuit = qiskit.QuantumCircuit(3)
 
-    toffoli_circuit.toffoli(0, 1, 2)
+    toffoli_circuit.ccx(0, 1, 2)
 
     with pytest.raises(ValueError):
 

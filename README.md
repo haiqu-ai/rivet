@@ -92,9 +92,9 @@ Here we present a simple quantum circuit with 3 qubits.
 ```python
 import qiskit
 
-from qiskit.providers.fake_provider import FakeLimaV2
+from qiskit_ibm_runtime.fake_provider import FakeLimaV2
 
-from qml_transpiler import transpile_chain
+from rivet_transpiler import transpile_chain
 
 backend = FakeLimaV2()
 

@@ -2,7 +2,7 @@ import pytest
 
 import qiskit
 
-from qiskit.providers.fake_provider import FakeBackend5QV2
+from qiskit_ibm_runtime.fake_provider import FakeLimaV2
 
 from rivet_transpiler import transpile
 from rivet_transpiler import transpile_left
@@ -23,7 +23,7 @@ def test_transpile(litmus_circuit, backend):
         backend,
         seed_transpiler=1234)
 
-    return transpiled_litmus_circuit
+    assert transpiled_litmus_circuit
 
 
 def test_transpile_and_return_options(litmus_circuit, backend):
@@ -34,7 +34,7 @@ def test_transpile_and_return_options(litmus_circuit, backend):
         return_options=True,
         seed_transpiler=1234)
 
-    return transpiled_litmus_circuit, transpile_options
+    assert transpiled_litmus_circuit, transpile_options
 
 
 def test_transpile_chain(litmus_circuit, backend):
@@ -46,7 +46,7 @@ def test_transpile_chain(litmus_circuit, backend):
         backend=backend,
         seed_transpiler=1234)
 
-    return transpiled_chain_circuit
+    assert transpiled_chain_circuit
 
 
 def test_transpile_right(litmus_circuit, backend):
@@ -62,7 +62,7 @@ def test_transpile_right(litmus_circuit, backend):
         backend=backend,
         seed_transpiler=1234)
 
-    return transpiled_right_circuit
+    assert transpiled_right_circuit
 
 
 def test_transpile_left(litmus_circuit, backend):
@@ -78,7 +78,7 @@ def test_transpile_left(litmus_circuit, backend):
         backend=backend,
         seed_transpiler=1234)
 
-    return transpiled_left_circuit
+    assert transpiled_left_circuit
 
 
 @pytest.mark.filterwarnings("ignore::UserWarning")
@@ -89,7 +89,7 @@ def test_transpile_and_compress(litmus_circuit, backend):
         backend,
         seed_transpiler=1234)
 
-    return compressed_litmus_circuit
+    assert compressed_litmus_circuit
 
 
 @pytest.mark.filterwarnings("ignore::UserWarning")
@@ -113,7 +113,7 @@ def test_transpile_and_compress_coupling_map(litmus_circuit, backend):
         coupling_map=coupling_map,
         seed_transpiler=1234)
 
-    return compressed_litmus_circuit
+    assert compressed_litmus_circuit
 
 
 # Test Full Map
@@ -125,14 +125,16 @@ def test_full_map(litmus_circuit, backend):
         backend,
         seed_transpiler=1234)
 
-    get_full_map(transpiled_litmus_circuit, verbose=True)
+    full_map = get_full_map(transpiled_litmus_circuit, verbose=True)
+
+    assert full_map
 
 
 def test_full_map_value():
 
     fixed_litmus_circuit = get_litmus_circuit(qubits_count=3)
 
-    backend = FakeBackend5QV2()
+    backend = FakeLimaV2()
 
     transpiled_litmus_circuit = transpile(
         fixed_litmus_circuit,
@@ -141,4 +143,4 @@ def test_full_map_value():
 
     full_map = get_full_map(transpiled_litmus_circuit)
 
-    assert full_map == [1, 3, 2, 0, 4]
+    assert full_map == [0, 2, 1, 3, 4]

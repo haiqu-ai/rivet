@@ -2,11 +2,9 @@ import pytest
 
 import qiskit
 
-# from qiskit.providers.fake_provider import FakeBackend5QV2
-# from qiskit.providers.fake_provider import FakeLimaV2
-# from qiskit.providers.fake_provider import FakeGuadalupeV2
-# from qiskit.providers.fake_provider import FakeBoeblingenV2
-from qiskit.providers.fake_provider import FakeMontrealV2
+from qiskit_aer import AerSimulator
+
+from qiskit_ibm_runtime.fake_provider import FakeMontrealV2
 
 from rivet_transpiler import get_litmus_circuit
 
@@ -15,11 +13,8 @@ QUBIT_COUNTS = [5]
 
 BACKENDS = [
     None,
-    # qiskit.providers.aer.AerSimulator,
-    # FakeBackend5QV2,
+    # AerSimulator,
     # FakeLimaV2,
-    # FakeGuadalupeV2,
-    # FakeBoeblingenV2,
     FakeMontrealV2
 ]
 
@@ -39,16 +34,16 @@ def backend(request):
 
         backend_fixture = None
 
-    elif issubclass(backend, qiskit.providers.aer.AerSimulator):
+    elif issubclass(backend, AerSimulator):
 
         backend_fixture = backend()
 
     elif issubclass(backend, (qiskit.providers.BackendV1,
                               qiskit.providers.BackendV2,
-                              qiskit.providers.fake_provider.FakeBackend,
-                              qiskit.providers.fake_provider.FakeBackendV2)):
+                              qiskit.providers.fake_provider.fake_backend.FakeBackend,
+                              qiskit.providers.fake_provider.fake_backend.FakeBackendV2)):
 
-        backend_fixture = qiskit.providers.aer.AerSimulator.from_backend(backend())
+        backend_fixture = AerSimulator.from_backend(backend())
 
     # Noise Model
 

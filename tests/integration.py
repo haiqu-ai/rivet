@@ -4,6 +4,8 @@ Module containing functions to build and compare test circuits for integration t
 
 import qiskit
 
+from qiskit_aer import AerSimulator
+
 from rivet_transpiler import transpile
 from rivet_transpiler import transpile_left
 from rivet_transpiler import transpile_right
@@ -173,7 +175,7 @@ def run_circuits_to_compare(circuits_to_compare, backend, shots_count):
         # Backend
 
         if backend is None:
-            run_backend = qiskit.providers.aer.AerSimulator()
+            run_backend = AerSimulator()
             run_circuit = transpile(circuit, run_backend)
         else:
             run_backend = backend
