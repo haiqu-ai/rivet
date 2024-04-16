@@ -7,14 +7,16 @@ import warnings
 from importlib.util import find_spec
 
 import qiskit
+
+from qiskit.qasm2 import dumps
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
+
+from qiskit_aer import AerSimulator
 
 try:
     import bqskit
-    from bqskit.ext import bqskit_to_qiskit  # noqa: F401
 
 except ModuleNotFoundError:
-
     warnings.warn("BQSKit not found", ImportWarning)
 
 try:
@@ -22,7 +24,6 @@ try:
     import pytket.extensions.qiskit
 
 except ModuleNotFoundError:
-
     warnings.warn("Pytket not found", ImportWarning)
 
 
@@ -33,7 +34,7 @@ def check_if_module_is_imported(module_name):
     if find_spec(module_name) is None:
 
         raise ModuleNotFoundError(f"{module_name} not found - use "
-                                  f"'pip install qml_transpiler[{module_name}]'")
+                                  f"'pip install rivet_transpiler[{module_name}]'")
 
 
 # 1) Get Stack Pass Manager
@@ -121,12 +122,12 @@ def model_from_ibmq_backend(backend):
     # Backend
 
     if backend is None:
-        ibmq_backend = qiskit.providers.aer.AerSimulator()
+        ibmq_backend = AerSimulator()
     else:
         ibmq_backend = backend
 
     if isinstance(ibmq_backend, (qiskit.providers.BackendV1,
-                                 qiskit.providers.fake_provider.FakeBackend)):
+                                 qiskit.providers.fake_provider.fake_backend.FakeBackend)):
 
         # print('IBMQ Backend Version 1')
 
@@ -135,7 +136,7 @@ def model_from_ibmq_backend(backend):
         coupling_map = ibmq_backend.configuration().coupling_map
 
     if isinstance(ibmq_backend, (qiskit.providers.BackendV2,
-                                 qiskit.providers.fake_provider.FakeBackendV2)):
+                                 qiskit.providers.fake_provider.fake_backend.FakeBackendV2)):
 
         # print('IBMQ Backend Version 2')
 
@@ -251,15 +252,21 @@ class QSearchPass(qiskit.transpiler.basepasses.TransformationPass):
 
         qiskit_circuit = qiskit.converters.dag_to_circuit(dag)
 
-        bqskit_circuit = bqskit.ext.qiskit_to_bqskit(qiskit_circuit)
+        qiskit_qasm = dumps(qiskit_circuit)
+
+        bqskit_qasm_converter = bqskit.ir.lang.qasm2.OPENQASM2Language()
+
+        bqskit_circuit = bqskit_qasm_converter.decode(qiskit_qasm)
 
         synthesized_circuit = run_qsearch_synthesis(bqskit_circuit,
                                                     self.machine_model,
                                                     self.qsearch_block_size)
 
-        transpiled_qiskit_circuit = bqskit.ext.bqskit_to_qiskit(synthesized_circuit)
+        synthesized_qasm = bqskit_qasm_converter.encode(synthesized_circuit)
 
-        new_dag = qiskit.converters.circuit_to_dag(transpiled_qiskit_circuit)
+        new_qiskit_circuit = qiskit.QuantumCircuit.from_qasm_str(synthesized_qasm)
+
+        new_dag = qiskit.converters.circuit_to_dag(new_qiskit_circuit)
 
         return new_dag
 
@@ -296,7 +303,11 @@ class QFactorPass(qiskit.transpiler.basepasses.TransformationPass):
 
         qiskit_circuit = qiskit.converters.dag_to_circuit(dag)
 
-        bqskit_circuit = bqskit.ext.qiskit_to_bqskit(qiskit_circuit)
+        qiskit_qasm = dumps(qiskit_circuit)
+
+        bqskit_qasm_converter = bqskit.ir.lang.qasm2.OPENQASM2Language()
+
+        bqskit_circuit = bqskit_qasm_converter.decode(qiskit_qasm)
 
         # Ansatz
 
@@ -334,9 +345,11 @@ class QFactorPass(qiskit.transpiler.basepasses.TransformationPass):
                                                     self.machine_model,
                                                     self.qsearch_block_size)
 
-        transpiled_qiskit_circuit = bqskit.ext.bqskit_to_qiskit(synthesized_circuit)
+        synthesized_qasm = bqskit_qasm_converter.encode(synthesized_circuit)
 
-        new_dag = qiskit.converters.circuit_to_dag(transpiled_qiskit_circuit)
+        new_qiskit_circuit = qiskit.QuantumCircuit.from_qasm_str(synthesized_qasm)
+
+        new_dag = qiskit.converters.circuit_to_dag(new_qiskit_circuit)
 
         return new_dag
 

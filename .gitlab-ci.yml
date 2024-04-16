@@ -3,7 +3,7 @@ stages:
   - documentation
 
 default:
-  image: python:3.9
+  image: python:3.10
   before_script:
     - python --version
     - pip --version
