@@ -150,9 +150,11 @@ def transpile_right(central_circuit, right_circuit,
 
     # Transpile and Compose
 
-    full_map = get_full_map(central_circuit)
+    if backend is not None and backend.coupling_map is not None:
 
-    key_arguments['initial_layout'] = full_map[:right_circuit.num_qubits]
+        full_map = get_full_map(central_circuit)
+
+        key_arguments['initial_layout'] = full_map[:right_circuit.num_qubits]
 
     transpiled_right_circuit = transpile(
         right_circuit,

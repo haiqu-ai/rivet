@@ -1,6 +1,8 @@
 [flake8]
 
 max-line-length = 120
+exclude =
+	research
 per-file-ignores = 
 	__init__.py:F401
 	__init__-checkpoint.py:F401

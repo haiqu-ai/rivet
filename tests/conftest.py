@@ -4,6 +4,7 @@ import qiskit
 
 from qiskit_aer import AerSimulator
 
+from qiskit_ibm_runtime.fake_provider import fake_backend
 from qiskit_ibm_runtime.fake_provider import FakeMontrealV2
 
 from rivet_transpiler import get_litmus_circuit
@@ -40,8 +41,8 @@ def backend(request):
 
     elif issubclass(backend, (qiskit.providers.BackendV1,
                               qiskit.providers.BackendV2,
-                              qiskit.providers.fake_provider.fake_backend.FakeBackend,
-                              qiskit.providers.fake_provider.fake_backend.FakeBackendV2)):
+                              fake_backend.FakeBackend,
+                              fake_backend.FakeBackendV2)):
 
         backend_fixture = AerSimulator.from_backend(backend())
 
