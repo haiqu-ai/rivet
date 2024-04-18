@@ -13,6 +13,8 @@ from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 
 from qiskit_aer import AerSimulator
 
+from qiskit_ibm_runtime.fake_provider import fake_backend
+
 try:
     import bqskit
 
@@ -127,7 +129,7 @@ def model_from_ibmq_backend(backend):
         ibmq_backend = backend
 
     if isinstance(ibmq_backend, (qiskit.providers.BackendV1,
-                                 qiskit.providers.fake_provider.fake_backend.FakeBackend)):
+                                 fake_backend.FakeBackend)):
 
         # print('IBMQ Backend Version 1')
 
@@ -136,7 +138,7 @@ def model_from_ibmq_backend(backend):
         coupling_map = ibmq_backend.configuration().coupling_map
 
     if isinstance(ibmq_backend, (qiskit.providers.BackendV2,
-                                 qiskit.providers.fake_provider.fake_backend.FakeBackendV2)):
+                                 fake_backend.FakeBackendV2)):
 
         # print('IBMQ Backend Version 2')
 
