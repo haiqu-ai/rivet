@@ -10,6 +10,26 @@
 
 # Rivet Transpiler
 
+Quantum Transpilation is the transformation of a given virtual quantum circuit:
+- to match the topology of a specific device
+- to optimize the circuit for execution
+
+Even at small scales, transpilation becomes a key bottleneck in many complex quantum computing workflows.
+
+Rivet Transpiler allows users to design an implement fast automated modular transpilation routines with the transpilation stack of their choise.
+
+Despite its advanced functionality, Rivet Transpiler is easy to use and includes features such as performance tracking and debugging.
+
+## Introduction to Rivet transpiler
+
+Rivet Transpiler has optimized implementations for Circuit stitching, Topological Compression, Coupling Maps, Hashing, QML, Shadow State Tomography.
+
+Circuit stitching is a technique used to optimize the routing of quantum circuits on physical quantum hardware. In this process, disconnected qubits, which are not physically adjacent, are brought closer together using SWAP gates.
+
+Topological compression is a tool to help overcome transpilation limitations by taking into account the device’s coupling map. It takes the device's coupling map into account in order to determine the optimal selection of the most important qubits. Before proceeding with computation Rivet Transpiler works hard to achieve the best mapping between the circuit and the device's physical layout in terms of qubit arrangement connectivity.
+
+## Rivet Transpiler: Transpile Functions
+
 The package provides a family of functions for efficient transpilation of quantum circuits.
 
 - Function `transpile` - transpilation function featuring:
