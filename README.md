@@ -16,17 +16,27 @@ Quantum Transpilation is the transformation of a given virtual quantum circuit:
 
 Even at small scales, transpilation becomes a key bottleneck in many complex quantum computing workflows.
 
-Rivet Transpiler allows users to design an implement fast automated modular transpilation routines with the transpilation stack of their choise.
+## Introduction to Rivet transpiler
+
+Rivet Transpiler allows users to design and implement fast automated modular transpilation routines with the transpilation stack of their choice.
 
 Despite its advanced functionality, Rivet Transpiler is easy to use and includes features such as performance tracking and debugging.
 
-## Introduction to Rivet transpiler
+Rivet Transpiler has optimized implementations for Circuit stitching, Topological Compression, Coupling Maps, Hashing, QML, and Shadow State Tomography.
 
-Rivet Transpiler has optimized implementations for Circuit stitching, Topological Compression, Coupling Maps, Hashing, QML, Shadow State Tomography.
+![Transpilation time improvement](https://raw.githubusercontent.com/haiqu-ai/rivet/main/docs/images/transpilation_time.png "Transpilation time improvement")
 
 Circuit stitching is a technique used to optimize the routing of quantum circuits on physical quantum hardware. In this process, disconnected qubits, which are not physically adjacent, are brought closer together using SWAP gates.
 
 Topological compression is a tool to help overcome transpilation limitations by taking into account the device’s coupling map. It takes the device's coupling map into account in order to determine the optimal selection of the most important qubits. Before proceeding with computation Rivet Transpiler works hard to achieve the best mapping between the circuit and the device's physical layout in terms of qubit arrangement connectivity.
+
+![Processing time for different number of qubits](https://raw.githubusercontent.com/haiqu-ai/rivet/main/docs/images/processing_time.png "Processing time for different number of qubits")
+
+Users can transpile their entire circuit, or part of a circuit, via the architecture(s) of their preference. Allowing them to transpile optimally for their given use case.
+
+- Qiskit
+- BQSKit
+- Pytket
 
 ## Rivet Transpiler: Transpile Functions
 
