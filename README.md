@@ -30,6 +30,8 @@ Circuit stitching is a technique used to optimize the routing of quantum circuit
 
 Topological compression is a tool to help overcome transpilation limitations by taking into account the device’s coupling map. It takes the device's coupling map into account in order to determine the optimal selection of the most important qubits. Before proceeding with computation Rivet Transpiler works hard to achieve the best mapping between the circuit and the device's physical layout in terms of qubit arrangement connectivity.
 
+Shadow State Tomography is a method used in quantum computing to estimate the properties of a quantum state without directly measuring it. It involves indirectly characterizing the state of a quantum system by observing its effect on another known state. It is particularly useful in scenarios where direct measurements are impractical due to limitations in measurement precision, experimental resources, or system complexity.
+
 ![Processing time for different number of qubits](https://raw.githubusercontent.com/haiqu-ai/rivet/main/docs/images/processing_time.png "Processing time for different number of qubits")
 
 Users can transpile their entire circuit, or part of a circuit, via the architecture(s) of their preference. Allowing them to transpile optimally for their given use case.
