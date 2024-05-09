@@ -181,7 +181,7 @@ ancilla_1 -> 4 ─────────────────────�
 
 ## References
 
-We would like to thank to:
+We would like to thank:
 
 * [Qiskit](https://github.com/Qiskit/qiskit) Quantum SDK
 * [BQSKit](https://github.com/BQSKit/bqskit) Berkeley Quantum Synthesis Toolkit
