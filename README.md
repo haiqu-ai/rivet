@@ -1,3 +1,4 @@
+<!-- Badges for GitHub -->
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202-blue.svg?style=flat-square)](https://opensource.org/license/apache-2-0/)
 [![Documentation](https://img.shields.io/github/actions/workflow/status/haiqu-ai/rivet/.github%2Fworkflows%2Fdocumentation.yml?logo=sphinx&style=flat-square
 )](https://haiqu-ai.github.io/rivet)
@@ -8,39 +9,52 @@
 </picture>
 </p>
 
-# Rivet Transpiler
+# Transpilation
 
-Quantum Transpilation is the transformation of a given virtual quantum circuit:
-- to match the topology of a specific device
-- to optimize the circuit for execution
+Quantum Transpilation is the transformation of a given abstract quantum circuit with the aim of:
+- Matching the topology, native gate set, errors and other properties of a specific quantum device
+- Optimizing the circuit for execution
 
-Even at small scales, transpilation becomes a key bottleneck in many complex quantum computing workflows.
+Even at small scales, transpilation can become a **key bottleneck** in many complex quantum computing workflows, such as those in Error Mitigation or Quantum Machine Learning, where modular circuits are iteratively updated and transpiled or many instances of largely similar circuits are run. Rivet allows users to design and implement **fast automated modular transpilation** routines with the transpilation stack of their choice (via **Stack Selection**), providing tools such as caching and re-use and detailed control over transpilation passes. Despite its advanced functionality, Rivet is easy to use and includes features such as performance tracking and debugging.
 
-## Introduction to Rivet transpiler
 
-Rivet Transpiler allows users to design and implement fast automated modular transpilation routines with the transpilation stack of their choice.
+## Introduction to the Rivet Transpiler
 
-Despite its advanced functionality, Rivet Transpiler is easy to use and includes features such as performance tracking and debugging.
+The Rivet Transpiler allows users to design and implement fast automated modular transpilation routines with the transpilation stack of their choice. The goal is to allow users complete control over the process, allowing for greater flexibility and large reductions in transpilation time.
 
-Rivet Transpiler has optimized implementations for Circuit stitching, Topological Compression, Coupling Maps, Hashing, QML, and Shadow State Tomography.
+Despite its advanced functionality, Rivet Transpiler is easy to use and includes convenience features, such as performance tracking and debugging.
 
-![Transpilation time improvement](https://raw.githubusercontent.com/haiqu-ai/rivet/main/docs/images/transpilation_time.png "Transpilation time improvement")
+<p align="center">
+<picture>
+  <img src="https://raw.githubusercontent.com/haiqu-ai/rivet/main/docs/images/transpilation_time.png" width="60%" />
+  <figcaption>
+    Figure 1: This plot visualizes the difference in transpilation time between Rivet and a standard transpiler, where a massive advantage is seen through Rivet’s implementation.
+  </figcaption>
+</picture>
+</p>
 
-Circuit stitching is a technique used to optimize the routing of quantum circuits on physical quantum hardware. In this process, disconnected qubits, which are not physically adjacent, are brought closer together using SWAP gates.
+<p align="center">
+<picture>
+  <img src="https://raw.githubusercontent.com/haiqu-ai/rivet/main/docs/images/transpilation_time2.png" width="60%" />
+  <figcaption>
+    Figure 2: This plot visualizes the difference between the same algorithm being transpiled with Rivet (with topology constraint) and standard transpiler which adds ancilla qubits. The standard transpiler’s addition of ancilla qubits subsequently brings substantial increases in compute time. Using Topological Compression, the Rivet transpiler ensures the minimum number of qubits is used, making for fast and efficient computation.
+  </figcaption>
+</picture>
+</p>
 
-Topological compression is a tool to help overcome transpilation limitations by taking into account the device’s coupling map. It takes the device's coupling map into account in order to determine the optimal selection of the most important qubits. Before proceeding with computation Rivet Transpiler works hard to achieve the best mapping between the circuit and the device's physical layout in terms of qubit arrangement connectivity.
+**Subcircuit Transpilation and Stitching:** Rivet allows circuits to be subdivided, and the parts transpiled separately and maintain the correct relation to the other subparts (qubit indices, mapping between logical and physical qubits, etc.). The pre-transpiled subcircuits can be cached and later consistently stitched together with other circuits (e.g. multiple basis changes) for execution, allowing drastic saving of computational resources.
 
-Shadow State Tomography is a method used in quantum computing to estimate the properties of a quantum state without directly measuring it. It involves indirectly characterizing the state of a quantum system by observing its effect on another known state. It is particularly useful in scenarios where direct measurements are impractical due to limitations in measurement precision, experimental resources, or system complexity.
-
-![Processing time for different number of qubits](https://raw.githubusercontent.com/haiqu-ai/rivet/main/docs/images/processing_time.png "Processing time for different number of qubits")
-
-Users can transpile their entire circuit, or part of a circuit, via the architecture(s) of their preference. Allowing them to transpile optimally for their given use case.
-
+**Flexible Stack Selection:** Users can transpile their entire circuit, or parts of a circuit, via one or a combination of transpilation passes from different stacks of their preference. This allows one to choose the optimal transpiling strategy for the given use case and circuit architecture. Supported stacks include:
 - Qiskit
 - BQSKit
 - Pytket
 
-## Rivet Transpiler: Transpile Functions
+**Granular Transpilation Control:** Rivet gives the User a high level of insight into, and control over the transpilation process, including the – typically invisible to the user – use of quantum resources, such as auxiliary qubits used in various transpilation passes, which can be constrained via the Qubit-Constrained Transpilation function. Combined with a debugging interface it allows to optimize the classical and quantum compute involved in the execution and shorten the development loop, especially in research and prototyping.
+
+More details about these core features, as well as other useful tools, can be found in the Tutorials section below. 
+
+
+## Rivet's Functions
 
 The package provides a family of functions for efficient transpilation of quantum circuits.
 
@@ -54,8 +68,8 @@ The package provides a family of functions for efficient transpilation of quantu
     - Transpiler options
 - Function `transpile_chain` - consistently transpile and "stitch" a chain of quantum circuits
 - Function `transpile_right` - transpile an additional circuit to the right part of the existing circuit
-- Function `transpile_left` - transpile an additional circuit to the left part of the existing circuit
-- Function `transpile_and_compress` - transpile and topologically compress a circuit considering a coupling map of the selected backend
+- Function `transpile_left` - transpile an additional circuit to the left part of the existing circuit. Collectively these functions allow for users to transpile and stitch pieces of circuits.
+- Function `transpile_and_compress` - transpile and transpile and constrain the use of auxiliary qubits in all the transpilation passes of a circuit considering a coupling map of the selected backend
 
 ## Installation
 
@@ -85,10 +99,12 @@ For more details about the Rivet Transpiler, please check the [reference documen
 
 ## Tutorials
 
+An overview of transpilation, as well as other features Rivet offers like Hashing are outlined in the links below. Shadow State Tomography and Fourier Adders are examples of complex processes that could benefit from Rivet’s Subcircuit Transpilation and Stitching. 
+
 - [Transpilation Overview, Stages, Functions](examples/examples.ipynb)
 - [Shadow State Tomography](examples/shadows/shadow_state_tomography.ipynb)
 - [Fourier Adder](examples/fourier_adder/fourier_adder.ipynb)
-- [Topological Compression](examples/topological_compression/topological_compression.ipynb)
+- [Qubit-Constrained Transpilation](examples/qubit_constrained_transpilation/qubit_constrained_transpilation.ipynb)
 - [Hashing](examples/hashing/hashing.ipynb)
 
 
