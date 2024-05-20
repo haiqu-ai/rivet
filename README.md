@@ -1,3 +1,4 @@
+<!-- Badges for GitHub -->
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202-blue.svg?style=flat-square)](https://opensource.org/license/apache-2-0/)
 [![Documentation](https://img.shields.io/github/actions/workflow/status/haiqu-ai/rivet/.github%2Fworkflows%2Fdocumentation.yml?logo=sphinx&style=flat-square
 )](https://haiqu-ai.github.io/rivet)
@@ -8,89 +9,121 @@
 </picture>
 </p>
 
+# Transpilation
+
+Quantum Transpilation is the transformation of a given abstract quantum circuit with the aim of:
+- Matching the topology, native gate set, errors and other properties of a specific quantum device
+- Optimizing the circuit for execution
+
+Even at small scales, transpilation can become a **key bottleneck** in many complex quantum computing workflows, such as those in Error Mitigation or Quantum Machine Learning, where modular circuits are iteratively updated and transpiled or many instances of largely similar circuits are run. Rivet allows users to design and implement **fast automated modular transpilation** routines with the transpilation stack of their choice (via **Stack Selection**), providing tools such as caching and re-use and detailed control over transpilation passes. Despite its advanced functionality, Rivet is easy to use and includes features such as performance tracking and debugging.
 
 
-# Rivet Transpiler
+## Introduction to the Rivet Transpiler
+
+The Rivet Transpiler allows users to design and implement fast automated modular transpilation routines with the transpilation stack of their choice. The goal is to allow users complete control over the process, allowing for greater flexibility and large reductions in transpilation time.
+
+Despite its advanced functionality, Rivet Transpiler is easy to use and includes convenience features, such as performance tracking and debugging.
+
+<p align="center">
+<picture>
+  <img src="https://raw.githubusercontent.com/haiqu-ai/rivet/main/docs/images/transpilation_time.png" width="60%" />
+  <figcaption>
+    Figure 1: This plot visualizes the difference in transpilation time between Rivet and a standard transpiler, where a massive advantage is seen through Rivet’s implementation.
+  </figcaption>
+</picture>
+</p>
+
+<p align="center">
+<picture>
+  <img src="https://raw.githubusercontent.com/haiqu-ai/rivet/main/docs/images/transpilation_time2.png" width="60%" />
+  <figcaption>
+    Figure 2: This plot visualizes the difference between the same algorithm being transpiled with Rivet (with topology constraint) and standard transpiler which adds ancilla qubits. The standard transpiler’s addition of ancilla qubits subsequently brings substantial increases in compute time. Using Topological Compression, the Rivet transpiler ensures the minimum number of qubits is used, making for fast and efficient computation.
+  </figcaption>
+</picture>
+</p>
+
+**Subcircuit Transpilation and Stitching:** Rivet allows circuits to be subdivided, and the parts transpiled separately and maintain the correct relation to the other subparts (qubit indices, mapping between logical and physical qubits, etc.). The pre-transpiled subcircuits can be cached and later consistently stitched together with other circuits (e.g. multiple basis changes) for execution, allowing drastic saving of computational resources.
+
+**Flexible Stack Selection:** Users can transpile their entire circuit, or parts of a circuit, via one or a combination of transpilation passes from different stacks of their preference. This allows one to choose the optimal transpiling strategy for the given use case and circuit architecture. Supported stacks include:
+- Qiskit
+- BQSKit
+- Pytket
+
+**Granular Transpilation Control:** Rivet gives the User a high level of insight into, and control over the transpilation process, including the – typically invisible to the user – use of quantum resources, such as auxiliary qubits used in various transpilation passes, which can be constrained via the Qubit-Constrained Transpilation function. Combined with a debugging interface it allows to optimize the classical and quantum compute involved in the execution and shorten the development loop, especially in research and prototyping.
+
+More details about these core features, as well as other useful tools, can be found in the Tutorials section below. 
+
+
+## Rivet's Functions
 
 The package provides a family of functions for efficient transpilation of quantum circuits.
 
-## Transpile Functions
-
-`transpile` - custom transpilation with possibility of using:
-
-- Pre-defined [Transpilation Stacks](#transpilation-stacks)
-- Custom [PassManager](https://docs.quantum.ibm.com/api/qiskit/passmanager)
-- Dynamical decoupling
-- Transpiler options
-
-`transpile_chain` - consistently transpile and "stitch" a [chain](#minimal-example) of quantum circuits.
-
-`transpile_right` - transpile an additional circuit to the [right part](#shadow-state-tomography) of the existing circuit.
-
-`transpile_left` - transpile an additional circuit to the [left part](#fourier-adder) of the existing circuit.
-
-`transpile_and_compress` - transpile and ["topologically compress"](#topological-compression) a circuit considering a coupling map of the selected backend.
-
-
-## Transpilation Stacks
-
-Transpilation stacks include below frameworks:
-
-* [Qiskit:](https://github.com/Qiskit/qiskit#readme) Quantum SDK
-* [BQSKit:](https://github.com/BQSKit/bqskit#readme) Berkeley Quantum Synthesis Toolkit
-* [Pytket:](https://github.com/CQCL/pytket#readme) Python inteface for Quantinuum TKET compiler
-
-Following pre-defined transpilation stacks are available:
-
-```python
-"qiskit"
-"qiskit_qsearch"
-"qiskit_qfactor_qsearch"
-"qiskit_pytket"
-```
-
+- Function `transpile` - transpilation function featuring:
+    - Different transpilation stacks:
+        * [Qiskit:](https://github.com/Qiskit/qiskit#readme) Quantum SDK
+        * [BQSKit:](https://github.com/BQSKit/bqskit#readme) Berkeley Quantum Synthesis Toolkit
+        * [Pytket:](https://github.com/CQCL/pytket#readme) Python interface for Quantinuum TKET compiler
+    - Custom PassManager
+    - Dynamical decoupling
+    - Transpiler options
+- Function `transpile_chain` - consistently transpile and "stitch" a chain of quantum circuits
+- Function `transpile_right` - transpile an additional circuit to the right part of the existing circuit
+- Function `transpile_left` - transpile an additional circuit to the left part of the existing circuit. Collectively these functions allow for users to transpile and stitch pieces of circuits.
+- Function `transpile_and_compress` - transpile and constrain the use of auxiliary qubits in all the transpilation passes of a circuit considering a coupling map of the selected backend
 
 ## Installation
 
-Clone the repository:
+To install Rivet Transpiler, please clone the repository:
 
 ```bash
-git clone https://gitlab.com/haiqu-ai/qml-transpiler.git
+git clone https://github.com/haiqu-ai/rivet.git
 ```
 
-Go to the repository folder and install a local package using pip:
-
-```bash
-pip install .
-```
-
-To install pre-defined stacks support:
+To install the transpiler with all supported stacks:
 
 ```bash
 pip install .[stacks]
 ```
 
-To install only BQSKit or only Pytket stack support:
+To install only BQSKit or only Pytket support:
 
 ```bash
 pip install .[bqskit]
 pip install .[pytket]
 ```
 
+## Documentation
+
+For more details about the Rivet Transpiler, please check the [reference documentation](https://haiqu-ai.github.io/rivet).
+
+
+## Tutorials
+
+An overview of transpilation, as well as other features Rivet offers like Hashing are outlined in the links below. Shadow State Tomography and Fourier Adders are examples of complex processes that could benefit from Rivet’s Subcircuit Transpilation and Stitching. 
+
+- [Transpilation Overview, Stages, Functions](examples/examples.ipynb)
+- [Shadow State Tomography](examples/shadows/shadow_state_tomography.ipynb)
+- [Fourier Adder](examples/fourier_adder/fourier_adder.ipynb)
+- [Qubit-Constrained Transpilation](examples/qubit_constrained_transpilation/qubit_constrained_transpilation.ipynb)
+- [Hashing](examples/hashing/hashing.ipynb)
+
+
 ## Basic Example
 
-Transpilation includes placement of *virtual qubits* of a circuit to *physical qubits* of quantum device or simulator.
 <br>
     <a>
     <img src="docs/images/layout.png">
     </a>
 <br>
-Additionally, SWAP gates can be included to route qubits around backend topology.
 
-Here we present a simple quantum circuit with 3 qubits.
+Transpilation includes placement of *virtual qubits* of a circuit to *physical qubits* of the quantum device or simulator. Additionally, SWAP gates can be included to route qubits around the backend topology.
+
+Here we present a simple quantum circuit with 3 qubits before and after transpilation (using the function `transpile_chain` which transpiles a chain of virtual circuits keeping qubits consistent).
+
+### BEFORE transpilation
 
 ```python
-import qiskit
+from qiskit import QuantumCircuit
 
 from qiskit_ibm_runtime.fake_provider import FakeLimaV2
 
@@ -98,7 +131,7 @@ from rivet_transpiler import transpile_chain
 
 backend = FakeLimaV2()
 
-circuit = qiskit.QuantumCircuit(3)
+circuit = QuantumCircuit(3)
 
 circuit.cx(0, 1)
 circuit.cx(1, 2)
@@ -118,7 +151,7 @@ q_2: ─────┤ X ├┤ X ├
           └───┘└───┘
 ```
 
-We use `transpile_chain` function to transpile a chain of virtual circuits keeping qubits consistent:
+### AFTER transpilation 
 
 ```python
 CHAIN = [circuit] * 3
@@ -146,86 +179,6 @@ ancilla_1 -> 4 ─────────────────────�
                                                                                ░                                               ░
 ```
 
-## Tutorials
-
-### Examples
-
-[examples.ipynb](examples/examples.ipynb)
-
-    - Transpilation Overview, Stages, Functions
-    - Litmus Circuit, Backend
-    - Qiskit Transpiler, Pass Manager
-    - Circuit Stitching, Full Map
-    - Transpile Chain, Right, Left, Compress
-    - Transpilation Stacks, QSearch, Synthesis
-    - Circuit Hash
-    - IBM Cost
-
-### Shadow State Tomography
-
-Efficient Tomography circuits transpilation with `transpile_right` function:
-
-[shadow_state_tomography.ipynb](examples/shadows/shadow_state_tomography.ipynb)
-
-<a>
-<img src="docs/images/su2.png">
-</a>
-
-### Fourier Adder
-
-Efficient QFT transpilation with `transpile_left` function:
-
-[fourier_adder.ipynb](examples/fourier_adder/fourier_adder.ipynb)
-
-<a>
-<img src="docs/images/fourier_adder.png">
-</a>
-<br>
-<a>
-<img src="docs/images/fourier_adder_states.png" width=150>
-<img src="docs/images/fourier_adder_states_noisy.png" width=150>
-<img src="docs/images/fourier_adder_states_full.png" width=150>
-</a>
-
-### Topological Compression
-
-Select topologically most important qubits of a backend – and then transpiles circuit using limited coupling map – to decrease transpilation and simulation time:
-
-[topological_compression.ipynb](examples/topological_compression/topological_compression.ipynb)
-
-<a>
-<img src="docs/images/topological_compression.png" width=250>
-</a>
-
-### Hashing
-
-[hashing.ipynb](examples/hashing/hashing.ipynb)
-
-
-## Documentation
-
-For more details about the Rivet Transpiler, please check the documentation:
-
-* Deployed to [GitHub Pages](https://haiqu-ai.github.io/rivet)
-* Deployed to [GitLab Pages](https://mohor.gitlab.io/haiqu/)
-* Local [Documents folder](docs/qml_transpiler)
-
-
-## Testing
-
-Install [pytest](https://docs.pytest.org/) testing support:
-
-```bash
-pip install .[testing]
-```
-
-Then run [tests script](tests/run_tests.py):
-
-```bash
-python tests/run_tests.py
-```
-
-
 ## References
 
 We would like to thank:
@@ -233,41 +186,6 @@ We would like to thank:
 * [Qiskit](https://github.com/Qiskit/qiskit) Quantum SDK
 * [BQSKit](https://github.com/BQSKit/bqskit) Berkeley Quantum Synthesis Toolkit
 * [Pytket](https://github.com/CQCL/pytket) Python inteface for Quantinuum TKET compiler
-
-
-## Contributors
-
-<div align="center">
-  <table style="border-collapse: collapse;">
-    <tr>
-      <td align="center">
-        <img src="docs/images/contributors/mykhailo_ohorodnikov.jpg" alt="Mykhailo Ohorodnikov" width="100" height="100" style="border-radius: 50%;"><br>
-        Mykhailo Ohorodnikov
-      </td>
-      <td align="center">
-        <img src="docs/images/contributors/yuriy_pryyma.jpg" alt="Yuriy Pryyma" width="100" height="100" style="border-radius: 50%;"><br>
-        Yuriy Pryyma
-      </td>
-      <td align="center">
-        <img src="docs/images/contributors/vlad_bohun.jpg" alt="Vlad Bohun" width="100" height="100" style="border-radius: 50%;"><br>
-        Vlad Bohun
-      </td>
-    </tr>
-    <tr>
-      <td align="center">
-        <img src="docs/images/contributors/vova_sergeyev.jpg" alt="Vova Sergeyev" width="100" height="100" style="border-radius: 50%;"><br>
-        Vova Sergeyev
-      </td>
-      <td align="center">
-        <img src="docs/images/contributors/mariana_krasnytska.jpg" alt="Mariana Krasnytska" width="100" height="100" style="border-radius: 50%;"><br>
-        Mariana Krasnytska
-      </td>
-      <td align="center">
-      </td>
-    </tr>
-  </table>
-</div>
-
 
 ## Contacts
 
