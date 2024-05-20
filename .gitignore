@@ -3,5 +3,6 @@ __pycache__
 build
 *.egg-info
 .coverage
+.DS_Store
 public
 dist
