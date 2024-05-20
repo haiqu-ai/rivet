@@ -116,6 +116,8 @@ An overview of transpilation, as well as other features Rivet offers like Hashin
 - [Fourier Adder](examples/fourier_adder/fourier_adder.ipynb)
 - [Qubit-Constrained Transpilation](examples/qubit_constrained_transpilation/qubit_constrained_transpilation.ipynb)
 - [Hashing](examples/hashing/hashing.ipynb)
+- [Circuit Stitching](examples/circuit_stitching/circuit_stitching.ipynb)
+- [Quantum Circuit Synthesis](examples/circuit_synthesis/circuit_synthesis.ipynb)
 
 
 ## Basic Example
