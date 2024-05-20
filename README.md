@@ -28,7 +28,9 @@ Despite its advanced functionality, Rivet Transpiler is easy to use and includes
 <picture>
   <img src="https://raw.githubusercontent.com/haiqu-ai/rivet/main/docs/images/transpilation_time.png" width="60%" />
   <figcaption>
+    <i>
     Figure 1: This plot visualizes the difference in transpilation time between Rivet and a standard transpiler, where a massive advantage is seen through Rivet’s implementation.
+    </i>
   </figcaption>
 </picture>
 </p>
@@ -37,7 +39,9 @@ Despite its advanced functionality, Rivet Transpiler is easy to use and includes
 <picture>
   <img src="https://raw.githubusercontent.com/haiqu-ai/rivet/main/docs/images/transpilation_time2.png" width="60%" />
   <figcaption>
+    <i>
     Figure 2: This plot visualizes the difference between the same algorithm being transpiled with Rivet (with topology constraint) and standard transpiler which adds ancilla qubits. The standard transpiler’s addition of ancilla qubits subsequently brings substantial increases in compute time. Using Topological Compression, the Rivet transpiler ensures the minimum number of qubits is used, making for fast and efficient computation.
+    </i>
   </figcaption>
 </picture>
 </p>
