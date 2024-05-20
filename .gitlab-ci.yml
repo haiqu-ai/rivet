@@ -41,7 +41,7 @@ pages:
     # expire_in: 20 minutes
   publish: public_gitlab
   rules:
-    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_REF_NAME == "develop"
 
 github_documentation:
   stage: documentation
