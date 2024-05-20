@@ -51,7 +51,7 @@ Despite its advanced functionality, Rivet Transpiler is easy to use and includes
 
 **Granular Transpilation Control:** Rivet gives the User a high level of insight into, and control over the transpilation process, including the – typically invisible to the user – use of quantum resources, such as auxiliary qubits used in various transpilation passes, which can be constrained via the Qubit-Constrained Transpilation function. Combined with a debugging interface it allows to optimize the classical and quantum compute involved in the execution and shorten the development loop, especially in research and prototyping.
 
-More details about these core features, as well as other useful tools, can be found in the Tutorials section below. 
+More details about these core features, as well as other useful tools, can be found in the Tutorials section below.
 
 
 ## Rivet's Functions
@@ -105,7 +105,7 @@ For more details about the Rivet Transpiler, please check the [reference documen
 
 ## Tutorials
 
-An overview of transpilation, as well as other features Rivet offers like Hashing are outlined in the links below. Shadow State Tomography and Fourier Adders are examples of complex processes that could benefit from Rivet’s Subcircuit Transpilation and Stitching. 
+An overview of transpilation, as well as other features Rivet offers like Hashing are outlined in the links below. Shadow State Tomography and Fourier Adders are examples of complex processes that could benefit from Rivet’s Subcircuit Transpilation and Stitching.
 
 - [Transpilation Overview, Stages, Functions](examples/examples.ipynb)
 - [Shadow State Tomography](examples/shadows/shadow_state_tomography.ipynb)
@@ -157,7 +157,7 @@ q_2: ─────┤ X ├┤ X ├
           └───┘└───┘
 ```
 
-### AFTER transpilation 
+### AFTER transpilation
 
 ```python
 CHAIN = [circuit] * 3
@@ -196,13 +196,13 @@ We would like to thank:
 
 ## Contributors
 
-Mykhailo Ohorodnikov
-Yuriy Pryyma
-Vlad Bohun
-Vova Sergeyev
-Mariana Krasnytska
+* Mykhailo Ohorodnikov
+* Yuriy Pryyma
+* Vlad Bohun
+* Vova Sergeyev
+* Mariana Krasnytska
 
-          
+
 ## Contacts
 
 Haiqu Inc. [info@haiqu.ai](mailto:info@haiqu.ai)
