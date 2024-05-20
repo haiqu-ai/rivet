@@ -79,6 +79,12 @@ To install Rivet Transpiler, please clone the repository:
 git clone https://github.com/haiqu-ai/rivet.git
 ```
 
+Go to the repository folder and install a local package using pip:
+
+```bash
+pip install .
+```
+
 To install the transpiler with all supported stacks:
 
 ```bash
@@ -187,6 +193,16 @@ We would like to thank:
 * [BQSKit](https://github.com/BQSKit/bqskit) Berkeley Quantum Synthesis Toolkit
 * [Pytket](https://github.com/CQCL/pytket) Python inteface for Quantinuum TKET compiler
 
+
+## Contributors
+
+Mykhailo Ohorodnikov
+Yuriy Pryyma
+Vlad Bohun
+Vova Sergeyev
+Mariana Krasnytska
+
+          
 ## Contacts
 
 Haiqu Inc. [info@haiqu.ai](mailto:info@haiqu.ai)
