@@ -13,8 +13,8 @@
     version = "1.0.8"
     requires-python = ">= 3.10"
     dependencies = [
-        "qiskit >= 1.0.2",
-        "qiskit-aer >= 0.13.3",
+        "qiskit <= 1.0.2",
+        "qiskit-aer <= 0.13.3",
         "qiskit_ibm_runtime >= 0.22.0",
         "rustworkx >= 0.14.2"
     ]
