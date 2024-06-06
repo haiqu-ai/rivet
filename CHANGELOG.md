@@ -1,14 +1,14 @@
 # Changelog
 
-## Version 1.0.8 [In progress]
+## Version 1.0.8
 
-* Changelog added.
+* Added Changelog.
 * Updated dependencies.
-* Uodated examples.
+* Updated examples.
 
 ## Version 1.0.7
 
-* Expanded Examples.
+* Added Expanded examples.
 * Updated Readme.
 * Updated Documentation generation CI pipeline.
 * Updated dependencies.
