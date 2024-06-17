@@ -5,6 +5,7 @@
 * Added Changelog.
 * Updated dependencies.
 * Updated examples.
+* Updated example images style
 
 ## Version 1.0.7
 
