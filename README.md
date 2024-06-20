@@ -77,29 +77,75 @@ The package provides a family of functions for efficient transpilation of quantu
 
 ## Installation
 
-To install Rivet Transpiler, please clone the repository:
+### Step 1: Project Environment Setup (Optional)
+Setting up a local Python environment for each project is good practice as it helps manage dependencies and versions more effectively. We recommend using Conda or Python virtual environments. Alternatively, you can install the requirements in your own Python environment and skip this step.
+
+#### Conda Guide
+
+If you do not have Conda installed, follow the [official Conda documentation](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) to download and install Conda.
+
+Once Conda is installed, create an environment for the rivet project:
 
 ```bash
-git clone https://github.com/haiqu-ai/rivet.git
+conda create -y --name rivet python=3.10
+conda activate rivet
+```
+#### Virtualenv Guide
+
+If you do not have Virtualenv installed, follow the [virtualenv documentation](https://virtualenv.pypa.io/en/latest/installation.html) to download and install the latest version.
+
+Once Virtualenv is installed, create an environment for the rivet project:
+
+```bash
+virtualenv venv --python=python3.10
+source venv/bin/activate
+```
+### Step 2: Install Rivet package
+
+To install Rivet Transpiler base version(support only qiskit transpilation stack) run:
+
+```bash
+pip install 'rivet-transpiler @ git+https://github.com/haiqu-ai/rivet.git'
 ```
 
-Go to the repository folder and install a local package using pip:
+To install with all stacks please run:
 
 ```bash
-pip install .
-```
-
-To install the transpiler with all supported stacks:
-
-```bash
-pip install .[stacks]
+pip install 'rivet-transpiler[stacks] @ git+https://github.com/haiqu-ai/rivet.git'
 ```
 
 To install only BQSKit or only Pytket support:
+```bash
+pip install 'rivet-transpiler[bqskit] @ git+https://github.com/haiqu-ai/rivet.git'
+pip install 'rivet-transpiler[pytket] @ git+https://github.com/haiqu-ai/rivet.git'
+```
+
+### Step 3: Running examples (Optional)
+
+To run Rivet Transpiler example notebooks, first clone the full repository and navigate to the rivet folder:
 
 ```bash
-pip install .[bqskit]
-pip install .[pytket]
+git clone https://github.com/haiqu-ai/rivet.git
+cd rivet
+```
+
+Install additional packages needed for examples:
+
+```bash
+pip install matplotlib
+pip install tqdm
+```
+
+If you do not have Jupyter installed, run:
+
+```bash
+pip install jupyter
+```
+
+Run Jupyter and open [examples notebooks](https://gitlab.com/haiqu-ai/qml-transpiler/-/tree/main/examples?ref_type=heads)
+
+```bash
+jupyter notebook
 ```
 
 ## Documentation
