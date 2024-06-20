@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 1.0.9
+
+* Extended installation documentation
+* Fix old import in documentation
+* Split documentation notebooks into logical parts
+
 ## Version 1.0.8
 
 * Added Changelog.
