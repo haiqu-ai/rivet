@@ -11,8 +11,6 @@ import qiskit
 from qiskit.qasm2 import dumps
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 
-from qiskit_aer import AerSimulator
-
 from qiskit_ibm_runtime.fake_provider import fake_backend
 
 try:
@@ -27,6 +25,11 @@ try:
 
 except ModuleNotFoundError:
     warnings.warn("Pytket not found", ImportWarning)
+
+# Qiskit Aer Simulator Properties
+
+AER_SIMULATOR_QUBITS_COUNT = 29
+AER_SIMULATOR_COUPLING_MAP = None
 
 
 # Check Module Function
@@ -117,46 +120,47 @@ def model_from_ibmq_backend(backend):
         MachineModel: The machine model representing the backend.
     """
 
+    # Basis Gates
     # Based on https://github.com/BQSKit/bqskit/blob/main/bqskit/ext/qiskit/models.py
 
     IBMQ_BASIS_GATES_LIMIT = 10
 
+    IBMQ_TO_BQSKIT_GATES = {'cx': bqskit.ir.gates.CNOTGate(),
+                            'cz': bqskit.ir.gates.CZGate(),
+                            'u3': bqskit.ir.gates.U3Gate(),
+                            'u2': bqskit.ir.gates.U2Gate(),
+                            'u1': bqskit.ir.gates.U1Gate(),
+                            'rz': bqskit.ir.gates.RZGate(),
+                            'sx': bqskit.ir.gates.SXGate(),
+                            'x': bqskit.ir.gates.XGate(),
+                            'p': bqskit.ir.gates.RZGate()}
     # Backend
 
     if backend is None:
-        ibmq_backend = AerSimulator()
-    else:
-        ibmq_backend = backend
 
-    if isinstance(ibmq_backend, (qiskit.providers.BackendV1,
-                                 fake_backend.FakeBackend)):
+        qubits_count = AER_SIMULATOR_QUBITS_COUNT
+        basis_gates = IBMQ_TO_BQSKIT_GATES.keys()
+        coupling_map = AER_SIMULATOR_COUPLING_MAP  
+
+    elif isinstance(backend, (qiskit.providers.BackendV1,
+                              fake_backend.FakeBackend)):
 
         # print('IBMQ Backend Version 1')
 
-        qubits_count = ibmq_backend.configuration().n_qubits
-        basis_gates = ibmq_backend.configuration().basis_gates
-        coupling_map = ibmq_backend.configuration().coupling_map
+        qubits_count = backend.configuration().n_qubits
+        basis_gates = backend.configuration().basis_gates
+        coupling_map = backend.configuration().coupling_map
 
-    if isinstance(ibmq_backend, (qiskit.providers.BackendV2,
-                                 fake_backend.FakeBackendV2)):
+    elif isinstance(backend, (qiskit.providers.BackendV2,
+                              fake_backend.FakeBackendV2)):
 
         # print('IBMQ Backend Version 2')
 
-        qubits_count = ibmq_backend.target.num_qubits
-        basis_gates = ibmq_backend.target.operation_names
-        coupling_map = ibmq_backend.target.build_coupling_map()
+        qubits_count = backend.target.num_qubits
+        basis_gates = backend.target.operation_names
+        coupling_map = backend.target.build_coupling_map()
 
     # Gate Set
-
-    gate_dict = {'cx': bqskit.ir.gates.CNOTGate(),
-                 'cz': bqskit.ir.gates.CZGate(),
-                 'u3': bqskit.ir.gates.U3Gate(),
-                 'u2': bqskit.ir.gates.U2Gate(),
-                 'u1': bqskit.ir.gates.U1Gate(),
-                 'rz': bqskit.ir.gates.RZGate(),
-                 'sx': bqskit.ir.gates.SXGate(),
-                 'x': bqskit.ir.gates.XGate(),
-                 'p': bqskit.ir.gates.RZGate()}
 
     if len(basis_gates) > IBMQ_BASIS_GATES_LIMIT:
 
