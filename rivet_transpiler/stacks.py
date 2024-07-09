@@ -140,7 +140,7 @@ def model_from_ibmq_backend(backend):
 
         qubits_count = AER_SIMULATOR_QUBITS_COUNT
         basis_gates = IBMQ_TO_BQSKIT_GATES.keys()
-        coupling_map = AER_SIMULATOR_COUPLING_MAP  
+        coupling_map = AER_SIMULATOR_COUPLING_MAP
 
     elif isinstance(backend, (qiskit.providers.BackendV1,
                               fake_backend.FakeBackend)):
@@ -169,7 +169,7 @@ def model_from_ibmq_backend(backend):
                     bqskit.ir.gates.SXGate()}
     else:
 
-        gate_set = {gate_dict.get(basis_gate)
+        gate_set = {IBMQ_TO_BQSKIT_GATES.get(basis_gate)
                     for basis_gate in basis_gates} - {None}
 
     # Coupling List
