@@ -242,16 +242,15 @@ def get_circuit_hash(circuit):
     """
     Calculate hash for Qiskit quantum circuit.
 
-    This function computes a SHA256 hash value that represents a given quantum circuit. It iterates over the circuit's
-    instructions, including the quantum operations and their parameters, and combines them to generate a hash value.
+    This function computes a SHA256 hash value that represents a given quantum circuit. It does Depth-First traversal of
+    circuit DAG, iterates over instructions, including the quantum operations and their parameters, and combines them to
+    generate a hash value.
     The resulting hash can be used to uniquely identify a specific circuit structure.
 
     Following attributes are used to calculate hash for every operation:
-    - qubit indices,
-    - operation class,
-    - operation parameters,
-    - number of qubits,
-    - number of classical bits.
+    - qubit and bit indices,
+    - operation name,
+    - operation parameters.
 
     Qiskit ParameterExpression values are skipped - circuits with different Parameters will have identical hash.
 
@@ -275,40 +274,61 @@ def get_circuit_hash(circuit):
 
     hash_object = hashlib.sha256(b'')
 
-    dag = qiskit.converters.circuit_to_dag(circuit)
+    # DFS Circuit Traversal
 
-    for node in dag.topological_op_nodes():
+    queue = [circuit]
 
-        operation = node.op
+    while queue:
 
-        qubit_indices = [circuit.find_bit(qubit).index for qubit in node.qargs]
+        current_circuit = queue.pop(0)
 
-        # Values
+        current_dag = qiskit.converters.circuit_to_dag(current_circuit)
 
-        values = []
+        for node in current_dag.topological_op_nodes():
 
-        values.append(qubit_indices)
-        values.append(operation.__class__)
-        values.append(operation.num_qubits)
-        values.append(operation.num_clbits)
+            # Qubit Indices
 
-        # Skip Parameters
+            qubit_indices = [current_circuit.find_bit(qubit).index
+                             for qubit in node.qargs]
 
-        for parameter in operation.params:
+            bit_indices = [current_circuit.find_bit(bit).index
+                           for bit in node.cargs]
 
-            if isinstance(parameter, qiskit.circuit.parameter.ParameterExpression):
+            # Sub Circuit
 
-                parameter = None
+            operation = node.op
 
-            values.append(parameter)
+            sub_circuit = operation.definition
 
-        # Update Hash
+            if sub_circuit is not None:
 
-        for value in values:
+                queue.append(sub_circuit)
 
-            encoded_value = repr(value).encode('utf-8')
+            # Collect Values
 
-            hash_object.update(encoded_value)
+            values = [qubit_indices,
+                      bit_indices,
+                      operation.name]
+
+            # Collect Parameters
+
+            for parameter in operation.params:
+
+                if isinstance(parameter, qiskit.circuit.parameter.ParameterExpression):
+
+                    parameter = None
+
+                values.append(parameter)
+
+            # Update Hash
+
+            for value in values:
+
+                encoded_value = repr(value).encode('utf-8')
+
+                hash_object.update(encoded_value)
+
+    # Digest Hash
 
     hash_bytes = hash_object.digest()
 
