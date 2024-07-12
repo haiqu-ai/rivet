@@ -78,7 +78,7 @@ The package provides a family of functions for efficient transpilation of quantu
 ## Installation
 
 ### Step 1: Project Environment Setup (Optional)
-Setting up a local Python environment for each project is good practice as it helps manage dependencies and versions more effectively. We recommend using Conda or Python virtual environments. Alternatively, you can install the requirements in your own Python environment and skip this step.
+Setting up a local Python environment for each project is reccomemded in order to manage dependencies and versions more effectively. We highly recommend using Conda or Python virtual environments. Alternatively, you can install the requirements in your own Python environment and skip this step.
 
 #### Conda Guide
 
@@ -102,13 +102,13 @@ source venv/bin/activate
 ```
 ### Step 2: Install Rivet package
 
-To install Rivet Transpiler base version(support only qiskit transpilation stack) run:
+To install Rivet Transpiler base version (support only qiskit transpilation stack), please run:
 
 ```bash
 pip install 'rivet-transpiler @ git+https://github.com/haiqu-ai/rivet.git'
 ```
 
-To install with all stacks please run:
+To install with all stacks, please run:
 
 ```bash
 pip install 'rivet-transpiler[stacks] @ git+https://github.com/haiqu-ai/rivet.git'
@@ -129,20 +129,20 @@ git clone https://github.com/haiqu-ai/rivet.git
 cd rivet
 ```
 
-Install additional packages needed for examples:
+Install the additional packages needed for the examples:
 
 ```bash
 pip install matplotlib
 pip install tqdm
 ```
 
-If you do not have Jupyter installed, run:
+If you do not have Jupyter installed, please run:
 
 ```bash
 pip install jupyter
 ```
 
-Run Jupyter and open [examples notebooks](https://gitlab.com/haiqu-ai/qml-transpiler/-/tree/main/examples?ref_type=heads)
+Run Jupyter and open [examples notebooks:](https://gitlab.com/haiqu-ai/qml-transpiler/-/tree/main/examples?ref_type=heads)
 
 ```bash
 jupyter notebook
@@ -155,7 +155,7 @@ For more details about the Rivet Transpiler, please check the [reference documen
 
 ## Tutorials
 
-An overview of transpilation, as well as other features Rivet offers like Hashing are outlined in the links below. Shadow State Tomography and Fourier Adders are examples of complex processes that could benefit from Rivet’s Subcircuit Transpilation and Stitching. 
+An overview of transpilation, as well as other features Rivet offers (e.g. Hashing) are outlined in the links below. Shadow State Tomography and Fourier Adder are examples of the complex processes that could benefit from Rivet’s Subcircuit Transpilation and Stitching. 
 
 - [Transpilation Overview, Stages, Functions](examples/examples.ipynb)
 - [Shadow State Tomography](examples/shadows/shadow_state_tomography.ipynb)
