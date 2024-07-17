@@ -55,12 +55,15 @@
                "coverage >= 7.3.2",
                "qiskit-aer <= 0.13.3"]
 
+    examples = ["tqdm",
+                "matplotlib"]
+
     stacks = ["rivet-transpiler[bqskit]",
               "rivet-transpiler[pytket]"]
 
     all = ["rivet-transpiler[stacks]",
            "rivet-transpiler[testing]",
-           "matplotlib"]
+           "rivet-transpiler[examples]"]
 
 [tool.setuptools.packages.find]
 
