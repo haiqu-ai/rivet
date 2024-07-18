@@ -244,9 +244,9 @@ def get_circuit_hash(circuit):
     """
     Calculate hash for Qiskit quantum circuit.
 
-    This function computes a SHA256 hash value that represents a given quantum circuit. It does Breadth-First traversal of
-    circuit DAG, iterates over instructions, including the quantum operations and their parameters, and combines them to
-    generate a hash value.
+    This function computes a SHA256 hash value that represents a given quantum circuit.
+    It traverses circuit DAG, iterates over instructions, including the quantum operations and their parameters,
+    and combines them to generate a hash value.
     The resulting hash can be used to uniquely identify a specific circuit structure.
 
     Following attributes are used to calculate hash for every operation:
@@ -276,7 +276,7 @@ def get_circuit_hash(circuit):
 
     hash_object = hashlib.sha256(b'')
 
-    # BFS Circuit Traversal
+    # Circuit Traversal
 
     queue = deque([circuit])
 
