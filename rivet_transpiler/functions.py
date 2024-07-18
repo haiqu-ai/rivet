@@ -6,6 +6,8 @@ import hashlib
 
 import numpy as np
 
+from collections import deque
+
 
 # 1) Get Litmus Circuit
 
@@ -276,11 +278,11 @@ def get_circuit_hash(circuit):
 
     # BFS Circuit Traversal
 
-    queue = [circuit]
+    queue = deque([circuit])
 
     while queue:
 
-        current_circuit = queue.pop(0)
+        current_circuit = queue.popleft()
 
         current_dag = qiskit.converters.circuit_to_dag(current_circuit)
 
