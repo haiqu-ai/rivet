@@ -2,11 +2,11 @@
 ================================
 
 This directory contains source for the documentation.
-Part of documentation is generated using Pandoc from the code docstrings.
+Some part of the documentation is generated using Pandoc from the code docstrings.
 
 ## Test locally
 
-Run the following from the repository root directory:
+Run the following commands from the repository root directory:
 
 ```
 pip3 install -r ./docs/requirements.txt

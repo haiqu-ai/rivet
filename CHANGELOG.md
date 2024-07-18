@@ -2,20 +2,20 @@
 
 ## Version 1.0.9
 
-* Extended installation documentation
-* Fix old import in documentation
-* Split documentation notebooks into logical parts
+* Extended the installation documentation.
+* Fixed an old import in the documentation.
+* Splited the documentation notebooks into logical parts.
 
 ## Version 1.0.8
 
 * Added Changelog.
 * Updated dependencies.
-* Updated examples.
-* Updated example images style
+* Updated examples nonebooks.
+* Updated example images' styles.
 
 ## Version 1.0.7
 
-* Added Expanded examples.
+* Added expanded examples.
 * Updated Readme.
 * Updated Documentation generation CI pipeline.
 * Updated dependencies.
