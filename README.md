@@ -159,6 +159,7 @@ An overview of transpilation, as well as other features Rivet offers (e.g. Hashi
 
 - [Transpilation Overview, Stages, Functions](examples/examples.ipynb)
 - [Shadow State Tomography](examples/shadows/shadow_state_tomography.ipynb)
+- [Big Shadow State Tomography](examples/big_shadows/big_shadow_state_tomography.ipynb)
 - [Fourier Adder](examples/fourier_adder/fourier_adder.ipynb)
 - [Qubit-Constrained Transpilation](examples/qubit_constrained_transpilation/qubit_constrained_transpilation.ipynb)
 - [Hashing](examples/hashing/hashing.ipynb)
