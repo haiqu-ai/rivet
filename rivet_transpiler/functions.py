@@ -239,7 +239,7 @@ def get_ibm_cost(qiskit_circuit,
 
 # 5) Hashing
 
-def get_circuit_hash(circuit):
+def get_circuit_hash(circuit, decomposition_level=None):
 
     """
     Calculate hash for Qiskit quantum circuit.
@@ -310,7 +310,7 @@ def get_circuit_hash(circuit):
             # Absolute Indices
 
             absolute_qubits = [qubit_base[qubit] for qubit in relative_qubits]
-            absolute_bits = [bit_base[bit_index] for bit in relative_bits]
+            absolute_bits = [bit_base[bit] for bit in relative_bits]
 
             # Sub Circuit
 
