@@ -128,7 +128,7 @@ def test_get_circuit_hash_structures(qubits_count):
     assert litmus_circuit_hash != cnot_circuit_hash
 
 
-def test_get_circuit_hash_ixxi:
+def test_get_circuit_hash_ixxi():
 
     ix_circuit = qiskit.QuantumCircuit(2)
     xi_circuit = qiskit.QuantumCircuit(2)
