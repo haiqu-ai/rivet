@@ -247,6 +247,8 @@ def get_circuit_hash(circuit, decomposition_level=None):
     This function computes a SHA256 hash value that represents a given quantum circuit.
     It traverses circuit DAG, iterates over instructions, including the quantum operations and their parameters,
     and combines them to generate a hash value.
+    Optionally, the traversal can be limited to a specified decomposition level.
+    Hash is calculated only for "leaf" nodes, which can not be decomposed further.
     The resulting hash can be used to uniquely identify a specific circuit structure.
 
     Following attributes are used to calculate hash for every operation:
@@ -261,6 +263,7 @@ def get_circuit_hash(circuit, decomposition_level=None):
 
     Parameters:
     - circuit (QuantumCircuit): The quantum circuit for which to compute the hash.
+    - decomposition_level (int, optional): Maximum level of decomposition for circuit instructions.
 
     Returns:
     - int: An integer representing the computed hash value.
