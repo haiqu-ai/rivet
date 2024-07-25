@@ -278,23 +278,39 @@ def get_circuit_hash(circuit):
 
     # Circuit Traversal
 
-    queue = deque([circuit])
+    initial_level = 0
+    initial_qubit_base = list(range(circuit.num_qubits))
+    initial_bit_base = list(range(circuit.num_clbits))
+
+    initial_record = (initial_level,
+                      initial_qubit_base,
+                      initial_bit_base,
+                      circuit)
+
+    queue = deque([initial_record])
 
     while queue:
 
-        current_circuit = queue.popleft()
+        current_record = queue.popleft()
+
+        level, qubit_base, bit_base, current_circuit = current_record
 
         current_dag = qiskit.converters.circuit_to_dag(current_circuit)
 
         for node in current_dag.topological_op_nodes():
 
-            # Qubit Indices
+            # Relative Indices
 
-            qubit_indices = [current_circuit.find_bit(qubit).index
-                             for qubit in node.qargs]
+            relative_qubits = [current_circuit.find_bit(qubit).index
+                               for qubit in node.qargs]
 
-            bit_indices = [current_circuit.find_bit(bit).index
-                           for bit in node.cargs]
+            relative_bits = [current_circuit.find_bit(bit).index
+                             for bit in node.cargs]
+
+            # Absolute Indices
+
+            absolute_qubits = [qubit_base[qubit] for qubit in relative_qubits]
+            absolute_bits = [bit_base[bit_index] for bit in relative_bits]
 
             # Sub Circuit
 
@@ -302,33 +318,43 @@ def get_circuit_hash(circuit):
 
             sub_circuit = operation.definition
 
-            if sub_circuit is not None:
+            if level == decomposition_level or sub_circuit is None:
 
-                queue.append(sub_circuit)
+                # Calculate Hash of Leaf Node
 
-            # Collect Values
+                # Collect Values
 
-            values = [qubit_indices,
-                      bit_indices,
-                      operation.name]
+                values = [absolute_qubits,
+                          absolute_bits,
+                          operation.name]
 
-            # Collect Parameters
+                # Collect Parameters
 
-            for parameter in operation.params:
+                for parameter in operation.params:
 
-                if isinstance(parameter, qiskit.circuit.parameter.ParameterExpression):
+                    if isinstance(parameter, qiskit.circuit.parameter.ParameterExpression):
 
-                    parameter = None
+                        parameter = None
 
-                values.append(parameter)
+                    values.append(parameter)
 
-            # Update Hash
+                # Update Hash
 
-            for value in values:
+                for value in values:
 
-                encoded_value = repr(value).encode('utf-8')
+                    encoded_value = repr(value).encode('utf-8')
 
-                hash_object.update(encoded_value)
+                    hash_object.update(encoded_value)
+
+            else:
+
+                # Add new Record to the Queue
+
+                new_record = (level + 1,
+                              absolute_qubits, absolute_bits,
+                              sub_circuit)
+
+                queue.append(new_record)
 
     # Digest Hash
 
