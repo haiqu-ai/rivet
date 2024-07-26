@@ -55,8 +55,11 @@
                "coverage >= 7.3.2",
                "qiskit-aer <= 0.13.3"]
 
-    examples = ["tqdm",
-                "matplotlib"]
+    examples = ["jupyterlab",
+                "matplotlib",
+                "pickleshare",
+                "tqdm",
+                "qiskit-aer <= 0.13.3"]
 
     stacks = ["rivet-transpiler[bqskit]",
               "rivet-transpiler[pytket]"]
