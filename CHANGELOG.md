@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 1.0.10
+
+* Updated Deep Hashing function.
+* Added Big Shadows example notebook.
+* Moved Qiskit Aer dependency.
+
 ## Version 1.0.9
 
 * Extended the installation documentation.
