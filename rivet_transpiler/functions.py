@@ -6,6 +6,8 @@ import hashlib
 
 import numpy as np
 
+from collections import deque
+
 
 # 1) Get Litmus Circuit
 
@@ -237,21 +239,22 @@ def get_ibm_cost(qiskit_circuit,
 
 # 5) Hashing
 
-def get_circuit_hash(circuit):
+def get_circuit_hash(circuit, decomposition_level=None):
 
     """
     Calculate hash for Qiskit quantum circuit.
 
-    This function computes a SHA256 hash value that represents a given quantum circuit. It iterates over the circuit's
-    instructions, including the quantum operations and their parameters, and combines them to generate a hash value.
+    This function computes a SHA256 hash value that represents a given quantum circuit.
+    It traverses circuit DAG, iterates over instructions, including the quantum operations and their parameters,
+    and combines them to generate a hash value.
+    Optionally, the traversal can be limited to a specified decomposition level.
+    Hash is calculated only for "leaf" nodes, which can not be decomposed further.
     The resulting hash can be used to uniquely identify a specific circuit structure.
 
     Following attributes are used to calculate hash for every operation:
-    - qubit indices,
-    - operation class,
-    - operation parameters,
-    - number of qubits,
-    - number of classical bits.
+    - qubit and bit indices,
+    - operation name,
+    - operation parameters.
 
     Qiskit ParameterExpression values are skipped - circuits with different Parameters will have identical hash.
 
@@ -260,6 +263,8 @@ def get_circuit_hash(circuit):
 
     Parameters:
     - circuit (QuantumCircuit): The quantum circuit for which to compute the hash.
+    - decomposition_level (int, optional): Maximum level of decomposition for circuit instructions.
+      If "None" (default), the deepest decomposition is done.
 
     Returns:
     - int: An integer representing the computed hash value.
@@ -275,40 +280,87 @@ def get_circuit_hash(circuit):
 
     hash_object = hashlib.sha256(b'')
 
-    dag = qiskit.converters.circuit_to_dag(circuit)
+    # Circuit Traversal
 
-    for node in dag.topological_op_nodes():
+    initial_level = 0
+    initial_qubit_base = list(range(circuit.num_qubits))
+    initial_bit_base = list(range(circuit.num_clbits))
 
-        operation = node.op
+    initial_record = (initial_level,
+                      initial_qubit_base,
+                      initial_bit_base,
+                      circuit)
 
-        qubit_indices = [circuit.find_bit(qubit).index for qubit in node.qargs]
+    queue = deque([initial_record])
 
-        # Values
+    while queue:
 
-        values = []
+        current_record = queue.popleft()
 
-        values.append(qubit_indices)
-        values.append(operation.__class__)
-        values.append(operation.num_qubits)
-        values.append(operation.num_clbits)
+        level, qubit_base, bit_base, current_circuit = current_record
 
-        # Skip Parameters
+        current_dag = qiskit.converters.circuit_to_dag(current_circuit)
 
-        for parameter in operation.params:
+        for node in current_dag.topological_op_nodes():
 
-            if isinstance(parameter, qiskit.circuit.parameter.ParameterExpression):
+            # Relative Indices
 
-                parameter = None
+            relative_qubits = [current_circuit.find_bit(qubit).index
+                               for qubit in node.qargs]
 
-            values.append(parameter)
+            relative_bits = [current_circuit.find_bit(bit).index
+                             for bit in node.cargs]
 
-        # Update Hash
+            # Absolute Indices
 
-        for value in values:
+            absolute_qubits = [qubit_base[qubit] for qubit in relative_qubits]
+            absolute_bits = [bit_base[bit] for bit in relative_bits]
 
-            encoded_value = repr(value).encode('utf-8')
+            # Sub Circuit
 
-            hash_object.update(encoded_value)
+            operation = node.op
+
+            sub_circuit = operation.definition
+
+            if level == decomposition_level or sub_circuit is None:
+
+                # Calculate Hash of Leaf Node
+
+                # Collect Values
+
+                values = [absolute_qubits,
+                          absolute_bits,
+                          operation.name]
+
+                # Collect Parameters
+
+                for parameter in operation.params:
+
+                    if isinstance(parameter, qiskit.circuit.parameter.ParameterExpression):
+
+                        parameter = None
+
+                    values.append(parameter)
+
+                # Update Hash
+
+                for value in values:
+
+                    encoded_value = repr(value).encode('utf-8')
+
+                    hash_object.update(encoded_value)
+
+            else:
+
+                # Add new Record to the Queue
+
+                new_record = (level + 1,
+                              absolute_qubits, absolute_bits,
+                              sub_circuit)
+
+                queue.append(new_record)
+
+    # Digest Hash
 
     hash_bytes = hash_object.digest()
 
