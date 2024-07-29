@@ -264,6 +264,7 @@ def get_circuit_hash(circuit, decomposition_level=None):
     Parameters:
     - circuit (QuantumCircuit): The quantum circuit for which to compute the hash.
     - decomposition_level (int, optional): Maximum level of decomposition for circuit instructions.
+      If "None" (default), the deepest decomposition is done.
 
     Returns:
     - int: An integer representing the computed hash value.
