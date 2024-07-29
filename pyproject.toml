@@ -14,7 +14,6 @@
     requires-python = ">= 3.10"
     dependencies = [
         "qiskit <= 1.0.2",
-        "qiskit-aer <= 0.13.3",
         "qiskit_ibm_runtime >= 0.22.0",
         "rustworkx >= 0.14.2"
     ]
@@ -53,14 +52,21 @@
               "pytket-qiskit >= 0.51.0"]
 
     testing = ["pytest >= 7.4.3",
-               "coverage >= 7.3.2"]
+               "coverage >= 7.3.2",
+               "qiskit-aer <= 0.13.3"]
+
+    examples = ["jupyterlab",
+                "matplotlib",
+                "pickleshare",
+                "tqdm",
+                "qiskit-aer <= 0.13.3"]
 
     stacks = ["rivet-transpiler[bqskit]",
               "rivet-transpiler[pytket]"]
 
     all = ["rivet-transpiler[stacks]",
            "rivet-transpiler[testing]",
-           "matplotlib"]
+           "rivet-transpiler[examples]"]
 
 [tool.setuptools.packages.find]
 
