@@ -126,3 +126,33 @@ def test_get_circuit_hash_structures(qubits_count):
 
     assert litmus_circuit_hash == litmus_circuit_same_hash
     assert litmus_circuit_hash != cnot_circuit_hash
+
+
+def test_get_circuit_hash_ixxi():
+
+    ix_circuit = qiskit.QuantumCircuit(2)
+    xi_circuit = qiskit.QuantumCircuit(2)
+
+    ix_circuit.x(1)
+    xi_circuit.x(0)
+
+    ix_gate = ix_circuit.to_gate()
+    xi_gate = xi_circuit.to_gate()
+
+    ix_gate.name = "IX Gate"
+    xi_gate.name = "XI Gate"
+
+    # Composite Circuits
+
+    composite_circuit_ix = qiskit.QuantumCircuit(3)
+    composite_circuit_xi = qiskit.QuantumCircuit(3)
+
+    composite_circuit_ix.compose(ix_gate, qubits=[0, 1], inplace=True)
+    composite_circuit_xi.compose(xi_gate, qubits=[1, 2], inplace=True)
+
+    # Hashes
+
+    ix_circuit_hash = get_circuit_hash(composite_circuit_ix)
+    xi_circuit_hash = get_circuit_hash(composite_circuit_xi)
+
+    assert ix_circuit_hash == xi_circuit_hash
