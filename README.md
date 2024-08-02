@@ -132,20 +132,13 @@ cd rivet
 Install the additional packages needed for the examples:
 
 ```bash
-pip install matplotlib
-pip install tqdm
-```
-
-If you do not have Jupyter installed, please run:
-
-```bash
-pip install jupyter
+pip install 'rivet-transpiler[examples] @ git+https://github.com/haiqu-ai/rivet.git'
 ```
 
 Run Jupyter and open [examples notebooks:](https://gitlab.com/haiqu-ai/qml-transpiler/-/tree/main/examples?ref_type=heads)
 
 ```bash
-jupyter notebook
+jupyter lab
 ```
 
 ## Documentation
