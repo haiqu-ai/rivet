@@ -13,7 +13,8 @@ tests:
   stage: test
   script:
     - cd ./$TRANSPILER_PATH
-    - pip install .[testing,stacks]
+    - pip install --upgrade pip
+    - pip install .[all]
     - python tests/run_tests.py
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
