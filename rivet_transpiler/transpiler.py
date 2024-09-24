@@ -150,11 +150,9 @@ def transpile_right(central_circuit, right_circuit,
 
     # Transpile and Compose
 
-    if backend is not None and backend.coupling_map is not None:
+    full_map = get_full_map(central_circuit)
 
-        full_map = get_full_map(central_circuit)
-
-        key_arguments['initial_layout'] = full_map[:right_circuit.num_qubits]
+    key_arguments['initial_layout'] = full_map[:right_circuit.num_qubits]
 
     transpiled_right_circuit = transpile(
         right_circuit,
@@ -189,7 +187,10 @@ def transpile_right(central_circuit, right_circuit,
 
     if transpiled_right_circuit.layout.final_layout is None:
 
-        right_routing = list(range(transpiled_right_circuit.num_qubits))
+        resulting_qubits_count = max(central_circuit.num_qubits,
+                                     transpiled_right_circuit.num_qubits)
+
+        right_routing = list(range(resulting_qubits_count))
 
     else:
         right_routing = [transpiled_right_circuit.layout.final_layout[qubit]
@@ -210,13 +211,6 @@ def transpile_right(central_circuit, right_circuit,
     )
 
     resulting_circuit._layout = transpile_layout
-
-    # Printouts
-
-    # print("central_routing:", central_routing)
-    # print("right_routing:", right_routing)
-    # print("final_routing:", final_routing)
-    # print("final_layout:", final_layout)
 
     return resulting_circuit
 
