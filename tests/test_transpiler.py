@@ -68,7 +68,7 @@ def test_transpile_right(litmus_circuit, backend):
 
 def test_transpile_right_target(litmus_circuit, backend):
 
-    target = backend.target
+    target = backend.target if backend else None
 
     transpiled_litmus_circuit = qiskit.transpile(
         litmus_circuit,
