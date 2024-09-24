@@ -187,8 +187,6 @@ def transpile_right(central_circuit, right_circuit,
 
     if transpiled_right_circuit.layout.final_layout is None:
 
-        right_routing = list(range(transpiled_right_circuit.num_qubits))
-
         resulting_qubits_count = max(central_circuit.num_qubits,
                                      transpiled_right_circuit.num_qubits)
 
