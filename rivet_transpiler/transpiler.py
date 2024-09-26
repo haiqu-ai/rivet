@@ -266,8 +266,15 @@ def transpile_left(central_circuit, left_circuit,
 
     transpiled_left_circuit._layout = transpiled_inverted_left_circuit.layout
 
-    resulting_circuit = central_circuit.compose(transpiled_left_circuit,
-                                                front=True)
+    # Resulting Circuit
+
+    resulting_qubits_count = max(central_circuit.num_qubits,
+                                 transpiled_left_circuit.num_qubits)
+
+    resulting_circuit = qiskit.QuantumCircuit(resulting_qubits_count)
+
+    resulting_circuit.compose(central_circuit, inplace=True, front=True)
+    resulting_circuit.compose(transpiled_left_circuit, inplace=True, front=True)
 
     # No Layout
 
