@@ -13,10 +13,10 @@ from rivet_transpiler import get_litmus_circuit
 QUBIT_COUNTS = [5]
 
 BACKENDS = [
-    None,
-    # AerSimulator,
+    # None,
+    AerSimulator,
     # FakeLimaV2,
-    FakeMontrealV2
+    # FakeMontrealV2
 ]
 
 REMOVE_NOISE_MODEL = True
