@@ -107,7 +107,9 @@ def transpile_chain(circuits, backend=None, **key_arguments):
     full_map = None
     chain_circuit = None
 
-    # Chain
+    # Transpile
+
+    transpiled_circuits = []
 
     for circuit in circuits:
 
@@ -118,18 +120,35 @@ def transpile_chain(circuits, backend=None, **key_arguments):
             key_arguments['initial_layout'] = initial_layout
 
         transpiled_circuit = transpile(circuit, backend, **key_arguments)
-
-        if chain_circuit is None:
-            chain_circuit = transpiled_circuit
-
-        else:
-            chain_circuit.compose(transpiled_circuit, inplace=True)
-
+                
         full_map = get_full_map(transpiled_circuit)
+        
+        transpiled_circuits.append(transpiled_circuit)
+        
+        print("key_arguments:", key_arguments)
+        print("transpiled_circuit:", transpiled_circuit)
+        print("transpiled_circuit.num_qubits:", transpiled_circuit.num_qubits)
 
-    chain_circuit._layout = transpiled_circuit.layout
+    # Resulting Circuit
 
-    return chain_circuit
+    resulting_qubits_count = max(transpiled_circuit.num_qubits 
+                                 for transpiled_circuit in transpiled_circuits)
+
+    resulting_circuit = qiskit.QuantumCircuit(resulting_qubits_count)
+
+    # Compose
+
+    for transpiled_circuit in transpiled_circuits:
+
+        resulting_circuit.compose(transpiled_circuit, inplace=True)
+
+    resulting_circuit._layout = transpiled_circuit.layout
+    
+    print("resulting_circuit:", resulting_circuit)
+
+    test
+
+    return resulting_circuit
 
 
 def transpile_right(central_circuit, right_circuit,

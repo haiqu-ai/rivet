@@ -19,7 +19,7 @@ exit_code = pytest.main([
     # '--collect-only',
     # '--durations=0',
 
-    # 'tests/test_transpiler.py',
+    'tests/test_transpiler.py',
     # 'tests/test_functions.py',
     # 'tests/test_stacks.py',
     # 'tests/test_metrics.py',
