@@ -224,7 +224,7 @@ def transpile_and_compress(circuit, backend, **key_arguments):
 
     # Coupling List Check
 
-    if coupling_list is None:
+    if not coupling_list:
 
         warnings.warn("Provided Backend has no topology - no compression performed")
 
