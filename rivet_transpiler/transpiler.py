@@ -143,10 +143,8 @@ def transpile_chain(circuits, backend=None, **key_arguments):
         resulting_circuit.compose(transpiled_circuit, inplace=True)
 
     resulting_circuit._layout = transpiled_circuit.layout
-    
-    print("resulting_circuit:", resulting_circuit)
 
-    test
+    print("resulting_circuit:", resulting_circuit.draw())
 
     return resulting_circuit
 
