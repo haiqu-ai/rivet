@@ -14,15 +14,16 @@ cov.start()
 exit_code = pytest.main([
     '--verbosity=2',
     '--failed-first',
-    '--exitfirst',
+    # '--exitfirst',
     # '--capture=no',
     # '--collect-only',
     # '--durations=0',
 
-    'tests/test_transpiler.py',
+    # 'tests/test_transpiler.py',
     # 'tests/test_functions.py',
     # 'tests/test_stacks.py',
     # 'tests/test_metrics.py',
+    # 'tests/test_integration.py',
 ])
 
 cov.stop()
