@@ -159,7 +159,15 @@ def transpile_right(central_circuit, right_circuit,
         backend,
         **key_arguments)
 
-    resulting_circuit = central_circuit.compose(transpiled_right_circuit)
+    # Resulting Circuit
+
+    resulting_qubits_count = max(central_circuit.num_qubits,
+                                 transpiled_right_circuit.num_qubits)
+
+    resulting_circuit = qiskit.QuantumCircuit(resulting_qubits_count)
+
+    resulting_circuit.compose(central_circuit, inplace=True)
+    resulting_circuit.compose(transpiled_right_circuit, inplace=True)
 
     # No Layout
 
@@ -186,9 +194,6 @@ def transpile_right(central_circuit, right_circuit,
     # Right Routing
 
     if transpiled_right_circuit.layout.final_layout is None:
-
-        resulting_qubits_count = max(central_circuit.num_qubits,
-                                     transpiled_right_circuit.num_qubits)
 
         right_routing = list(range(resulting_qubits_count))
 
