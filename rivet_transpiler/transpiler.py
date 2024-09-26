@@ -297,7 +297,7 @@ def transpile_left(central_circuit, left_circuit,
     if (central_circuit.layout is None or
             central_circuit.layout.final_layout is None):
 
-        central_routing = list(range(central_circuit.num_qubits))
+        central_routing = list(range(resulting_qubits_count))
 
     else:
         central_routing = [central_circuit.layout.final_layout[qubit]
