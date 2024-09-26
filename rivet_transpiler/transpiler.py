@@ -105,7 +105,6 @@ def transpile_chain(circuits, backend=None, **key_arguments):
     """
 
     full_map = None
-    chain_circuit = None
 
     # Transpile
 
@@ -125,10 +124,6 @@ def transpile_chain(circuits, backend=None, **key_arguments):
         
         transpiled_circuits.append(transpiled_circuit)
         
-        print("key_arguments:", key_arguments)
-        print("transpiled_circuit:", transpiled_circuit)
-        print("transpiled_circuit.num_qubits:", transpiled_circuit.num_qubits)
-
     # Resulting Circuit
 
     resulting_qubits_count = max(transpiled_circuit.num_qubits 
@@ -143,8 +138,6 @@ def transpile_chain(circuits, backend=None, **key_arguments):
         resulting_circuit.compose(transpiled_circuit, inplace=True)
 
     resulting_circuit._layout = transpiled_circuit.layout
-
-    print("resulting_circuit:", resulting_circuit.draw())
 
     return resulting_circuit
 
