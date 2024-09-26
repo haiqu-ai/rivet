@@ -104,29 +104,25 @@ def transpile_chain(circuits, backend=None, **key_arguments):
         QuantumCircuit: The transpiled chain circuit.
     """
 
-    full_map = None
-
     # Transpile
 
     transpiled_circuits = []
 
     for circuit in circuits:
 
-        if full_map is not None:
-
-            initial_layout = full_map[:circuit.num_qubits]
-
-            key_arguments['initial_layout'] = initial_layout
-
         transpiled_circuit = transpile(circuit, backend, **key_arguments)
-                
+
         full_map = get_full_map(transpiled_circuit)
-        
+
+        initial_layout = full_map[:circuit.num_qubits]
+
+        key_arguments['initial_layout'] = initial_layout
+
         transpiled_circuits.append(transpiled_circuit)
-        
+
     # Resulting Circuit
 
-    resulting_qubits_count = max(transpiled_circuit.num_qubits 
+    resulting_qubits_count = max(transpiled_circuit.num_qubits
                                  for transpiled_circuit in transpiled_circuits)
 
     resulting_circuit = qiskit.QuantumCircuit(resulting_qubits_count)
