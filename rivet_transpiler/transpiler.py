@@ -339,13 +339,6 @@ def transpile_left(central_circuit, left_circuit,
 
     resulting_circuit._layout = transpile_layout
 
-    # Printouts
-
-    # print("left_routing:", left_routing)
-    # print("central_routing:", central_routing)
-    # print("final_routing:", final_routing)
-    # print("final_layout:", final_layout)
-
     return resulting_circuit
 
 
