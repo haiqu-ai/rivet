@@ -71,17 +71,19 @@ def build_blocks_circuit(circuit_parts, backend, *arguments, **key_arguments):
 
         key_arguments['initial_layout'] = initial_layout
 
-    # Compose
+    # Blocks Circuit
 
-    blocks_circuit = None
+    resulting_qubits_count = max(transpiled_circuit_part.num_qubits
+                                 for transpiled_circuit_part
+                                 in transpiled_circuit_parts)
+
+    blocks_circuit = qiskit.QuantumCircuit(resulting_qubits_count)
+
+    # Compose
 
     for transpiled_circuit_part in transpiled_circuit_parts:
 
-        if blocks_circuit is None:
-            blocks_circuit = transpiled_circuit_part
-
-        else:
-            blocks_circuit.compose(transpiled_circuit_part, inplace=True)
+        blocks_circuit.compose(transpiled_circuit_part, inplace=True)
 
     return blocks_circuit
 

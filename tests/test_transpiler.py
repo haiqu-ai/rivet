@@ -40,7 +40,7 @@ def test_transpile_and_return_options(litmus_circuit, backend):
 
 def test_transpile_chain(litmus_circuit, backend):
 
-    CHAIN = [litmus_circuit] * 2
+    CHAIN = [litmus_circuit] * 3
 
     transpiled_chain_circuit = transpile_chain(
         circuits=CHAIN,

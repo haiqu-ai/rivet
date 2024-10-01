@@ -5,6 +5,8 @@ import qiskit
 from qiskit_aer import AerSimulator
 
 from qiskit_ibm_runtime.fake_provider import fake_backend
+
+from qiskit_ibm_runtime.fake_provider import FakeLimaV2
 from qiskit_ibm_runtime.fake_provider import FakeMontrealV2
 
 from rivet_transpiler import get_litmus_circuit
@@ -14,8 +16,8 @@ QUBIT_COUNTS = [5]
 
 BACKENDS = [
     None,
-    # AerSimulator,
-    # FakeLimaV2,
+    AerSimulator,
+    FakeLimaV2,
     FakeMontrealV2
 ]
 
