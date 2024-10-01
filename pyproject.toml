@@ -10,7 +10,7 @@
     readme = "README.md"
     authors = [{ name = "Haiqu Inc.", email = "info@haiqu.ai" }]
     license = { file = "LICENSE" }
-    version = "1.0.11"
+    version = "1.0.12"
     requires-python = ">= 3.10"
     dependencies = [
         "qiskit <= 1.0.2",
