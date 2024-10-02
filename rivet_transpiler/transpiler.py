@@ -104,32 +104,38 @@ def transpile_chain(circuits, backend=None, **key_arguments):
         QuantumCircuit: The transpiled chain circuit.
     """
 
-    full_map = None
-    chain_circuit = None
+    # Transpile
 
-    # Chain
+    transpiled_circuits = []
 
     for circuit in circuits:
 
-        if full_map is not None:
-
-            initial_layout = full_map[:circuit.num_qubits]
-
-            key_arguments['initial_layout'] = initial_layout
-
         transpiled_circuit = transpile(circuit, backend, **key_arguments)
-
-        if chain_circuit is None:
-            chain_circuit = transpiled_circuit
-
-        else:
-            chain_circuit.compose(transpiled_circuit, inplace=True)
 
         full_map = get_full_map(transpiled_circuit)
 
-    chain_circuit._layout = transpiled_circuit.layout
+        initial_layout = full_map[:circuit.num_qubits]
 
-    return chain_circuit
+        key_arguments['initial_layout'] = initial_layout
+
+        transpiled_circuits.append(transpiled_circuit)
+
+    # Resulting Circuit
+
+    resulting_qubits_count = max(transpiled_circuit.num_qubits
+                                 for transpiled_circuit in transpiled_circuits)
+
+    resulting_circuit = qiskit.QuantumCircuit(resulting_qubits_count)
+
+    # Compose
+
+    for transpiled_circuit in transpiled_circuits:
+
+        resulting_circuit.compose(transpiled_circuit, inplace=True)
+
+    resulting_circuit._layout = transpiled_circuit.layout
+
+    return resulting_circuit
 
 
 def transpile_right(central_circuit, right_circuit,
@@ -159,7 +165,15 @@ def transpile_right(central_circuit, right_circuit,
         backend,
         **key_arguments)
 
-    resulting_circuit = central_circuit.compose(transpiled_right_circuit)
+    # Resulting Circuit
+
+    resulting_qubits_count = max(central_circuit.num_qubits,
+                                 transpiled_right_circuit.num_qubits)
+
+    resulting_circuit = qiskit.QuantumCircuit(resulting_qubits_count)
+
+    resulting_circuit.compose(central_circuit, inplace=True)
+    resulting_circuit.compose(transpiled_right_circuit, inplace=True)
 
     # No Layout
 
@@ -186,9 +200,6 @@ def transpile_right(central_circuit, right_circuit,
     # Right Routing
 
     if transpiled_right_circuit.layout.final_layout is None:
-
-        resulting_qubits_count = max(central_circuit.num_qubits,
-                                     transpiled_right_circuit.num_qubits)
 
         right_routing = list(range(resulting_qubits_count))
 
@@ -261,8 +272,15 @@ def transpile_left(central_circuit, left_circuit,
 
     transpiled_left_circuit._layout = transpiled_inverted_left_circuit.layout
 
-    resulting_circuit = central_circuit.compose(transpiled_left_circuit,
-                                                front=True)
+    # Resulting Circuit
+
+    resulting_qubits_count = max(central_circuit.num_qubits,
+                                 transpiled_left_circuit.num_qubits)
+
+    resulting_circuit = qiskit.QuantumCircuit(resulting_qubits_count)
+
+    resulting_circuit.compose(central_circuit, inplace=True, front=True)
+    resulting_circuit.compose(transpiled_left_circuit, inplace=True, front=True)
 
     # No Layout
 
@@ -285,7 +303,7 @@ def transpile_left(central_circuit, left_circuit,
     if (central_circuit.layout is None or
             central_circuit.layout.final_layout is None):
 
-        central_routing = list(range(central_circuit.num_qubits))
+        central_routing = list(range(resulting_qubits_count))
 
     else:
         central_routing = [central_circuit.layout.final_layout[qubit]
@@ -320,13 +338,6 @@ def transpile_left(central_circuit, left_circuit,
     )
 
     resulting_circuit._layout = transpile_layout
-
-    # Printouts
-
-    # print("left_routing:", left_routing)
-    # print("central_routing:", central_routing)
-    # print("final_routing:", final_routing)
-    # print("final_layout:", final_layout)
 
     return resulting_circuit
 
