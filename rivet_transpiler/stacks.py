@@ -142,19 +142,13 @@ def model_from_ibmq_backend(backend):
         basis_gates = IBMQ_TO_BQSKIT_GATES.keys()
         coupling_map = AER_SIMULATOR_COUPLING_MAP
 
-    elif isinstance(backend, (qiskit.providers.BackendV1,
-                              fake_backend.FakeBackend)):
-
-        # print('IBMQ Backend Version 1')
+    elif isinstance(backend, qiskit.providers.BackendV1):
 
         qubits_count = backend.configuration().n_qubits
         basis_gates = backend.configuration().basis_gates
         coupling_map = backend.configuration().coupling_map
 
-    elif isinstance(backend, (qiskit.providers.BackendV2,
-                              fake_backend.FakeBackendV2)):
-
-        # print('IBMQ Backend Version 2')
+    elif isinstance(backend, qiskit.providers.BackendV2):
 
         qubits_count = backend.target.num_qubits
         basis_gates = backend.target.operation_names
