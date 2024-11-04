@@ -270,33 +270,58 @@ def transpile_left(central_circuit, left_circuit,
 
     transpiled_left_circuit = transpiled_inverted_left_circuit.inverse()
 
-    transpiled_left_circuit._layout = transpiled_inverted_left_circuit.layout
+    # Translate Left Circuit
+
+    if backend is not None:
+
+        basis_gates = backend.operation_names
+
+        library = qiskit.circuit.equivalence_library.SessionEquivalenceLibrary
+
+        custom_unroller_pass = qiskit.transpiler.passes.UnrollCustomDefinitions(
+            equivalence_library=library,
+            basis_gates=basis_gates)
+
+        basis_translator_pass = qiskit.transpiler.passes.BasisTranslator(
+            equivalence_library=library,
+            target_basis=basis_gates)
+
+        translator_manager = qiskit.transpiler.PassManager([
+            custom_unroller_pass, basis_translator_pass])
+
+        translated_left_circuit = translator_manager.run(transpiled_left_circuit)
+
+    else:
+
+        translated_left_circuit = transpiled_left_circuit
+
+    translated_left_circuit._layout = transpiled_inverted_left_circuit.layout
 
     # Resulting Circuit
 
     resulting_qubits_count = max(central_circuit.num_qubits,
-                                 transpiled_left_circuit.num_qubits)
+                                 translated_left_circuit.num_qubits)
 
     resulting_circuit = qiskit.QuantumCircuit(resulting_qubits_count)
 
     resulting_circuit.compose(central_circuit, inplace=True, front=True)
-    resulting_circuit.compose(transpiled_left_circuit, inplace=True, front=True)
+    resulting_circuit.compose(translated_left_circuit, inplace=True, front=True)
 
     # No Layout
 
-    if transpiled_left_circuit.layout is None:
+    if translated_left_circuit.layout is None:
 
         return resulting_circuit
 
     # Left Routing
 
-    if transpiled_left_circuit.layout.final_layout is None:
+    if translated_left_circuit.layout.final_layout is None:
 
-        left_routing = list(range(transpiled_left_circuit.num_qubits))
+        left_routing = list(range(translated_left_circuit.num_qubits))
 
     else:
-        left_routing = [transpiled_left_circuit.layout.final_layout[qubit]
-                        for qubit in transpiled_left_circuit.qubits]
+        left_routing = [translated_left_circuit.layout.final_layout[qubit]
+                        for qubit in translated_left_circuit.qubits]
 
     # Central Routing
 
@@ -319,11 +344,11 @@ def transpile_left(central_circuit, left_circuit,
 
     # Initial Layout
 
-    input_qubit_mapping = transpiled_left_circuit.layout.input_qubit_mapping
+    input_qubit_mapping = translated_left_circuit.layout.input_qubit_mapping
 
-    initial_map = get_full_map(transpiled_left_circuit)
+    initial_map = get_full_map(translated_left_circuit)
 
-    initial_layout = transpiled_left_circuit.layout.initial_layout.copy()
+    initial_layout = translated_left_circuit.layout.initial_layout.copy()
 
     for virtual, physical in zip(input_qubit_mapping, initial_map):
 
