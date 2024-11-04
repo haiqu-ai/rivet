@@ -17,7 +17,6 @@ tests:
     - pip install .[all]
     - pip list
     - python tests/run_tests.py
-
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_REF_NAME == "upgrade_rivet"
@@ -38,10 +37,9 @@ test_old_qiskit_version:
 
     - pip list
     - python tests/run_tests.py
-
   rules:
-    - if: $CI_COMMIT_REF_NAME == "upgrade_rivet"
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_REF_NAME == "upgrade_rivet"
 
 linting:
   stage: test

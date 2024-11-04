@@ -125,7 +125,7 @@ def test_transpile_and_compress_coupling_map(litmus_circuit, backend):
     # Coupling Map
 
     if (backend is None or
-        backend.configuration().coupling_map is None):
+       backend.configuration().coupling_map is None):
         coupling_map = None
 
     else:
