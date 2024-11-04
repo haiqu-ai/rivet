@@ -15,6 +15,7 @@ tests:
     - cd ./$TRANSPILER_PATH
     - pip install --upgrade pip
     - pip install .[all]
+    - pip list
     - python tests/run_tests.py
 
 #  rules:
@@ -26,6 +27,7 @@ test_old_qiskit_version:
     - cd ./$TRANSPILER_PATH
     - pip install --upgrade pip
     - pip install .[all]
+    - pip list
 
     - pip install qiskit==1.0.2
     - pip install qiskit-aer==0.13.3
