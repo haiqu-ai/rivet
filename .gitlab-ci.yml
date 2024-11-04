@@ -18,8 +18,9 @@ tests:
     - pip list
     - python tests/run_tests.py
 
-#  rules:
-#    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_REF_NAME == "upgrade_rivet"
 
 test_old_qiskit_version:
   stage: test
@@ -27,7 +28,6 @@ test_old_qiskit_version:
     - cd ./$TRANSPILER_PATH
     - pip install --upgrade pip
     - pip install .[all]
-    - pip list
 
     - pip install qiskit==1.0.2
     - pip install qiskit-aer==0.13.3
@@ -36,10 +36,12 @@ test_old_qiskit_version:
     - pip install pytket==1.31.0
     - pip install pytket-qiskit==0.51.0
 
+    - pip list
     - python tests/run_tests.py
 
-#  rules:
-#    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "upgrade_rivet"
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
 
 linting:
   stage: test
@@ -48,6 +50,7 @@ linting:
     - flake8 $TRANSPILER_PATH
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_REF_NAME == "upgrade_rivet"
 
 pages:
   stage: documentation
