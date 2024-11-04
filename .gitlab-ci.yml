@@ -19,7 +19,7 @@ tests:
     - python tests/run_tests.py
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_REF_NAME == "upgrade_rivet"
+    - if: $CI_COMMIT_REF_NAME == "develop"
 
 test_old_qiskit_version:
   stage: test
@@ -39,7 +39,7 @@ test_old_qiskit_version:
     - python tests/run_tests.py
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_REF_NAME == "upgrade_rivet"
+    - if: $CI_COMMIT_REF_NAME == "develop"
 
 linting:
   stage: test
@@ -48,7 +48,7 @@ linting:
     - flake8 $TRANSPILER_PATH
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_REF_NAME == "upgrade_rivet"
+    - if: $CI_COMMIT_REF_NAME == "develop"
 
 pages:
   stage: documentation
