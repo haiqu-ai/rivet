@@ -16,8 +16,28 @@ tests:
     - pip install --upgrade pip
     - pip install .[all]
     - python tests/run_tests.py
-  rules:
-    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+
+#  rules:
+#    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+
+test_old_qiskit_version:
+  stage: test
+  script:
+    - cd ./$TRANSPILER_PATH
+    - pip install --upgrade pip
+    - pip install .[all]
+
+    - pip install qiskit==1.0.2
+    - pip install qiskit-aer==0.13.3
+    - pip install qiskit-ibm-runtime==0.22.0
+
+    - pip install pytket==1.31.0
+    - pip install pytket-qiskit==0.51.0
+
+    - python tests/run_tests.py
+
+#  rules:
+#    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
 
 linting:
   stage: test
