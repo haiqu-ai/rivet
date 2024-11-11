@@ -295,7 +295,7 @@ def get_circuit_hash(circuit, decomposition_level=None):
 
     while queue:
 
-        current_record = queue.popleft()
+        current_record = queue.pop()
 
         level, qubit_base, bit_base, current_circuit = current_record
 
