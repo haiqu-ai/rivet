@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 1.0.13
+
+* Updated Rivet to support new Qiskit version.
+
+## Version 1.0.12
+
+* Updated all transpile functions to accept Target argument.
+
+## Version 1.0.11
+
+* Updated "transpile_right" to accept Target argument.
+ 
 ## Version 1.0.10
 
 * Updated Deep Hashing function.
