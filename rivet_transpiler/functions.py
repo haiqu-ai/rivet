@@ -291,11 +291,11 @@ def get_circuit_hash(circuit, decomposition_level=None):
                       initial_bit_base,
                       circuit)
 
-    queue = deque([initial_record])
+    stack = deque([initial_record])
 
-    while queue:
+    while stack:
 
-        current_record = queue.popleft()
+        current_record = stack.pop()
 
         level, qubit_base, bit_base, current_circuit = current_record
 
@@ -352,13 +352,13 @@ def get_circuit_hash(circuit, decomposition_level=None):
 
             else:
 
-                # Add new Record to the Queue
+                # Add new Record to the Stack
 
                 new_record = (level + 1,
                               absolute_qubits, absolute_bits,
                               sub_circuit)
 
-                queue.append(new_record)
+                stack.append(new_record)
 
     # Digest Hash
 
