@@ -43,7 +43,6 @@ def backend(request):
 
     elif issubclass(backend, (qiskit.providers.BackendV1,
                               qiskit.providers.BackendV2,
-                              fake_backend.FakeBackend,
                               fake_backend.FakeBackendV2)):
 
         backend_fixture = AerSimulator.from_backend(backend())
