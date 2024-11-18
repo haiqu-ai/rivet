@@ -3,6 +3,7 @@
 ## Version 1.0.13
 
 * Updated Rivet to support new Qiskit version.
+* Fixed hashing HXXH case.
 
 ## Version 1.0.12
 
