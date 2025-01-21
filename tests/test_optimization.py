@@ -15,14 +15,14 @@ def test_remove_unused_qubits_full_map(litmus_circuit, backend):
         seed_transpiler=1234)
 
     optimized_circuit = remove_unused_qubits(transpiled_litmus_circuit)
-    
+
     full_map = get_full_map(optimized_circuit)
 
     if optimized_circuit.layout is not None:
         final_index_layout = optimized_circuit.layout.final_index_layout()
     else:
         final_index_layout = full_map
-    
+
     assert full_map == final_index_layout
 
 
