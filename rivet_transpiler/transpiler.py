@@ -348,29 +348,35 @@ def transpile_left(central_circuit, left_circuit,
 
     final_routing = [central_routing[qubit] for qubit in left_routing]
 
-    # Final Layout
-
-    final_layout = qiskit.transpiler.Layout.from_intlist(final_routing, *resulting_circuit.qregs)
-
-    # Initial Layout
+    # Attributes
 
     input_qubit_mapping = translated_left_circuit.layout.input_qubit_mapping
+
+    input_qubit_count = translated_left_circuit.layout._input_qubit_count
+    output_qubit_list = translated_left_circuit.layout._output_qubit_list
+
+    # Initial Layout
 
     initial_map = get_full_map(translated_left_circuit)
 
     initial_layout = translated_left_circuit.layout.initial_layout.copy()
 
     for virtual, physical in zip(input_qubit_mapping, initial_map):
-
         initial_layout[virtual] = physical
+
+    # Final Layout
+
+    final_layout = qiskit.transpiler.Layout.from_intlist(
+        final_routing, *resulting_circuit.qregs)
 
     # Transpile Layout
 
     transpile_layout = qiskit.transpiler.TranspileLayout(
-        input_qubit_mapping=input_qubit_mapping,
         initial_layout=initial_layout,
-        final_layout=final_layout
-    )
+        input_qubit_mapping=input_qubit_mapping,
+        final_layout=final_layout,
+        _input_qubit_count=input_qubit_count,
+        _output_qubit_list=output_qubit_list)
 
     resulting_circuit._layout = transpile_layout
 
