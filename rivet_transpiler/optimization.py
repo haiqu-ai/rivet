@@ -1,6 +1,31 @@
+""" Rivet optimization functions. """
+
 import qiskit
 
+
 def remove_unused_qubits(circuit):
+
+    """
+    Removes unused qubits from a Qiskit QuantumCircuit, recreates Registers, Qubits, Instructions, 
+    and Layouts while preserving the original structure and functionality of the circuit.
+
+    Parameters:
+        circuit (qiskit.QuantumCircuit): The input quantum circuit from which unused qubits
+                                         are to be removed.
+    Returns:
+        qiskit.QuantumCircuit: A new QuantumCircuit instance with only the used qubits,
+                               updated Registers, Qubits, Instructions and Layouts.
+    Functionality:
+        - Identifies and collects only the Qubits that are used in the Circuit's Instructions.
+        - Reconstructs quantum Registers containing only the used Qubits while preserving the Register names.
+        - Creates a mapping between original Qubits and new Qubits in the updated Registers.
+        - Rebuilds the Circuit's instructions, replacing old Qubits with new ones based on the mapping.
+        - Updates the global phase, calibrations, and metadata of the circuit to match the original.
+        - Adjusts the layouts of the circuit:
+            - Modifies the Initial Layout, Input Qubit Mapping, and Final Layout to align with the used Qubits.
+            - Ensures consistency between the Layouts and the reduced set of Qubits.
+        - The updated Circuit retains the same functionality as the original but with improved resource utilization.
+    """
     
     # Used Qubits
     
