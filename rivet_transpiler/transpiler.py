@@ -213,13 +213,23 @@ def transpile_right(central_circuit, right_circuit,
 
     # Layouts
 
-    final_layout = qiskit.transpiler.Layout.from_intlist(final_routing, *resulting_circuit.qregs)
+    initial_layout = central_circuit.layout.initial_layout
+    input_qubit_mapping = central_circuit.layout.input_qubit_mapping
+
+    final_layout = qiskit.transpiler.Layout.from_intlist(
+        final_routing, *resulting_circuit.qregs)
+
+    input_qubit_count = transpiled_right_circuit.layout._input_qubit_count
+    output_qubit_list = transpiled_right_circuit.layout._output_qubit_list
+
+    # Transpile Layout
 
     transpile_layout = qiskit.transpiler.TranspileLayout(
-        input_qubit_mapping=central_circuit.layout.input_qubit_mapping,
-        initial_layout=central_circuit.layout.initial_layout,
-        final_layout=final_layout
-    )
+        initial_layout=initial_layout,
+        input_qubit_mapping=input_qubit_mapping,
+        final_layout=final_layout,
+        _input_qubit_count=input_qubit_count,
+        _output_qubit_list=output_qubit_list)
 
     resulting_circuit._layout = transpile_layout
 
