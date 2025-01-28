@@ -27,6 +27,8 @@ def remove_unused_qubits(circuit):
         - The updated Circuit retains the same functionality as the original but with improved resource utilization.
     """
 
+    circuit = circuit.copy()
+
     # Used Qubits
 
     used_qubits = []
