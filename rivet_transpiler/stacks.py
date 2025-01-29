@@ -197,25 +197,6 @@ def run_qsearch_synthesis(bqskit_circuit, machine_model, block_size):
         bqskit.Circuit: The synthesized BQSKit circuit.
     """
 
-    # Minimal Compilation Task
-    # compilation_task = bqskit.compiler.CompilationTask(bqskit_circuit,
-    #                                                    [bqskit.passes.QSearchSynthesisPass()])
-
-    # compilation_task = bqskit.compiler.CompilationTask(bqskit_circuit, [
-    #     bqskit.passes.SetModelPass(model=machine_model),
-    #     bqskit.passes.QuickPartitioner(block_size=block_size),
-    #     bqskit.passes.ForEachBlockPass([
-    #         bqskit.passes.QSearchSynthesisPass(),
-    #         bqskit.passes.ScanningGateRemovalPass()
-    #     ]),
-    #     bqskit.passes.UnfoldPass()
-    # ])
-
-    # with bqskit.compiler.Compiler() as compiler:
-    #     synthesized_circuit = compiler.compile(compilation_task)
-
-    # Workflow
-
     compiler = bqskit.compiler.Compiler()
 
     workflow = [
