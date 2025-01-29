@@ -201,18 +201,34 @@ def run_qsearch_synthesis(bqskit_circuit, machine_model, block_size):
     # compilation_task = bqskit.compiler.CompilationTask(bqskit_circuit,
     #                                                    [bqskit.passes.QSearchSynthesisPass()])
 
-    compilation_task = bqskit.compiler.CompilationTask(bqskit_circuit, [
+    # compilation_task = bqskit.compiler.CompilationTask(bqskit_circuit, [
+    #     bqskit.passes.SetModelPass(model=machine_model),
+    #     bqskit.passes.QuickPartitioner(block_size=block_size),
+    #     bqskit.passes.ForEachBlockPass([
+    #         bqskit.passes.QSearchSynthesisPass(),
+    #         bqskit.passes.ScanningGateRemovalPass()
+    #     ]),
+    #     bqskit.passes.UnfoldPass()
+    # ])
+
+    # with bqskit.compiler.Compiler() as compiler:
+    #     synthesized_circuit = compiler.compile(compilation_task)
+
+    # Workflow
+
+    compiler = bqskit.compiler.Compiler()
+
+    workflow = [
         bqskit.passes.SetModelPass(model=machine_model),
         bqskit.passes.QuickPartitioner(block_size=block_size),
         bqskit.passes.ForEachBlockPass([
-            bqskit.passes.QSearchSynthesisPass(),
+            bqskit.passes.QSearchSynthesisPass(
+                success_threshold=1e-8),
             bqskit.passes.ScanningGateRemovalPass()
         ]),
-        bqskit.passes.UnfoldPass()
-    ])
+        bqskit.passes.UnfoldPass()]
 
-    with bqskit.compiler.Compiler() as compiler:
-        synthesized_circuit = compiler.compile(compilation_task)
+    synthesized_circuit = compiler.compile(bqskit_circuit, workflow)
 
     # print("bqskit_circuit.gate_counts:", bqskit_circuit.gate_counts)
     # print("synthesized_circuit.gate_counts:", synthesized_circuit.gate_counts)
