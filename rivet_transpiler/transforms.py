@@ -2,6 +2,8 @@
 
 import qiskit
 
+from collections import defaultdict
+
 
 def remove_unused_qubits(circuit):
 
