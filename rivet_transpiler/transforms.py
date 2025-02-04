@@ -52,7 +52,7 @@ def remove_unused_qubits(circuit):
 
     # New Registers
 
-    new_registers = {}
+    new_registers = defaultdict(list)
     qubit_mapping = {}
 
     for register, qubits in registers.items():
@@ -69,11 +69,7 @@ def remove_unused_qubits(circuit):
                 register=new_register,
                 index=new_index)
 
-            if new_register in new_registers:
-                new_registers[new_register].append(new_qubit)
-            else:
-                new_registers[new_register] = [new_qubit]
-
+            new_registers[new_register].append(new_qubit)
             qubit_mapping[qubit] = new_qubit
 
     # New Qubits
