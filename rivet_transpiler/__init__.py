@@ -10,7 +10,7 @@ from .functions import get_sinusoids
 from .functions import get_ibm_cost
 from .functions import get_circuit_hash
 
-from .optimization import remove_unused_qubits
+from .transforms import remove_unused_qubits
 
 from .metrics import transpile_and_return_metrics
 

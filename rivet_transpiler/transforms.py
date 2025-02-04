@@ -1,4 +1,4 @@
-""" Rivet optimization functions. """
+""" Rivet transforms. """
 
 import qiskit
 
