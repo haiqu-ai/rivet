@@ -183,7 +183,8 @@ def model_from_ibmq_backend(backend):
 
 # 3.1) Run QSearch Synthesis
 
-def run_qsearch_synthesis(bqskit_circuit, machine_model, block_size):
+def run_qsearch_synthesis(bqskit_circuit, machine_model, block_size,
+                          success_threshold=1e-8):
 
     """
     Run QSearch synthesis for a BQSKit circuit.
@@ -204,7 +205,7 @@ def run_qsearch_synthesis(bqskit_circuit, machine_model, block_size):
         bqskit.passes.QuickPartitioner(block_size=block_size),
         bqskit.passes.ForEachBlockPass([
             bqskit.passes.QSearchSynthesisPass(
-                success_threshold=1e-8),
+                success_threshold=success_threshold),
             bqskit.passes.ScanningGateRemovalPass()
         ]),
         bqskit.passes.UnfoldPass()]
