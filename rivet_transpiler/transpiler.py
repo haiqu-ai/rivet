@@ -112,11 +112,17 @@ def transpile_chain(circuits, backend=None, **key_arguments):
 
         transpiled_circuit = transpile(circuit, backend, **key_arguments)
 
-        full_map = get_full_map(transpiled_circuit)
+        if transpiled_circuit.layout is None:
 
-        initial_layout = full_map[:circuit.num_qubits]
+            key_arguments['initial_layout'] = None
+            key_arguments['routing_method'] = 'none'
 
-        key_arguments['initial_layout'] = initial_layout
+        else:
+            full_map = get_full_map(transpiled_circuit)
+
+            initial_layout = full_map[:circuit.num_qubits]
+
+            key_arguments['initial_layout'] = initial_layout
 
         transpiled_circuits.append(transpiled_circuit)
 
