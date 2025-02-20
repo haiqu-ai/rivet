@@ -160,11 +160,19 @@ def transpile_right(central_circuit, right_circuit,
         QuantumCircuit: The resulting quantum circuit.
     """
 
-    # Transpile and Compose
+    # Check Layout
 
-    full_map = get_full_map(central_circuit)
+    if central_circuit.layout is None:
 
-    key_arguments['initial_layout'] = full_map[:right_circuit.num_qubits]
+        key_arguments['initial_layout'] = None
+        key_arguments['routing_method'] = 'none'
+
+    else:
+        full_map = get_full_map(central_circuit)
+
+        key_arguments['initial_layout'] = full_map[:right_circuit.num_qubits]
+
+    # Transpile
 
     transpiled_right_circuit = transpile(
         right_circuit,
