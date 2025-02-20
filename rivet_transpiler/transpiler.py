@@ -270,7 +270,8 @@ def transpile_left(central_circuit, left_circuit,
 
     if central_circuit.layout is None:
 
-        left_initial_layout = list(range(left_circuit.num_qubits))
+        left_initial_layout = None
+        key_arguments['routing_method'] = 'none'
 
     else:
 
