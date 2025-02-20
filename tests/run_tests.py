@@ -24,7 +24,6 @@ exit_code = pytest.main([
     # 'tests/test_stacks.py',
     # 'tests/test_metrics.py',
     # 'tests/test_integration.py',
-    # 'tests/test_transforms.py',
 ])
 
 cov.stop()
