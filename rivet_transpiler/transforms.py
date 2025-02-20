@@ -10,6 +10,7 @@ def remove_unused_qubits(circuit):
     """
     Remove unused qubits from a Qiskit QuantumCircuit, recreate Registers, Qubits, Instructions,
     and Layouts while preserving the original structure and functionality of the circuit.
+    Topology of the circuit is not preserved.
 
     Parameters:
         circuit (qiskit.QuantumCircuit): The input quantum circuit from which unused qubits
@@ -27,6 +28,7 @@ def remove_unused_qubits(circuit):
             - Modify the Initial Layout, Input Qubit Mapping, and Final Layout to align with the used Qubits.
             - Ensure consistency between the Layouts and the reduced set of Qubits.
         - The updated Circuit retains the same functionality as the original but with improved resource utilization.
+        - Topology of original circuit is not preserved.
     """
 
     circuit = circuit.copy()
