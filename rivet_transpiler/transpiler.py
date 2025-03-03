@@ -112,11 +112,17 @@ def transpile_chain(circuits, backend=None, **key_arguments):
 
         transpiled_circuit = transpile(circuit, backend, **key_arguments)
 
-        full_map = get_full_map(transpiled_circuit)
+        if transpiled_circuit.layout is None:
 
-        initial_layout = full_map[:circuit.num_qubits]
+            key_arguments['initial_layout'] = None
+            key_arguments['routing_method'] = 'none'
 
-        key_arguments['initial_layout'] = initial_layout
+        else:
+            full_map = get_full_map(transpiled_circuit)
+
+            initial_layout = full_map[:circuit.num_qubits]
+
+            key_arguments['initial_layout'] = initial_layout
 
         transpiled_circuits.append(transpiled_circuit)
 
@@ -154,11 +160,19 @@ def transpile_right(central_circuit, right_circuit,
         QuantumCircuit: The resulting quantum circuit.
     """
 
-    # Transpile and Compose
+    # Check Layout
 
-    full_map = get_full_map(central_circuit)
+    if central_circuit.layout is None:
 
-    key_arguments['initial_layout'] = full_map[:right_circuit.num_qubits]
+        key_arguments['initial_layout'] = None
+        key_arguments['routing_method'] = 'none'
+
+    else:
+        full_map = get_full_map(central_circuit)
+
+        key_arguments['initial_layout'] = full_map[:right_circuit.num_qubits]
+
+    # Transpile
 
     transpiled_right_circuit = transpile(
         right_circuit,
@@ -213,13 +227,23 @@ def transpile_right(central_circuit, right_circuit,
 
     # Layouts
 
-    final_layout = qiskit.transpiler.Layout.from_intlist(final_routing, *resulting_circuit.qregs)
+    initial_layout = central_circuit.layout.initial_layout
+    input_qubit_mapping = central_circuit.layout.input_qubit_mapping
+
+    final_layout = qiskit.transpiler.Layout.from_intlist(
+        final_routing, *resulting_circuit.qregs)
+
+    input_qubit_count = transpiled_right_circuit.layout._input_qubit_count
+    output_qubit_list = transpiled_right_circuit.layout._output_qubit_list
+
+    # Transpile Layout
 
     transpile_layout = qiskit.transpiler.TranspileLayout(
-        input_qubit_mapping=central_circuit.layout.input_qubit_mapping,
-        initial_layout=central_circuit.layout.initial_layout,
-        final_layout=final_layout
-    )
+        initial_layout=initial_layout,
+        input_qubit_mapping=input_qubit_mapping,
+        final_layout=final_layout,
+        _input_qubit_count=input_qubit_count,
+        _output_qubit_list=output_qubit_list)
 
     resulting_circuit._layout = transpile_layout
 
@@ -246,7 +270,8 @@ def transpile_left(central_circuit, left_circuit,
 
     if central_circuit.layout is None:
 
-        left_initial_layout = list(range(left_circuit.num_qubits))
+        left_initial_layout = None
+        key_arguments['routing_method'] = 'none'
 
     else:
 
@@ -338,29 +363,35 @@ def transpile_left(central_circuit, left_circuit,
 
     final_routing = [central_routing[qubit] for qubit in left_routing]
 
-    # Final Layout
-
-    final_layout = qiskit.transpiler.Layout.from_intlist(final_routing, *resulting_circuit.qregs)
-
-    # Initial Layout
+    # Attributes
 
     input_qubit_mapping = translated_left_circuit.layout.input_qubit_mapping
+
+    input_qubit_count = translated_left_circuit.layout._input_qubit_count
+    output_qubit_list = translated_left_circuit.layout._output_qubit_list
+
+    # Initial Layout
 
     initial_map = get_full_map(translated_left_circuit)
 
     initial_layout = translated_left_circuit.layout.initial_layout.copy()
 
     for virtual, physical in zip(input_qubit_mapping, initial_map):
-
         initial_layout[virtual] = physical
+
+    # Final Layout
+
+    final_layout = qiskit.transpiler.Layout.from_intlist(
+        final_routing, *resulting_circuit.qregs)
 
     # Transpile Layout
 
     transpile_layout = qiskit.transpiler.TranspileLayout(
-        input_qubit_mapping=input_qubit_mapping,
         initial_layout=initial_layout,
-        final_layout=final_layout
-    )
+        input_qubit_mapping=input_qubit_mapping,
+        final_layout=final_layout,
+        _input_qubit_count=input_qubit_count,
+        _output_qubit_list=output_qubit_list)
 
     resulting_circuit._layout = transpile_layout
 
