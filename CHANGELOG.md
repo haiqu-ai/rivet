@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 1.0.14
+
+* Added layout check to avoid unnecessary ancillas.
+* Updated BQSKit transpilation stack.
+
 ## Version 1.0.13
 
 * Updated Rivet to support new Qiskit version.
