@@ -244,8 +244,8 @@ We would like to thank:
 
 * Mykhailo Ohorodnikov
 * Yuriy Pryyma
-* Vlad Bohun
-* Vova Sergeyev
+* Vladyslav Bohun
+* Volodymyr Sergeyev
 * Mariana Krasnytska
 
 
