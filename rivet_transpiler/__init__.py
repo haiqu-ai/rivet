@@ -9,6 +9,7 @@ from .functions import get_cnot_circuit
 from .functions import get_sinusoids
 from .functions import get_ibm_cost
 from .functions import get_circuit_hash
+from .functions import qml_transpile
 
 from .metrics import transpile_and_return_metrics
 

@@ -367,3 +367,40 @@ def get_circuit_hash(circuit, decomposition_level=None):
     hash_value = int.from_bytes(hash_bytes, byteorder='little')
 
     return hash_value
+
+
+def qml_transpile(circuit, parameter_values):
+    """
+    Bind parameters and locally re-optimize a transpiled circuit for QML workflows.
+
+    Args:
+        circuit (QuantumCircuit): A transpiled, parameterized Qiskit circuit.
+        parameter_values (dict): Dictionary mapping Parameter objects or names to values.
+
+    Returns:
+        QuantumCircuit: A fully bound, locally re-optimized circuit.
+    """
+    import qiskit
+    from qiskit.transpiler.passes import Optimize1qGatesDecomposition, CommutativeCancellation
+    from qiskit.transpiler import PassManager
+
+    # 1. Bind parameters (use assign_parameters for compatibility)
+    try:
+        bound_circuit = circuit.bind_parameters(parameter_values)
+    except AttributeError:
+        bound_circuit = circuit.assign_parameters(parameter_values, inplace=False)
+
+    # 2. Local re-optimization (safe for already routed circuits)
+    pm = PassManager([
+        Optimize1qGatesDecomposition(basis=['u3','u2','u1','rz','rx','ry','sx','x','y','z','h']),
+        CommutativeCancellation(),
+    ])
+    optimized_circuit = pm.run(bound_circuit)
+
+    # 3. Preserve layout if present
+    if hasattr(circuit, 'layout') and circuit.layout is not None:
+        optimized_circuit._layout = circuit.layout
+    if hasattr(circuit, 'calibrations') and circuit.calibrations:
+        optimized_circuit.calibrations = circuit.calibrations.copy()
+
+    return optimized_circuit

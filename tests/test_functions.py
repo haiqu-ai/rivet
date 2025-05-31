@@ -176,3 +176,33 @@ def test_get_circuit_hash_ixxi():
     xi_circuit_hash = get_circuit_hash(composite_circuit_xi)
 
     assert ix_circuit_hash == xi_circuit_hash
+
+
+def test_qml_transpile_preserves_layout_and_optimizes():
+    import qiskit
+    from rivet_transpiler import qml_transpile, get_litmus_circuit
+    from qiskit_ibm_runtime.fake_provider import FakeLimaV2
+
+    # Create a parameterized, transpiled circuit
+    circuit = get_litmus_circuit(3, "Litmus")
+    backend = FakeLimaV2()
+    transpiled = qiskit.transpile(circuit, backend, optimization_level=1)
+    layout_before = transpiled.layout
+
+    # Prepare parameter values
+    param_dict = {p: 0.5 for p in transpiled.parameters}
+
+    # Run qml_transpile
+    optimized = qml_transpile(transpiled, param_dict)
+
+    # Check all parameters are bound
+    assert not optimized.parameters
+    # Check layout is preserved
+    assert hasattr(optimized, 'layout') and optimized.layout == layout_before
+    # Check circuit is smaller than naive bind (gate count or depth)
+    try:
+        naive = transpiled.bind_parameters(param_dict)
+    except AttributeError:
+        naive = transpiled.assign_parameters(param_dict, inplace=False)
+    assert optimized.size() <= naive.size()
+    assert optimized.depth() <= naive.depth()
