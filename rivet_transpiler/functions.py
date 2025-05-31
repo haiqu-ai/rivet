@@ -1,6 +1,8 @@
 """ Service Functions used for Rivet Transpiler examples and checks. """
 
 import qiskit
+from qiskit.transpiler.passes import Optimize1qGatesDecomposition, CommutativeCancellation
+from qiskit.transpiler import PassManager
 
 import hashlib
 
@@ -369,7 +371,7 @@ def get_circuit_hash(circuit, decomposition_level=None):
     return hash_value
 
 
-def qml_transpile(circuit, parameter_values):
+def qml_transpile(circuit: qiskit.QuantumCircuit, parameter_values: dict) -> qiskit.QuantumCircuit:
     """
     Bind parameters and locally re-optimize a transpiled circuit for QML workflows.
 
@@ -380,9 +382,6 @@ def qml_transpile(circuit, parameter_values):
     Returns:
         QuantumCircuit: A fully bound, locally re-optimized circuit.
     """
-    import qiskit
-    from qiskit.transpiler.passes import Optimize1qGatesDecomposition, CommutativeCancellation
-    from qiskit.transpiler import PassManager
 
     # 1. Bind parameters (use assign_parameters for compatibility)
     try:
