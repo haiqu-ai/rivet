@@ -1,6 +1,8 @@
 """ Service Functions used for Rivet Transpiler examples and checks. """
 
 import qiskit
+from qiskit.converters import circuit_to_dag, dag_to_circuit
+from qiskit.dagcircuit import DAGCircuit
 from qiskit.transpiler.passes import Optimize1qGatesDecomposition, CommutativeCancellation
 from qiskit.transpiler import PassManager
 
@@ -373,7 +375,7 @@ def get_circuit_hash(circuit, decomposition_level=None):
 
 def qml_transpile(circuit: qiskit.QuantumCircuit, parameter_values: dict) -> qiskit.QuantumCircuit:
     """
-    Bind parameters and locally re-optimize a transpiled circuit for QML workflows.
+    Bind parameters and locally re-optimize only the affected parts of a transpiled circuit for QML workflows.
 
     Args:
         circuit (QuantumCircuit): A transpiled, parameterized Qiskit circuit.
@@ -389,14 +391,61 @@ def qml_transpile(circuit: qiskit.QuantumCircuit, parameter_values: dict) -> qis
     except AttributeError:
         bound_circuit = circuit.assign_parameters(parameter_values, inplace=False)
 
-    # 2. Local re-optimization (safe for already routed circuits)
-    pm = PassManager([
-        Optimize1qGatesDecomposition(basis=['u3','u2','u1','rz','rx','ry','sx','x','y','z','h']),
-        CommutativeCancellation(),
-    ])
-    optimized_circuit = pm.run(bound_circuit)
+    # 2. Convert to DAG for fine-grained optimization
+    dag = circuit_to_dag(bound_circuit)
 
-    # 3. Preserve layout if present
+    # 3. Find nodes affected by parameter binding (i.e., parameterized gates)
+    affected_nodes = []
+    for node in dag.topological_op_nodes():
+        # Check if this node's operation had a parameter that was just bound
+        if hasattr(node.op, "params") and any(
+            hasattr(param, "is_parameter") and param.is_parameter for param in getattr(node.op, "params", [])
+        ):
+            affected_nodes.append(node)
+        # Also, if the op is now numeric but was parameterized, we want to optimize it
+
+    # 4. For each affected node, optimize a small subcircuit around it
+    # We'll take the node and its direct neighbors (predecessors and successors)
+    optimized_subdags = {}
+    for node in affected_nodes:
+        # Get predecessors and successors (1 layer each side)
+        preds = list(dag.predecessors(node))
+        succs = list(dag.successors(node))
+        # Create a subdag with just this node and its immediate context
+        subdag = DAGCircuit()
+        subdag.add_qubits(dag.qubits)
+        subdag.add_clbits(dag.clbits)
+        # Add predecessor nodes (if op nodes)
+        for pred in preds:
+            if pred.type == "op":
+                subdag.apply_operation_back(pred.op, pred.qargs, pred.cargs)
+        # Add the affected node
+        subdag.apply_operation_back(node.op, node.qargs, node.cargs)
+        # Add successor nodes (if op nodes)
+        for succ in succs:
+            if succ.type == "op":
+                subdag.apply_operation_back(succ.op, succ.qargs, succ.cargs)
+        # Optimize this small subdag
+        pm = PassManager([
+            Optimize1qGatesDecomposition(basis=['u3','u2','u1','rz','rx','ry','sx','x','y','z','h']),
+            CommutativeCancellation(),
+        ])
+        optimized_subcircuit = pm.run(dag_to_circuit(subdag))
+        # Store the optimized subcircuit for later replacement
+        optimized_subdags[node._node_id] = optimized_subcircuit
+
+    # 5. Replace affected nodes in the original dag with optimized subcircuits
+    # (This is a simplified approach; for more advanced replacement, use DAG substitution utilities)
+    for node in affected_nodes:
+        if node._node_id in optimized_subdags:
+            # Remove the node and its immediate context, then insert optimized subcircuit
+            # For simplicity, just replace the node itself
+            dag.substitute_node_with_dag(node, circuit_to_dag(optimized_subdags[node._node_id]))
+
+    # 6. Convert back to QuantumCircuit
+    optimized_circuit = dag_to_circuit(dag)
+
+    # 7. Preserve layout and calibrations if present
     if hasattr(circuit, 'layout') and circuit.layout is not None:
         optimized_circuit._layout = circuit.layout
     if hasattr(circuit, 'calibrations') and circuit.calibrations:
