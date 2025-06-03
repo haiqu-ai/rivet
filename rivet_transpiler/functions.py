@@ -435,7 +435,6 @@ def qml_transpile(circuit: qiskit.QuantumCircuit, parameter_values: dict) -> qis
         optimized_subdags[node._node_id] = optimized_subcircuit
 
     # 5. Replace affected nodes in the original dag with optimized subcircuits
-    # (This is a simplified approach; for more advanced replacement, use DAG substitution utilities)
     for node in affected_nodes:
         if node._node_id in optimized_subdags:
             # Remove the node and its immediate context, then insert optimized subcircuit
