@@ -1,6 +1,12 @@
 """ Service Functions used for Rivet Transpiler examples and checks. """
 
 import qiskit
+from qiskit.converters import circuit_to_dag, dag_to_circuit
+from qiskit.dagcircuit import DAGCircuit
+from qiskit.transpiler.passes import Optimize1qGatesDecomposition, CommutativeCancellation
+from qiskit.transpiler import PassManager
+from qiskit.transpiler.preset_passmanagers import level_3_pass_manager
+from qiskit.transpiler.passmanager_config import PassManagerConfig
 
 import hashlib
 
@@ -367,3 +373,91 @@ def get_circuit_hash(circuit, decomposition_level=None):
     hash_value = int.from_bytes(hash_bytes, byteorder='little')
 
     return hash_value
+
+def qml_transpile(
+    circuit: qiskit.QuantumCircuit,
+    parameter_values: dict,
+    target: "qiskit.transpiler.Target" = None,
+) -> qiskit.QuantumCircuit:
+    
+    # 1. Bind parameters
+    try:
+        bound_circuit = circuit.bind_parameters(parameter_values)
+    except AttributeError:
+        bound_circuit = circuit.assign_parameters(parameter_values, inplace=False)
+
+    dag = circuit_to_dag(bound_circuit)
+
+    # 2. Find affected nodes (parameterized gates)
+    affected_nodes = []
+    for node in dag.topological_op_nodes():
+        if hasattr(node.op, "params") and any(
+            hasattr(param, "is_parameter") and param.is_parameter for param in getattr(node.op, "params", [])
+        ):
+            affected_nodes.append(node)
+
+    # 3. Get post-routing passes from Qiskit's level 3 pass manager using PassManagerConfig
+    pm_config = PassManagerConfig(
+        basis_gates=None,
+        coupling_map=None,
+        # backend=None,
+        initial_layout=None,
+        seed_transpiler=None,
+        layout_method=None,
+        routing_method=None,
+        translation_method=None,
+        optimization_method=None,
+        scheduling_method=None,
+        timing_constraints=None,
+        target=target,
+    )
+    dummy_pm = level_3_pass_manager(pm_config)
+
+    # Collect all passes after the "routing" stage
+    post_routing_passes = []
+    for stage_name in ('translation', 'optimization', 'scheduling'):
+        stage_passes = getattr(dummy_pm, stage_name, [])
+        post_routing_passes.extend(stage_passes)
+
+    # If not found, just use Optimize1qGatesDecomposition and CommutativeCancellation as fallback
+    if not post_routing_passes:
+        post_routing_passes = [
+            Optimize1qGatesDecomposition(basis=['u3','u2','u1','rz','rx','ry','sx','x','y','z','h']),
+            CommutativeCancellation(),
+        ]
+
+    # 4. For each affected node, optimize a small subcircuit around it
+    optimized_subdags = {}
+    for node in affected_nodes:
+        preds = list(dag.predecessors(node))
+        succs = list(dag.successors(node))
+        subdag = DAGCircuit()
+        subdag.add_qubits(dag.qubits)
+        subdag.add_clbits(dag.clbits)
+        for pred in preds:
+            if pred.type == "op":
+                subdag.apply_operation_back(pred.op, pred.qargs, pred.cargs)
+        subdag.apply_operation_back(node.op, node.qargs, node.cargs)
+        for succ in succs:
+            if succ.type == "op":
+                subdag.apply_operation_back(succ.op, succ.qargs, succ.cargs)
+        # Use the post-routing passes
+        pm = PassManager(post_routing_passes)
+        optimized_subcircuit = pm.run(dag_to_circuit(subdag))
+        optimized_subdags[node._node_id] = optimized_subcircuit
+
+    # 5. Replace affected nodes in the original dag with optimized subcircuits
+    for node in affected_nodes:
+        if node._node_id in optimized_subdags:
+            dag.substitute_node_with_dag(node, circuit_to_dag(optimized_subdags[node._node_id]))
+
+    # 6. Convert back to QuantumCircuit
+    optimized_circuit = dag_to_circuit(dag)
+
+    # 7. Preserve layout and calibrations if present
+    if hasattr(circuit, 'layout') and circuit.layout is not None:
+        optimized_circuit._layout = circuit.layout
+    if hasattr(circuit, 'calibrations') and circuit.calibrations:
+        optimized_circuit.calibrations = circuit.calibrations.copy()
+
+    return optimized_circuit
