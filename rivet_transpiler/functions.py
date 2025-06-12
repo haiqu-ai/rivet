@@ -5,6 +5,8 @@ from qiskit.converters import circuit_to_dag, dag_to_circuit
 from qiskit.dagcircuit import DAGCircuit
 from qiskit.transpiler.passes import Optimize1qGatesDecomposition, CommutativeCancellation
 from qiskit.transpiler import PassManager
+from qiskit.transpiler.preset_passmanagers import level_3_pass_manager
+from qiskit.transpiler.passmanager_config import PassManagerConfig
 
 import hashlib
 
@@ -372,73 +374,81 @@ def get_circuit_hash(circuit, decomposition_level=None):
 
     return hash_value
 
-
-def qml_transpile(circuit: qiskit.QuantumCircuit, parameter_values: dict) -> qiskit.QuantumCircuit:
-    """
-    Bind parameters and locally re-optimize only the affected parts of a transpiled circuit for QML workflows.
-
-    Args:
-        circuit (QuantumCircuit): A transpiled, parameterized Qiskit circuit.
-        parameter_values (dict): Dictionary mapping Parameter objects or names to values.
-
-    Returns:
-        QuantumCircuit: A fully bound, locally re-optimized circuit.
-    """
-
-    # 1. Bind parameters (use assign_parameters for compatibility)
+def qml_transpile(
+    circuit: qiskit.QuantumCircuit,
+    parameter_values: dict,
+    target: "qiskit.transpiler.Target" = None,
+) -> qiskit.QuantumCircuit:
+    
+    # 1. Bind parameters
     try:
         bound_circuit = circuit.bind_parameters(parameter_values)
     except AttributeError:
         bound_circuit = circuit.assign_parameters(parameter_values, inplace=False)
 
-    # 2. Convert to DAG for fine-grained optimization
     dag = circuit_to_dag(bound_circuit)
 
-    # 3. Find nodes affected by parameter binding (i.e., parameterized gates)
+    # 2. Find affected nodes (parameterized gates)
     affected_nodes = []
     for node in dag.topological_op_nodes():
-        # Check if this node's operation had a parameter that was just bound
         if hasattr(node.op, "params") and any(
             hasattr(param, "is_parameter") and param.is_parameter for param in getattr(node.op, "params", [])
         ):
             affected_nodes.append(node)
-        # Also, if the op is now numeric but was parameterized, we want to optimize it
+
+    # 3. Get post-routing passes from Qiskit's level 3 pass manager using PassManagerConfig
+    pm_config = PassManagerConfig(
+        basis_gates=None,
+        coupling_map=None,
+        # backend=None,
+        initial_layout=None,
+        seed_transpiler=None,
+        layout_method=None,
+        routing_method=None,
+        translation_method=None,
+        optimization_method=None,
+        scheduling_method=None,
+        timing_constraints=None,
+        target=target,
+    )
+    dummy_pm = level_3_pass_manager(pm_config)
+
+    # Collect all passes after the "routing" stage
+    post_routing_passes = []
+    for stage_name in ('translation', 'optimization', 'scheduling'):
+        stage_passes = getattr(dummy_pm, stage_name, [])
+        post_routing_passes.extend(stage_passes)
+
+    # If not found, just use Optimize1qGatesDecomposition and CommutativeCancellation as fallback
+    if not post_routing_passes:
+        post_routing_passes = [
+            Optimize1qGatesDecomposition(basis=['u3','u2','u1','rz','rx','ry','sx','x','y','z','h']),
+            CommutativeCancellation(),
+        ]
 
     # 4. For each affected node, optimize a small subcircuit around it
-    # We'll take the node and its direct neighbors (predecessors and successors)
     optimized_subdags = {}
     for node in affected_nodes:
-        # Get predecessors and successors (1 layer each side)
         preds = list(dag.predecessors(node))
         succs = list(dag.successors(node))
-        # Create a subdag with just this node and its immediate context
         subdag = DAGCircuit()
         subdag.add_qubits(dag.qubits)
         subdag.add_clbits(dag.clbits)
-        # Add predecessor nodes (if op nodes)
         for pred in preds:
             if pred.type == "op":
                 subdag.apply_operation_back(pred.op, pred.qargs, pred.cargs)
-        # Add the affected node
         subdag.apply_operation_back(node.op, node.qargs, node.cargs)
-        # Add successor nodes (if op nodes)
         for succ in succs:
             if succ.type == "op":
                 subdag.apply_operation_back(succ.op, succ.qargs, succ.cargs)
-        # Optimize this small subdag
-        pm = PassManager([
-            Optimize1qGatesDecomposition(basis=['u3','u2','u1','rz','rx','ry','sx','x','y','z','h']),
-            CommutativeCancellation(),
-        ])
+        # Use the post-routing passes
+        pm = PassManager(post_routing_passes)
         optimized_subcircuit = pm.run(dag_to_circuit(subdag))
-        # Store the optimized subcircuit for later replacement
         optimized_subdags[node._node_id] = optimized_subcircuit
 
     # 5. Replace affected nodes in the original dag with optimized subcircuits
     for node in affected_nodes:
         if node._node_id in optimized_subdags:
-            # Remove the node and its immediate context, then insert optimized subcircuit
-            # For simplicity, just replace the node itself
             dag.substitute_node_with_dag(node, circuit_to_dag(optimized_subdags[node._node_id]))
 
     # 6. Convert back to QuantumCircuit
