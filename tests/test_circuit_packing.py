@@ -1,5 +1,3 @@
-# tests/test_circuit_packing.py
-
 import pytest
 import numpy as np
 from collections import defaultdict

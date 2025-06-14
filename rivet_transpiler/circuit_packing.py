@@ -1,5 +1,3 @@
-# rivet_transpiler/circuit_packing.py
-
 """Circuit packing module for Rivet Transpiler."""
 
 import numpy as np
@@ -88,6 +86,37 @@ def pack_circuits(circuit: qiskit.QuantumCircuit,
         for logical_qubit, physical_qubit in logical_to_physical.items():
             packed_circuit.measure(physical_qubit, clbit_offset + logical_qubit)
     
+    # Add Layout2qDistance analysis if target is provided
+    if target:
+        from qiskit.transpiler.passes import Layout2qDistance
+        layout_analyzer = Layout2qDistance(target)
+        
+        for copy_idx, subgraph_qubits in enumerate(subgraphs):
+            logical_to_physical = {i: q for i, q in enumerate(subgraph_qubits)}
+            layout_score = layout_analyzer.run(logical_to_physical)
+            
+            # Warn if layout score is too high (indicating poor mapping)
+            if layout_score > 2.0:  
+                warnings.warn(
+                    f"High layout distance ({layout_score:.2f}) for copy {copy_idx}. "
+                    "This may indicate suboptimal qubit placement."
+                )
+    
+    # Transpile to native gates if target is provided
+    if target:
+        from qiskit.transpiler.passes import BasisTranslator
+        from qiskit.transpiler.passes import Unroller
+        from qiskit.transpiler import PassManager
+        
+        basis_gates = target.operation_names
+        
+        pm = PassManager([
+            Unroller(basis_gates),
+            BasisTranslator(target)
+        ])
+        
+        packed_circuit = pm.run(packed_circuit)
+    
     return packed_circuit, qubits_map
 
 
@@ -110,10 +139,24 @@ def _find_optimal_subgraphs(G: nx.Graph,
     if G.number_of_nodes() < subgraph_size * num_subgraphs:
         raise ValueError(f"Device has {G.number_of_nodes()} qubits, but {subgraph_size * num_subgraphs} are needed")
     
-    node_scores = {}
-    for node in G.nodes():
+    def calculate_crosstalk_score(node, used_nodes):
+        """Calculate crosstalk score for a node based on its proximity to used nodes."""
+        score = 0
+        for used_node in used_nodes:
+            # Direct connections (1-hop) have highest crosstalk
+            if G.has_edge(node, used_node):
+                score -= 10
+            # 2-hop connections have moderate crosstalk
+            for neighbor in G.neighbors(used_node):
+                if G.has_edge(node, neighbor):
+                    score -= 5
+        return score
+    
+    def calculate_node_score(node, used_nodes, error_rates):
+        """Calculate overall score for a node considering connectivity, errors, and crosstalk."""
         connectivity_score = len(list(G.neighbors(node)))
         
+        # Error score from error rates
         error_score = 0
         if error_rates:
             for neighbor in G.neighbors(node):
@@ -122,56 +165,72 @@ def _find_optimal_subgraphs(G: nx.Graph,
                 edge_key = edge_key1 if edge_key1 in error_rates else edge_key2
                 if edge_key in error_rates:
                     error_score += error_rates[edge_key]
-                    
-        node_scores[node] = connectivity_score - (error_score * 10 if error_rates else 0)
+        
+        # Crosstalk score
+        crosstalk_score = calculate_crosstalk_score(node, used_nodes)
+        
+        # Combine scores with weights
+        return (connectivity_score * 2 -  # Weight connectivity more heavily
+                (error_score * 10 if error_rates else 0) +  # Error rates are critical
+                crosstalk_score)  # Crosstalk penalty
     
-    sorted_nodes = sorted(node_scores.keys(), key=lambda n: node_scores[n], reverse=True)
-    
-    subgraphs = []
+    node_scores = {}
     used_nodes = set()
     
+    # Calculate initial scores for all nodes
+    for node in G.nodes():
+        node_scores[node] = calculate_node_score(node, used_nodes, error_rates)
+    
+    subgraphs = []
+    
     for _ in range(num_subgraphs):
-        start_node = None
-        for node in sorted_nodes:
-            if node not in used_nodes:
-                start_node = node
-                break
-                
-        if start_node is None:
+        # Find best starting node
+        start_node = max(node_scores.keys(), key=lambda n: node_scores[n])
+        if start_node in used_nodes:
             raise ValueError("Not enough nodes available for all subgraphs")
             
         subgraph = [start_node]
         used_nodes.add(start_node)
         
+        # Update scores for remaining nodes
+        for node in G.nodes():
+            if node not in used_nodes:
+                node_scores[node] = calculate_node_score(node, used_nodes, error_rates)
+        
+        # Grow subgraph
         while len(subgraph) < subgraph_size:
             best_node = None
             best_score = float('-inf')
             
+            # First try to find connected nodes
             for node in subgraph:
                 for neighbor in G.neighbors(node):
                     if neighbor not in used_nodes and neighbor not in subgraph:
-                        neighbor_score = node_scores[neighbor]
-                        
-                        for sg_node in subgraph:
-                            if G.has_edge(neighbor, sg_node):
-                                neighbor_score += 5
-                                
-                        if neighbor_score > best_score:
-                            best_score = neighbor_score
+                        score = node_scores[neighbor]
+                        if score > best_score:
+                            best_score = score
                             best_node = neighbor
             
+            # If no connected nodes found, take best available node
             if best_node is None:
-                for node in sorted_nodes:
+                for node in G.nodes():
                     if node not in used_nodes and node not in subgraph:
-                        best_node = node
-                        break
-                        
+                        score = node_scores[node]
+                        if score > best_score:
+                            best_score = score
+                            best_node = node
+            
             if best_node is None:
                 raise ValueError(f"Could not find enough qubits for subgraph {len(subgraphs)+1}")
-                
+            
             subgraph.append(best_node)
             used_nodes.add(best_node)
             
+            # Update scores for remaining nodes
+            for node in G.nodes():
+                if node not in used_nodes:
+                    node_scores[node] = calculate_node_score(node, used_nodes, error_rates)
+        
         subgraphs.append(subgraph)
     
     return subgraphs
