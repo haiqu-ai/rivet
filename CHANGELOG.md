@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 1.0.15
+
+* Updated Qiskit dependencies.
+* Updated CI pipeline.
+
 ## Version 1.0.14
 
 * Added layout check to avoid unnecessary ancillas.
