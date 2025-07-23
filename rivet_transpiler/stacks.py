@@ -412,7 +412,7 @@ class PytketPass(qiskit.transpiler.basepasses.TransformationPass):
 
         rebase_pass = pytket.passes.SequencePass([
             pytket.passes.FullPeepholeOptimise(),
-            pytket.passes.auto_rebase_pass(gateset=IBMQ_GATES)
+            pytket.passes.AutoRebase(IBMQ_GATES)
         ])
 
         rebase_pass.apply(pytket_circuit)
