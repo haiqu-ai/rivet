@@ -124,14 +124,14 @@ def test_transpile_and_compress_coupling_map(litmus_circuit, backend):
 
     # Coupling Map
 
-    if (backend is None or
-       backend.configuration().coupling_map is None):
+    if backend is None:
         coupling_map = None
 
+    elif hasattr(backend, 'target'):
+        coupling_map = backend.target.build_coupling_map()
+
     else:
-        coupling_list = backend.configuration().coupling_map
-        coupling_map = qiskit.transpiler.CouplingMap(
-            couplinglist=coupling_list)
+        coupling_map = None
 
     # Transpile and Compress
 
@@ -171,4 +171,4 @@ def test_full_map_value():
 
     full_map = get_full_map(transpiled_litmus_circuit)
 
-    assert full_map == [0, 2, 1, 3, 4]
+    assert full_map == [2, 0, 1, 3, 4]

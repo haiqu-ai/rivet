@@ -336,7 +336,7 @@ def get_circuit_hash(circuit, decomposition_level=None):
 
                 for parameter in operation.params:
 
-                    if isinstance(parameter, qiskit.circuit.parameter.ParameterExpression):
+                    if isinstance(parameter, qiskit.circuit.ParameterExpression):
 
                         parameter = None
 

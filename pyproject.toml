@@ -10,12 +10,12 @@
     readme = "README.md"
     authors = [{ name = "Haiqu Inc.", email = "info@haiqu.ai" }]
     license = { file = "LICENSE" }
-    version = "1.0.15"
+    version = "1.0.16"
     requires-python = ">= 3.10"
     dependencies = [
-        "qiskit <= 1.4.3",
-        "qiskit_ibm_runtime <= 0.40.1",
-        "rustworkx >= 0.14.2"
+        "qiskit >= 2.0, < 3.0",
+        "qiskit-ibm-runtime >= 0.45.0",
+        "rustworkx >= 0.15.0"
     ]
     keywords = [
         "rivet",
@@ -38,6 +38,7 @@
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Topic :: Scientific/Engineering",
     ]
 
@@ -48,18 +49,18 @@
 
     bqskit = ["bqskit <= 1.1.2"]
 
-    pytket = ["pytket-qiskit == 0.65.0",
-              "qiskit-aer <= 0.17.1"]
+    pytket = ["pytket-qiskit >= 0.77.0",
+              "qiskit-aer >= 0.17.2"]
 
     testing = ["pytest >= 7.4.3",
                "coverage >= 7.3.2",
-               "qiskit-aer <= 0.17.1"]
+               "qiskit-aer >= 0.17.2"]
 
     examples = ["jupyterlab",
                 "matplotlib",
                 "pickleshare",
                 "tqdm",
-                "qiskit-aer <= 0.17.1"]
+                "qiskit-aer >= 0.17.2"]
 
     stacks = ["rivet-transpiler[bqskit]",
               "rivet-transpiler[pytket]"]
