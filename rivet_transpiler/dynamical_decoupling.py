@@ -52,17 +52,19 @@ def add_dynamical_decoupling(circuit, backend,
 
     backend_pulse_alignment = None
 
-    if (hasattr(backend, 'configuration')
-            and hasattr(backend.configuration(), 'timing_constraints')
-            and hasattr(backend.configuration().timing_constraints, 'pulse_alignment')):
-
-        backend_pulse_alignment = backend.configuration().timing_constraints.get('pulse_alignment')
+    if hasattr(backend, 'target'):
+        timing_constraints = getattr(backend.target, 'timing_constraints', None)
+        if timing_constraints is not None:
+            backend_pulse_alignment = getattr(timing_constraints, 'pulse_alignment', None)
 
     run_pulse_alignment = dd_pulse_alignment or backend_pulse_alignment
 
     # Instruction Durations
 
-    instruction_durations = qiskit.transpiler.InstructionDurations.from_backend(backend)
+    if hasattr(backend, 'target'):
+        instruction_durations = backend.target.durations()
+    else:
+        instruction_durations = qiskit.transpiler.InstructionDurations.from_backend(backend)
 
     # DD Pass Manager
 

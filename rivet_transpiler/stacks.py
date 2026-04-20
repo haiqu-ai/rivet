@@ -140,17 +140,14 @@ def model_from_ibmq_backend(backend):
         basis_gates = IBMQ_TO_BQSKIT_GATES.keys()
         coupling_map = AER_SIMULATOR_COUPLING_MAP
 
-    elif isinstance(backend, qiskit.providers.BackendV1):
-
-        qubits_count = backend.configuration().n_qubits
-        basis_gates = backend.configuration().basis_gates
-        coupling_map = backend.configuration().coupling_map
-
     elif isinstance(backend, qiskit.providers.BackendV2):
 
         qubits_count = backend.target.num_qubits
         basis_gates = backend.target.operation_names
         coupling_map = backend.target.build_coupling_map()
+
+    else:
+        raise TypeError(f"Unsupported backend type: {type(backend)}")
 
     # Gate Set
 
@@ -391,9 +388,16 @@ class PytketPass(qiskit.transpiler.basepasses.TransformationPass):
 
     def run(self, dag):
 
-        # print("Running PytketPass")
-
         qiskit_circuit = qiskit.converters.dag_to_circuit(dag)
+
+        # pytket-qiskit >= 0.73 removed support for symbolic parameter conversion
+        if qiskit_circuit.parameters:
+            warnings.warn(
+                "PytketPass: skipping pytket optimization for parameterized circuit. "
+                "Bind parameters before transpilation to enable pytket optimization.",
+                UserWarning,
+            )
+            return dag
 
         pytket_circuit = pytket.extensions.qiskit.qiskit_to_tk(qiskit_circuit)
 

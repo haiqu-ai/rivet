@@ -18,23 +18,6 @@ tests:
     - pip list
     - python tests/run_tests.py
 
-test_old_qiskit_version:
-  stage: test
-  script:
-    - cd ./$TRANSPILER_PATH
-    - pip install --upgrade pip
-    - pip install .[all]
-
-    - pip install qiskit==1.0.2
-    - pip install qiskit-aer==0.13.3
-    - pip install qiskit-ibm-runtime==0.22.0
-
-    - pip install pytket==1.31.0
-    - pip install pytket-qiskit==0.51.0
-
-    - pip list
-    - python tests/run_tests.py
-
 linting:
   stage: test
   script:
