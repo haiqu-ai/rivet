@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 1.0.17
+
+* Add Hash Sub Circuit Measurements.
+
+## Version 1.0.16
+
+* Upgrade to Qiskit 2.
+
 ## Version 1.0.15
 
 * Updated Qiskit dependencies.
