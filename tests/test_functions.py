@@ -176,3 +176,64 @@ def test_get_circuit_hash_ixxi():
     xi_circuit_hash = get_circuit_hash(composite_circuit_xi)
 
     assert ix_circuit_hash == xi_circuit_hash
+
+
+# Test Get Circuit Hash - Sub-Circuit With Measurements
+
+
+def build_circuit_with_sub_measurements(gate_name="sub_with_measurements", x_qubit=None):
+
+    """Build a parent circuit containing an Instruction with num_clbits=0 whose
+    definition is a sub-circuit with classical bits and measurements.
+
+    Mirrors the shape produced by Haiqu SDK's HaiquCircuitGate after server-side
+    replace_gates expansion (PRO-1219).
+    """
+
+    sub_circuit = qiskit.QuantumCircuit(2, 2, name=gate_name)
+
+    sub_circuit.h(0)
+
+    if x_qubit is not None:
+        sub_circuit.x(x_qubit)
+
+    sub_circuit.cx(0, 1)
+    sub_circuit.measure(0, 0)
+    sub_circuit.measure(1, 1)
+
+    instruction = qiskit.circuit.Instruction(
+        name=gate_name,
+        num_qubits=2,
+        num_clbits=0,
+        params=[])
+
+    instruction.definition = sub_circuit
+
+    parent_circuit = qiskit.QuantumCircuit(2)
+
+    parent_circuit.append(instruction, [0, 1])
+
+    return parent_circuit
+
+
+def test_get_circuit_hash_sub_measurements():
+
+    circuit = build_circuit_with_sub_measurements()
+
+    get_circuit_hash(circuit)
+
+
+def test_get_circuit_hash_sub_measurements_equal():
+
+    circuit_a = build_circuit_with_sub_measurements()
+    circuit_b = build_circuit_with_sub_measurements()
+
+    assert get_circuit_hash(circuit_a) == get_circuit_hash(circuit_b)
+
+
+def test_get_circuit_hash_sub_measurements_not_equal():
+
+    circuit_a = build_circuit_with_sub_measurements(x_qubit=None)
+    circuit_b = build_circuit_with_sub_measurements(x_qubit=0)
+
+    assert get_circuit_hash(circuit_a) != get_circuit_hash(circuit_b)
