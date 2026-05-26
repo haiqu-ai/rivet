@@ -256,6 +256,9 @@ def get_circuit_hash(circuit, decomposition_level=None):
     - operation name,
     - operation parameters.
 
+    Sub-circuit qubits or bits not exposed by the parent gate (e.g. measurements
+    inside a gate with num_clbits=0) are hashed via an ("internal", index) sentinel.
+
     Qiskit ParameterExpression values are skipped - circuits with different Parameters will have identical hash.
 
     Inspired by Qiskit "soft_compare" gate function:
@@ -313,8 +316,15 @@ def get_circuit_hash(circuit, decomposition_level=None):
 
             # Absolute Indices
 
-            absolute_qubits = [qubit_base[qubit] for qubit in relative_qubits]
-            absolute_bits = [bit_base[bit] for bit in relative_bits]
+            absolute_qubits = [
+                qubit_base[qubit] if qubit < len(qubit_base) else ("internal", qubit)
+                for qubit in relative_qubits
+            ]
+
+            absolute_bits = [
+                bit_base[bit] if bit < len(bit_base) else ("internal", bit)
+                for bit in relative_bits
+            ]
 
             # Sub Circuit
 
