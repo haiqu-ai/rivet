@@ -15,3 +15,8 @@ from .metrics import transpile_and_return_metrics
 from .topological_compression import get_used_qubit_indices
 from .topological_compression import get_limited_coupling_list
 from .topological_compression import transpile_and_compress
+
+from .circuit_packing import pack_circuits
+from .circuit_packing import unpack_results
+from .circuit_packing import analyze_packing_efficiency
+from .circuit_packing import pack_and_transpile_chain
